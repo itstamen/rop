@@ -28,10 +28,10 @@ public class SampleRestServiceTest {
         form.add("appKey", "00001");
         form.add("v", "1.0");
 
-
         form.add("sessionId", "test");
         form.add("format", "xml");
         form.add("locale", "en");
+
 
         form.add("userName", "wwww");
 //        form.add("birthday", "1999-07-12");
