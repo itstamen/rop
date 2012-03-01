@@ -32,6 +32,7 @@ public class SampleRestServiceTest {
         form.add("format", "xml");
         form.add("locale", "en");
 
+
         form.add("userName", "wwww");
 //        form.add("birthday", "1999-07-12");
         form.add("salary", "2,500.00");
