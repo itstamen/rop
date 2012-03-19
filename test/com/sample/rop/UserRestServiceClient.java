@@ -24,13 +24,13 @@ public class UserRestServiceClient {
     public static void main(String[] args) {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
-        form.add("method", "sample.user.add");//<--指定方法名称
+        form.add("method", "sample.user.add1");//<--指定方法名称
         form.add("appKey", "00001");
         form.add("v", "1.0");
 
         form.add("sessionId", "test");
-        form.add("format", "xml");
-        form.add("locale", "en");
+        form.add("format", "json");
+        form.add("locale", "zh_CN");
 
 
 

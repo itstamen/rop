@@ -9,11 +9,9 @@
     http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd">
 
     <!--① 扫描Web类包-->
-    <context:component-scan base-package="com.stamen">
+    <context:component-scan base-package="com.rop">
         <!-- 启用AnnotationRopServiceRouter-->
-        <context:include-filter type="aspectj" expression="com.stamen.rop.impl.AnnotationRopServiceRouter"/>
-        <!-- 假设所有的服务方法都放在rop包下-->
-        <context:include-filter type="aspectj" expression="within(com.stamen.rop.xxx.rop..*)"/>
+        <context:include-filter type="aspectj" expression="com.rop.impl.AnnotationRopServiceRouter"/>
     </context:component-scan>
 
     <!--② 扫描Web类包-->
