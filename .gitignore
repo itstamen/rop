@@ -1,6 +1,4 @@
 **/*.iml
-*.ipr
-*.iws
 .idea/
 rop/target/**/*
 rop-sample/target/**/*
