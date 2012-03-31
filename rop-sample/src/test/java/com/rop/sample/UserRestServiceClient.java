@@ -34,7 +34,7 @@ public class UserRestServiceClient {
 
 
 
-        form.add("userName", "tomson");
+        form.add("userName", "jhon");
         form.add("password", "123456");
         form.add("salary", "2,500.00");
 //        form.add("salary", "aaa0");

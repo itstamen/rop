@@ -30,6 +30,10 @@ public class ServiceErrorResponse extends ErrorResponse {
 
     private static final String SERVICE_ERROR = "-service-error:";
 
+    //注意，这个不能删除，否则无法进行流化
+    public ServiceErrorResponse() {
+    }
+
     /**
      * 服务发生错误的错误响应，错误码的格式为：isv.***-service-error:###,假设
      * serviceName为bop.book.upload，error_code为INVLIAD_USERNAME_OR_PASSWORD，则错误码会被格式化为：

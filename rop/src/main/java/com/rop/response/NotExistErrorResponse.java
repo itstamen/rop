@@ -30,6 +30,10 @@ public class NotExistErrorResponse extends ErrorResponse {
     public static final String ISV = "isv.";
     public static final String NOT_EXIST_INVALID = "-not-exist:invalid-";
 
+    //注意，这个不能删除，否则无法进行流化
+    public NotExistErrorResponse() {
+    }
+
     /**
      * 对象不存在的错误对象。当根据<code>queryFieldName</code>查询<code>objectName</code>时，查不到记录，则返回该错误对象。
      *

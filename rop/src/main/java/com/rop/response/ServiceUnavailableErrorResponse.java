@@ -31,6 +31,7 @@ public class ServiceUnavailableErrorResponse extends ErrorResponse {
 
     private static final String SERVICE_UNAVAILABLE = "-service-unavailable";
 
+    //注意，这个不能删除，否则无法进行流化
     public ServiceUnavailableErrorResponse() {
     }
 

@@ -54,7 +54,7 @@
         </init-param>-->
         <init-param>
             <param-name>ropErrorBaseName</param-name>
-            <param-value>i18n/rop/serviceError</param-value>
+            <param-value>i18n/rop/ropError</param-value>
         </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>
