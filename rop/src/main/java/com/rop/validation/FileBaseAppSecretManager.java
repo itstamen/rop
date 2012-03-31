@@ -23,14 +23,19 @@ import java.util.Properties;
  */
 public class FileBaseAppSecretManager implements  AppSecretManager{
 
-    public static final String ROP_APP_SECRET_PROPERTIES = "rop.appSecret.properties";
+
+    private static final String ROP_APP_SECRET_PROPERTIES = "rop.appSecret.properties";
+
+    private String appSecretFile = ROP_APP_SECRET_PROPERTIES;
+
     protected final Logger logger = LoggerFactory.getLogger(getClass());
+
     private Properties properties;
 
     public String getSecret(String appKey) {
         if(properties == null){
             try {
-                properties = PropertiesLoaderUtils.loadAllProperties(ROP_APP_SECRET_PROPERTIES);
+                properties = PropertiesLoaderUtils.loadAllProperties(appSecretFile);
             } catch (IOException e) {
                 throw new RopException("在类路径下找不到rop.appSecret.properties的应用密钥的属性文件",e);
             }

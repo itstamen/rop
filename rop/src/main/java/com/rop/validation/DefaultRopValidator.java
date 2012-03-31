@@ -7,16 +7,17 @@ package com.rop.validation;
 import com.rop.RopException;
 import com.rop.RopRequest;
 import com.rop.RopServiceContext;
-import com.rop.utils.CodeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.*;
 
 /**
@@ -171,7 +172,38 @@ public class DefaultRopValidator implements RopValidator {
             sb.append(paramName).append(paramValues.get(paramName));
         }
         sb.append(secret);
-        return CodeGenerator.getSHADigest(sb.toString()).toUpperCase();
+        return getSHA1Digest(sb.toString()).toUpperCase();
+    }
+
+    private static String getSHA1Digest(String srcStr) {
+        Assert.notNull(srcStr);
+        try {
+            MessageDigest alga = MessageDigest.getInstance("SHA-1");
+            alga.update(srcStr.getBytes());
+            byte[] digesta = alga.digest();
+            return byte2hex(digesta);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 二进制转十六进制字符串
+     *
+     * @param b
+     * @return
+     */
+    private static String byte2hex(byte[] b) {
+        StringBuilder hs = new StringBuilder();
+        String stmp = "";
+        for (int n = 0; n < b.length; n++) {
+            stmp = (Integer.toHexString(b[n] & 0XFF));
+            if (stmp.length() == 1) {
+                hs.append("0");
+            }
+            hs.append(stmp);
+        }
+        return hs.toString().toUpperCase();
     }
 
     protected String getSignSecret(String appKey) {

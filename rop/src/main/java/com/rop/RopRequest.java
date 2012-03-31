@@ -34,10 +34,13 @@ public class RopRequest {
 
     //格式
     private String format = "xml";
-
+    
     //本地化
     private Locale locale = Locale.CHINESE;
 
+    //客户端IP
+    private String ip;
+    
     public String getMethod() {
         return method;
     }
@@ -95,5 +98,12 @@ public class RopRequest {
         this.appKey = appKey;
     }
 
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 }
 

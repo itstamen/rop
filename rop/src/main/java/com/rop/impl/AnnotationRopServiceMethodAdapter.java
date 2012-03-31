@@ -58,8 +58,8 @@ public class AnnotationRopServiceMethodAdapter implements RopServiceMethodAdapte
             if (mainError != null) {
                 return new ErrorResponse(mainError);
             } else {
-                if(logger.isDebugEnabled()){
-                    logger.debug("执行"+ropServiceHandler.getHandler().getClass()+"."+ropServiceHandler.getHandlerMethod().getName());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("执行" + ropServiceHandler.getHandler().getClass() + "." + ropServiceHandler.getHandlerMethod().getName());
                 }
                 if (ropServiceHandler.isHandlerMethodWithParameter()) {
                     return (RopResponse) ropServiceHandler.getHandlerMethod().invoke(
@@ -111,7 +111,8 @@ public class AnnotationRopServiceMethodAdapter implements RopServiceMethodAdapte
     }
 
     private BindingResult doBind(HttpServletRequest webRequest, Class<? extends RopRequest> requestType) {
-        Object bindObject = BeanUtils.instantiateClass(requestType);
+        RopRequest bindObject = BeanUtils.instantiateClass(requestType);
+        bindObject.setIp(webRequest.getRemoteAddr());
 
         ServletRequestDataBinder dataBinder = new ServletRequestDataBinder(bindObject, "bindObject");
         dataBinder.setConversionService(getConversionService());
