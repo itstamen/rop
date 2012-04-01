@@ -5,6 +5,8 @@
 package com.rop.validation;
 
 
+import javax.xml.bind.annotation.XmlAttribute;
+
 /**
  * <pre>
  * 功能说明：
@@ -15,8 +17,10 @@ package com.rop.validation;
  */
 public class SubError {
 
+    @XmlAttribute
     private String code;
 
+    @XmlAttribute
     private String message;
 
     public SubError() {
