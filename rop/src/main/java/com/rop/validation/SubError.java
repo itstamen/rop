@@ -5,7 +5,10 @@
 package com.rop.validation;
 
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * <pre>
@@ -15,6 +18,8 @@ import javax.xml.bind.annotation.XmlAttribute;
  * @author 陈雄华
  * @version 1.0
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "subError")
 public class SubError {
 
     @XmlAttribute
