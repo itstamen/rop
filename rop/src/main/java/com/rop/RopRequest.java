@@ -36,7 +36,7 @@ public class RopRequest {
     private String format = "xml";
     
     //本地化
-    private Locale locale = Locale.CHINESE;
+    private Locale locale = Locale.SIMPLIFIED_CHINESE;
 
     //客户端IP
     private String ip;
