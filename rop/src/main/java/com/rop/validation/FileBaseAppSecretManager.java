@@ -47,5 +47,9 @@ public class FileBaseAppSecretManager implements  AppSecretManager{
         }
         return secret;
     }
+
+    public void setAppSecretFile(String appSecretFile) {
+        this.appSecretFile = appSecretFile;
+    }
 }
 

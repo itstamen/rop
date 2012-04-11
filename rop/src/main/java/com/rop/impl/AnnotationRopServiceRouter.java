@@ -31,6 +31,8 @@ public class AnnotationRopServiceRouter implements RopServiceRouter {
 
     //格式化参数名
     public static final String FORMAT = "format";
+    
+    public static final String MSG_FORMAT ="msgFormat";
 
     //本地化参数名
     private static final String LOCALE = "locale";
@@ -94,7 +96,10 @@ public class AnnotationRopServiceRouter implements RopServiceRouter {
     }
 
     private ResponseFormat getResponseFormat(HttpServletRequest webRequest) {
-        String formatValue = webRequest.getParameter(FORMAT);
+        String formatValue = webRequest.getParameter(MSG_FORMAT);
+        if(formatValue == null){
+             formatValue = webRequest.getParameter(FORMAT);
+        }
         return ResponseFormat.getFormat(formatValue);
     }
 
