@@ -7,6 +7,7 @@ package com.rop.sample.request;
 import com.rop.RopRequest;
 import org.springframework.format.annotation.NumberFormat;
 
+import javax.validation.Valid;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Pattern;
@@ -32,6 +33,10 @@ public class CreateUserRequest extends RopRequest {
     @NumberFormat(pattern = "#,###.##")
     private long salary;
 
+    @Valid
+    private Address address;
+
+
     public String getUserName() {
         return userName;
     }
@@ -54,6 +59,14 @@ public class CreateUserRequest extends RopRequest {
 
     public void setSalary(long salary) {
         this.salary = salary;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 }
 
