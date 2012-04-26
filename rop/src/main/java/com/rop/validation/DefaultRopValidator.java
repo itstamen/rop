@@ -7,6 +7,7 @@ package com.rop.validation;
 import com.rop.RopException;
 import com.rop.RopRequest;
 import com.rop.RopServiceContext;
+import com.rop.impl.SimpleRopServiceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -22,7 +23,7 @@ import java.util.*;
 
 /**
  * <pre>
- * 功能说明：
+ *    对请求数据、会话合法性进行校验，产生相应的错误信息。
  * </pre>
  *
  * @author 陈雄华
@@ -35,6 +36,7 @@ public class DefaultRopValidator implements RopValidator {
     private static final Set SUPPORT_VERSIONS = new HashSet<String>();
 
     private static final Set SUPPORT_FORMATS = new HashSet<String>();
+    private static final String SIGN = "sign";
 
     private SessionChecker sessionChecker;
 
@@ -48,7 +50,6 @@ public class DefaultRopValidator implements RopValidator {
     }
 
     private static final Map<String, SubErrorType> INVALIDE_CONSTRAINT_SUBERROR_MAPPINGS = new LinkedHashMap<String, SubErrorType>();
-    public static final String SIGN_SECRET_OF_ZTT = "SEPU!PWO@LVE&045#67$";
 
     static {
         INVALIDE_CONSTRAINT_SUBERROR_MAPPINGS.put("typeMismatch", SubErrorType.ISV_PARAMETERS_MISMATCH);
@@ -67,47 +68,20 @@ public class DefaultRopValidator implements RopValidator {
         INVALIDE_CONSTRAINT_SUBERROR_MAPPINGS.put("AssertFalse", SubErrorType.ISV_INVALID_PARAMETE);
     }
 
-    public DefaultRopValidator() {
-        init();
-    }
-
-    private void init() {
-        Properties properties = null;
-
-        try {
-            properties = PropertiesLoaderUtils.loadAllProperties("rop.conf.properties");
-        } catch (IOException e) {
-            throw new RopException("在类路径下找不到rop.properties的配置文件", e);
-        }
-        String sessionCheckerImplClassName = properties.getProperty(
-                "SessionChecker.implClass", "com.rop.validation.DefaultSessionChecker");
-        String appSecretManagerImplClassName = properties.getProperty(
-                "AppSecretManager.implClass", "com.rop.validation.FileBaseAppSecretManager");
-        try {
-            Class<?> sessionCheckerClass = ClassUtils.forName(sessionCheckerImplClassName, this.getClass().getClassLoader());
-            this.sessionChecker = (SessionChecker) BeanUtils.instantiateClass(sessionCheckerClass);
-            Class<?> appSecretManagerImplClass = ClassUtils.forName(appSecretManagerImplClassName, this.getClass().getClassLoader());
-            this.appSecretManager = (AppSecretManager) BeanUtils.instantiateClass(appSecretManagerImplClass);
-        } catch (ClassNotFoundException e) {
-            throw new RopException("请检查根类路径或com/stamen/rop的类路径的rop.properties中的配置", e);
-        }
-    }
-
     public MainError validate(RopServiceContext context) {
 
-        MainError mainError = null;
-
         //1.格式格式
-        if (mainError == null) {
-            RopRequest ropRequest = context.getRopRequest();
-            mainError = validateRopRequest(ropRequest);
-            if (mainError == null && (context.getAllErrors() != null && context.getAllErrors().size() > 0)) {
-                mainError = parseBeanConstraintError(context.getAllErrors(), ropRequest.getLocale());
-            }
+        RopRequest ropRequest = context.getRopRequest();
+        MainError mainError = validateRopRequest(ropRequest);
+        List<ObjectError> errorList =
+                (List<ObjectError>) context.getAttribute(SimpleRopServiceContext.SPRING_VALIDATE_ERROR_ATTRNAME);
+        if (mainError == null && (errorList != null && errorList.size() > 0)) {
+            mainError = parseBeanConstraintError(errorList, ropRequest.getLocale());
         }
 
+
         //2.签名检查
-        if(mainError == null){
+        if (mainError == null) {
             checkSign(context);
         }
 
@@ -115,7 +89,6 @@ public class DefaultRopValidator implements RopValidator {
         if (mainError == null) {
             mainError = checkSession(context);
         }
-
 
         return mainError;
     }
@@ -128,6 +101,14 @@ public class DefaultRopValidator implements RopValidator {
         return this.appSecretManager;
     }
 
+    public void setSessionChecker(SessionChecker sessionChecker) {
+        this.sessionChecker = sessionChecker;
+    }
+
+    public void setAppSecretManager(AppSecretManager appSecretManager) {
+        this.appSecretManager = appSecretManager;
+    }
+
     /**
      * 检查签名的有效性
      *
@@ -135,20 +116,21 @@ public class DefaultRopValidator implements RopValidator {
      * @return
      */
     private MainError checkSign(RopServiceContext context) {
-        ArrayList<String> paramNames = new ArrayList<String>(context.getWebRequest().getParameterMap().keySet());
+        RopRequest ropRequest = context.getRopRequest();
+        ArrayList<String> paramNames = new ArrayList<String>(ropRequest.getParamValues().keySet());
         paramNames.removeAll(context.getRopServiceHandler().getIgnoreSignFieldNames());
 
         HashMap<String, String> paramSingleValueMap = new HashMap<String, String>();
         for (String paramName : paramNames) {
-            paramSingleValueMap.put(paramName, context.getWebRequest().getParameter(paramName));
+            paramSingleValueMap.put(paramName, ropRequest.getParamValue(paramName));
         }
         String signSecret = getSignSecret(context.getAppKey());
 
-        if(signSecret == null){
-            throw new RopException("无法获取"+context.getAppKey()+"对应的密钥");
+        if (signSecret == null) {
+            throw new RopException("无法获取" + context.getAppKey() + "对应的密钥");
         }
-        String signValue = sign(paramNames, paramSingleValueMap,signSecret);
-        if (!signValue.equals(context.getWebRequest().getParameter("sign"))) {
+        String signValue = sign(paramNames, paramSingleValueMap, signSecret);
+        if (!signValue.equals(ropRequest.getParamValue(SIGN))) {
             return MainErrors.getError(MainErrorType.INVALID_SIGNATURE, context.getLocale());
         } else {
             return null;
@@ -183,6 +165,7 @@ public class DefaultRopValidator implements RopValidator {
             byte[] digesta = alga.digest();
             return byte2hex(digesta);
         } catch (Exception e) {
+            logger.error("签名操作发生错误", e);
             throw new RuntimeException(e);
         }
     }

@@ -16,6 +16,7 @@ public class DefaultSessionChecker implements SessionChecker {
 
     /**
      * 假设都是合法的会话，开发者可以根据应用实际情况进行会话的合法性判断
+     *
      * @param sessionId
      * @return
      */

@@ -5,11 +5,11 @@
 package com.rop.impl;
 
 import com.rop.*;
-import org.springframework.validation.ObjectError;
+import com.rop.validation.MainError;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * <pre>
@@ -20,15 +20,29 @@ import java.util.Locale;
  * @version 1.0
  */
 public class SimpleRopServiceContext implements RopServiceContext {
+
+    public static final String HTTP_SERVLET_REQUEST_ATTRNAME = "$HTTP_SERVLET_REQUEST_ATTRNAME";
+
+    public static final String SPRING_VALIDATE_ERROR_ATTRNAME = "$SPRING_VALIDATE_ERROR_ATTRNAME";
+
+    private Map<String, Object> attributes = new HashMap<String, Object>();
+
     private String method;
+
     private Locale locale;
+
     private RopServiceHandler ropServiceHandler;
+
     private ResponseFormat responseFormat;
-    private HttpServletRequest webRequest;
+
+    private MainError mainError;
+
     private RopResponse ropResponse;
+
     private RopRequest ropRequest;
+
     private String sessionId;
-    private List<ObjectError> allErrors;
+
     private String appKey;
 
 
@@ -52,10 +66,6 @@ public class SimpleRopServiceContext implements RopServiceContext {
         return this.responseFormat;
     }
 
-    public HttpServletRequest getWebRequest() {
-        return this.webRequest;
-    }
-
     public RopResponse getRopResponse() {
         return this.ropResponse;
     }
@@ -66,14 +76,6 @@ public class SimpleRopServiceContext implements RopServiceContext {
 
     public void setRopRequest(RopRequest ropRequest) {
         this.ropRequest = ropRequest;
-    }
-
-    public List<ObjectError> getAllErrors() {
-        return allErrors;
-    }
-
-    public void setAllErrors(List<ObjectError> allErrors) {
-        this.allErrors = allErrors;
     }
 
     public String getAppKey() {
@@ -96,9 +98,6 @@ public class SimpleRopServiceContext implements RopServiceContext {
         this.responseFormat = responseFormat;
     }
 
-    public void setWebRequest(HttpServletRequest webRequest) {
-        this.webRequest = webRequest;
-    }
 
     public void setRopResponse(RopResponse ropResponse) {
         this.ropResponse = ropResponse;
@@ -110,6 +109,22 @@ public class SimpleRopServiceContext implements RopServiceContext {
 
     public void setAppKey(String appKey) {
         this.appKey = appKey;
+    }
+
+    public void setMainError(MainError mainError) {
+        this.mainError = mainError;
+    }
+
+    public MainError getMainError() {
+        return this.mainError;
+    }
+
+    public Object getAttribute(String name) {
+        return this.attributes.get(name);
+    }
+
+    public void setAttribute(String name, Object value) {
+        this.attributes.put(name, value);
     }
 }
 

@@ -4,8 +4,6 @@
  */
 package com.rop;
 
-import org.springframework.web.context.request.WebRequest;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,6 +34,7 @@ public interface RopServiceRouter {
 
     /**
      * ROP框架的总入口，一般框架实现，开发者无需关注。
+     *
      * @param webRequest
      * @param httpServletResponse
      */

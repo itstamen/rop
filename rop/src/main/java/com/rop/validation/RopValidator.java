@@ -18,6 +18,7 @@ public interface RopValidator {
 
     /**
      * 对请求服务的上下文进行检查校验
+     *
      * @param context
      * @return
      */
@@ -25,12 +26,14 @@ public interface RopValidator {
 
     /**
      * 获取会话检查器
+     *
      * @return
      */
     SessionChecker getSessionChecker();
 
     /**
      * 获取应用密钥管理器
+     *
      * @return
      */
     AppSecretManager getAppSecretManager();

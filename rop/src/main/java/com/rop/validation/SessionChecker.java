@@ -16,6 +16,7 @@ public interface SessionChecker {
 
     /**
      * 是否是有效的会话
+     *
      * @param sessionId
      * @return
      */

@@ -4,10 +4,8 @@
  */
 package com.rop;
 
-import org.springframework.validation.ObjectError;
+import com.rop.validation.MainError;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -56,13 +54,6 @@ public interface RopServiceContext {
     ResponseFormat getResponseFormat();
 
     /**
-     * 获取对应的请求对象
-     *
-     * @return
-     */
-    HttpServletRequest getWebRequest();
-
-    /**
      * 返回响应对象
      *
      * @return
@@ -77,16 +68,36 @@ public interface RopServiceContext {
     RopRequest getRopRequest();
 
     /**
+     * @return
+     */
+    String getAppKey();
+
+    /**
      * @param ropRequest
      */
     void setRopRequest(RopRequest ropRequest);
 
+    /**
+     * @param ropResponse
+     */
+    void setRopResponse(RopResponse ropResponse);
 
-    List<ObjectError> getAllErrors();
+    /**
+     * 获取特定属性
+     *
+     * @param name
+     * @return
+     */
+    Object getAttribute(String name);
 
-    void setAllErrors(List<ObjectError> allErrors);
+    /**
+     * 设置属性的值
+     *
+     * @param name
+     * @param value
+     */
+    void setAttribute(String name, Object value);
 
-    String getAppKey();
 
 }
 

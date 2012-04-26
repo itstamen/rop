@@ -9,18 +9,6 @@ import com.rop.response.ErrorResponse;
 import com.rop.validation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.format.support.FormattingConversionService;
-import org.springframework.format.support.FormattingConversionServiceFactoryBean;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.web.bind.ServletRequestDataBinder;
-import org.springframework.web.bind.support.WebRequestDataBinder;
-import org.springframework.web.context.request.WebRequest;
-
-import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -35,14 +23,17 @@ public class AnnotationRopServiceMethodAdapter implements RopServiceMethodAdapte
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private RopValidator ropValidator = new DefaultRopValidator();
+    private RopValidator ropValidator ;
 
-    private SecurityManager securityManager = new DefaultSecurityManager();
+    private SecurityManager securityManager;
 
-    private FormattingConversionService conversionService;
-
-    private Validator validator;
-
+    public AnnotationRopServiceMethodAdapter(RopConfig ropConfig) {
+        DefaultRopValidator defaultRopValidator = new DefaultRopValidator();
+        defaultRopValidator.setAppSecretManager(ropConfig.getAppSecretManager());
+        defaultRopValidator.setSessionChecker(ropConfig.getSessionChecker());
+        this.ropValidator = defaultRopValidator;
+        this.securityManager = ropConfig.getSecurityManager();
+    }
 
     /**
      * 调用BOP服务方法
@@ -53,11 +44,13 @@ public class AnnotationRopServiceMethodAdapter implements RopServiceMethodAdapte
      */
     public RopResponse invokeServiceMethod(RopServiceContext context) {
         try {
-            RopServiceHandler ropServiceHandler = context.getRopServiceHandler();
-            MainError mainError = preProcess(context);
+            //分析上下文中的错误
+            MainError mainError = paserMainError(context);
+
             if (mainError != null) {
                 return new ErrorResponse(mainError);
             } else {
+                RopServiceHandler ropServiceHandler = context.getRopServiceHandler();
                 if (logger.isDebugEnabled()) {
                     logger.debug("执行" + ropServiceHandler.getHandler().getClass() + "." + ropServiceHandler.getHandlerMethod().getName());
                 }
@@ -73,10 +66,13 @@ public class AnnotationRopServiceMethodAdapter implements RopServiceMethodAdapte
         }
     }
 
-    private MainError preProcess(RopServiceContext context) {
-        BindingResult bindingResult = doBind(context.getWebRequest(), context.getRopServiceHandler().getRequestType());
-        context.setAllErrors(bindingResult.getAllErrors());
-        context.setRopRequest((RopRequest) bindingResult.getTarget());
+    /**
+     * 分析{@link RopServiceContext}中的错误，如果没有错误，返回null
+     *
+     * @param context
+     * @return
+     */
+    private MainError paserMainError(RopServiceContext context) {
 
         //1.参数类型、缺失、格式、值的有效性检查
         MainError mainError = ropValidator.validate(context);
@@ -88,7 +84,6 @@ public class AnnotationRopServiceMethodAdapter implements RopServiceMethodAdapte
 
         return mainError;
     }
-
 
     /**
      * 对目标方法的调用安全性进行检查
@@ -108,36 +103,6 @@ public class AnnotationRopServiceMethodAdapter implements RopServiceMethodAdapte
         } else {
             return null;
         }
-    }
-
-    private BindingResult doBind(HttpServletRequest webRequest, Class<? extends RopRequest> requestType) {
-        RopRequest bindObject = BeanUtils.instantiateClass(requestType);
-        bindObject.setIp(webRequest.getRemoteAddr());
-
-        ServletRequestDataBinder dataBinder = new ServletRequestDataBinder(bindObject, "bindObject");
-        dataBinder.setConversionService(getConversionService());
-        dataBinder.setValidator(getValidator());
-        dataBinder.bind(webRequest);
-        dataBinder.validate();
-        return dataBinder.getBindingResult();
-    }
-
-    private ConversionService getConversionService() {
-        if (this.conversionService == null) {
-            FormattingConversionServiceFactoryBean serviceFactoryBean = new FormattingConversionServiceFactoryBean();
-            serviceFactoryBean.afterPropertiesSet();
-            this.conversionService = serviceFactoryBean.getObject();
-        }
-        return this.conversionService;
-    }
-
-    private Validator getValidator() {
-        if (this.validator == null) {
-            LocalValidatorFactoryBean localValidatorFactoryBean = new LocalValidatorFactoryBean();
-            localValidatorFactoryBean.afterPropertiesSet();
-            this.validator = localValidatorFactoryBean;
-        }
-        return this.validator;
     }
 
 }

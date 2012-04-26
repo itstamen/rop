@@ -15,7 +15,10 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <pre>
@@ -96,11 +99,11 @@ public class DefaultRopServiceMethodHandlerRegistry implements RopServiceHandler
                     }
             );
         }
-        if(context.getParent() != null){
+        if (context.getParent() != null) {
             registerFromContext(context.getParent());
         }
         if (logger.isInfoEnabled()) {
-            logger.info("共注册了"+bopServiceHandlerMap.size()+"个服务方法");
+            logger.info("共注册了" + bopServiceHandlerMap.size() + "个服务方法");
         }
     }
 

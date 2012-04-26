@@ -4,6 +4,7 @@
  */
 package com.rop;
 
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -34,13 +35,18 @@ public class RopRequest {
 
     //格式
     private String format = "xml";
-    
+
     //本地化
     private Locale locale = Locale.SIMPLIFIED_CHINESE;
 
     //客户端IP
     private String ip;
-    
+
+    /**
+     * 请求参数列表
+     */
+    private HashMap<String, String> paramValues;
+
     public String getMethod() {
         return method;
     }
@@ -104,6 +110,34 @@ public class RopRequest {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    /**
+     * 获取请求参数列表
+     *
+     * @return
+     */
+    public HashMap<String, String> getParamValues() {
+        return paramValues;
+    }
+
+    /**
+     * 设置请求参数列表
+     *
+     * @param paramValues
+     */
+    public void setParamValues(HashMap<String, String> paramValues) {
+        this.paramValues = paramValues;
+    }
+
+    /**
+     * 获取参数对应的值
+     *
+     * @param paramName
+     * @return
+     */
+    public String getParamValue(String paramName) {
+        return paramValues.get(paramName);
     }
 }
 

@@ -7,6 +7,8 @@ import com.rop.validation.AppSecretManager;
 import com.rop.validation.SessionChecker;
 import org.springframework.context.ApplicationContext;
 
+import java.util.List;
+
 /**
  * <pre>
  * 功能说明：ROP的配置对象类
@@ -24,6 +26,10 @@ public class RopConfig {
     private AppSecretManager appSecretManager;
 
     private ApplicationContext applicationContext;
+
+    private List<Interceptor> interceptors;
+
+    private SecurityManager securityManager;
 
     public String getErrorResourceBaseName() {
         return errorResourceBaseName;
@@ -55,6 +61,22 @@ public class RopConfig {
 
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
+    }
+
+    public List<Interceptor> getInterceptors() {
+        return interceptors;
+    }
+
+    public void setInterceptors(List<Interceptor> interceptors) {
+        this.interceptors = interceptors;
+    }
+
+    public void setSecurityManager(SecurityManager securityManager) {
+        this.securityManager = securityManager;
+    }
+
+    public SecurityManager getSecurityManager() {
+        return securityManager;
     }
 }
 

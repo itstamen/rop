@@ -16,6 +16,7 @@ public interface AppSecretManager {
 
     /**
      * 获取应用程序的密钥
+     *
      * @param appKey
      * @return
      */
