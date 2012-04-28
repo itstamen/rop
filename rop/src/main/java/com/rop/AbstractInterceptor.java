@@ -15,6 +15,7 @@ package com.rop;
 public abstract class AbstractInterceptor implements Interceptor {
 
     public void beforeService(RopServiceContext context) {
+
     }
 
     public void beforeResponse(RopServiceContext context) {

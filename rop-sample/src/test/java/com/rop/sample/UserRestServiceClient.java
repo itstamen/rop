@@ -33,9 +33,9 @@ public class UserRestServiceClient {
         form.add("locale", "en");
 
 
-        form.add("userName", "jhonson1");
+        form.add("userName", "jhonson");
         form.add("password", "123456");
-//        form.add("salary", "2,500.00");
+        form.add("salary", "2,500.00");
 //        form.add("address",
 //                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 //                        "<address zoneCode=\"001\" doorCode=\"002\">\n" +
@@ -51,7 +51,7 @@ public class UserRestServiceClient {
                         "    <street no=\"002\" name=\"street2\"/>\n" +
                         "  </streets>\n" +
                         "</address>");
-        form.add("salary", "aaa0");
+//        form.add("salary", "aaa0");
 
         String sign = DefaultRopValidator.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
