@@ -82,7 +82,7 @@ public class DefaultRopValidator implements RopValidator {
 
         //2.签名检查
         if (mainError == null) {
-            checkSign(context);
+            mainError = checkSign(context);
         }
 
         //3.会话检查
