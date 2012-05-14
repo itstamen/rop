@@ -29,7 +29,7 @@ public class UserRestServiceClient {
         form.add("v", "1.0");
 
         form.add("sessionId", "test");
-        form.add("msgFormat", "json");
+        form.add("msgFormat", "xml");
         form.add("locale", "en");
 
 

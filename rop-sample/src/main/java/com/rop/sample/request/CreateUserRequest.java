@@ -36,7 +36,6 @@ public class CreateUserRequest extends RopRequest {
     @Valid
     private Address address;
 
-
     public String getUserName() {
         return userName;
     }

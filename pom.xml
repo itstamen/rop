@@ -26,9 +26,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <encoding>${file.encoding}</encoding>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
             <plugin>
@@ -36,10 +36,39 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <encoding>${file.encoding}</encoding>
+                    <encoding>UTF-8</encoding>
                     <outputDirectory/>
                 </configuration>
             </plugin>
+
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-source-plugin</artifactId>
+              <version>2.1.2</version>
+              <executions>
+                <execution>
+                  <id>attach-sources</id>
+                  <phase>verify</phase>
+                  <goals>
+                    <goal>jar-no-fork</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                  <execution>
+                    <id>attach-javadocs</id>
+                      <goals>
+                        <goal>jar</goal>
+                      </goals>
+                  </execution>
+                </executions>
+              </plugin>
         </plugins>
     </build>
 
