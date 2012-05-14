@@ -42,6 +42,7 @@ public class JaxbXmlRopResponseMarshaller implements RopResponseMarshaller {
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
+
             marshallerMap.put(response.getClass(), marshaller);
         }
         return marshallerMap.get(response.getClass());

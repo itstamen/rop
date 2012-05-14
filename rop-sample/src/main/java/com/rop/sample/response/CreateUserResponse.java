@@ -6,10 +6,7 @@ package com.rop.sample.response;
 
 import com.rop.RopResponse;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 
 /**
  * <pre>
@@ -28,6 +25,9 @@ public class CreateUserResponse implements RopResponse{
 
     @XmlAttribute
     private String createTime;
+
+    @XmlElement
+    private Foo foo= new Foo();
 
     public String getUserId() {
         return userId;
