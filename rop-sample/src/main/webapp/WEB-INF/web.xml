@@ -44,7 +44,7 @@
             com.rop.RopServlet
         </servlet-class>
         <!--可通过如下初始化参数配置ROP的个性化信息，以下是内置默认的匹配-->
-<!--        <init-param>
+        <!--        <init-param>
             <param-name>sessionCheckerImpl</param-name>
             <param-value>com.rop.validation.DefaultSessionChecker</param-value>
         </init-param>
@@ -55,6 +55,10 @@
         <init-param>
             <param-name>ropErrorBaseName</param-name>
             <param-value>i18n/rop/ropError</param-value>
+        </init-param>
+        <init-param>
+            <param-name>needCheckSign</param-name>
+            <param-value>false</param-value>
         </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>

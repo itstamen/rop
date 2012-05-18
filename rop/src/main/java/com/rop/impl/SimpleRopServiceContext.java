@@ -45,6 +45,7 @@ public class SimpleRopServiceContext implements RopServiceContext {
 
     private String appKey;
 
+    private boolean needCheckSign ;
 
     public String getMethod() {
         return this.method;
@@ -125,6 +126,14 @@ public class SimpleRopServiceContext implements RopServiceContext {
 
     public void setAttribute(String name, Object value) {
         this.attributes.put(name, value);
+    }
+
+    public boolean isNeedCheckSign() {
+        return needCheckSign;
+    }
+
+    public void setNeedCheckSign(boolean needCheckSign) {
+        this.needCheckSign = needCheckSign;
     }
 }
 

@@ -156,16 +156,17 @@ public class AnnotationRopServiceRouter implements RopServiceRouter {
     }
 
     private SimpleRopServiceContext buildBopServiceContext(HttpServletRequest request) {
-        SimpleRopServiceContext bopServiceContext = new SimpleRopServiceContext();
-        bopServiceContext.setMethod(request.getParameter(METHOD));
-        bopServiceContext.setLocale(getLocale(request));
-        bopServiceContext.setRopServiceHandler(ropServiceHandlerRegistry.getBopServiceHandler(request.getParameter(METHOD)));
-        bopServiceContext.setResponseFormat(getResponseFormat(request));
-        bopServiceContext.setAttribute(SimpleRopServiceContext.HTTP_SERVLET_REQUEST_ATTRNAME, request);
-        bopServiceContext.setSessionId(request.getParameter(SESSION_ID));
-        bopServiceContext.setAppKey(request.getParameter(APP_KEY));
-        bindRequest(bopServiceContext);
-        return bopServiceContext;
+        SimpleRopServiceContext ropServiceContext = new SimpleRopServiceContext();
+        ropServiceContext.setMethod(request.getParameter(METHOD));
+        ropServiceContext.setLocale(getLocale(request));
+        ropServiceContext.setRopServiceHandler(ropServiceHandlerRegistry.getBopServiceHandler(request.getParameter(METHOD)));
+        ropServiceContext.setResponseFormat(getResponseFormat(request));
+        ropServiceContext.setAttribute(SimpleRopServiceContext.HTTP_SERVLET_REQUEST_ATTRNAME, request);
+        ropServiceContext.setSessionId(request.getParameter(SESSION_ID));
+        ropServiceContext.setAppKey(request.getParameter(APP_KEY));
+        ropServiceContext.setNeedCheckSign(ropConfig.isNeedCheckSign());
+        bindRequest(ropServiceContext);
+        return ropServiceContext;
     }
 
 

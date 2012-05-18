@@ -81,8 +81,12 @@ public class DefaultRopValidator implements RopValidator {
 
 
         //2.签名检查
-        if (mainError == null) {
+        if (context.isNeedCheckSign() && mainError == null) {
             mainError = checkSign(context);
+        }else {
+            if(logger.isInfoEnabled()){
+                logger.info("警告：未开启签名校验,可通过将needCheckSign参数设置为true打开");
+            }
         }
 
         //3.会话检查

@@ -31,6 +31,8 @@ public class RopConfig {
 
     private SecurityManager securityManager;
 
+    private boolean needCheckSign = true;
+
     public String getErrorResourceBaseName() {
         return errorResourceBaseName;
     }
@@ -77,6 +79,14 @@ public class RopConfig {
 
     public SecurityManager getSecurityManager() {
         return securityManager;
+    }
+
+    public boolean isNeedCheckSign() {
+        return needCheckSign;
+    }
+
+    public void setNeedCheckSign(boolean needCheckSign) {
+        this.needCheckSign = needCheckSign;
     }
 }
 

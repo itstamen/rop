@@ -83,6 +83,12 @@ public interface RopServiceContext {
     void setRopResponse(RopResponse ropResponse);
 
     /**
+     * 是否需要校验签名
+     * @return
+     */
+    boolean isNeedCheckSign();
+
+    /**
      * 获取特定属性
      *
      * @param name
@@ -97,7 +103,6 @@ public interface RopServiceContext {
      * @param value
      */
     void setAttribute(String name, Object value);
-
 
 }
 

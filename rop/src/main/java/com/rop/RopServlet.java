@@ -56,6 +56,8 @@ public class RopServlet extends HttpServlet {
 
     private static final String INTERCEPTOR_CLASS_NAMES_INITPARAM = "interceptorClassNames";
 
+    private static final String NEED_CHECK_SIGN = "needCheckSign";
+
     public static final String ERROR_RESOURCE_BASE_NAME_INITPARAM = "errorResourceBaseName";
 
 
@@ -109,6 +111,12 @@ public class RopServlet extends HttpServlet {
                 sortInteceptors(interceptors);
                 ropConfig.setInterceptors(interceptors);
             }
+
+            //5.设置其它参数
+            if(servletConfig.getInitParameter(NEED_CHECK_SIGN) != null){
+                ropConfig.setNeedCheckSign(Boolean.valueOf(servletConfig.getInitParameter(NEED_CHECK_SIGN)));
+            }
+
 
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("初始化Rop组件时发生错误", e);
