@@ -8,6 +8,7 @@ import com.rop.validation.DefaultRopValidator;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 
@@ -21,7 +22,8 @@ import java.util.ArrayList;
  */
 public class UserRestServiceClient {
 
-    public static void main(String[] args) {
+    @Test
+    public  void userAdd() {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
         form.add("method", "user.add");//<--指定方法名称
@@ -62,5 +64,6 @@ public class UserRestServiceClient {
                 "http://localhost:8088/router", form, String.class);
         System.out.println("response:\n" + response);
     }
+
 }
 

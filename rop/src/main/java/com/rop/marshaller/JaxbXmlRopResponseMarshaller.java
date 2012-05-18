@@ -12,8 +12,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <pre>
@@ -25,27 +25,28 @@ import java.util.Map;
  */
 public class JaxbXmlRopResponseMarshaller implements RopResponseMarshaller {
 
-    private static Map<Class, Marshaller> marshallerMap = new HashMap<Class, Marshaller>();
+    private static Map<Class, JAXBContext> jaxbContextHashMap = new ConcurrentHashMap<Class, JAXBContext>();
 
     public void marshaller(RopResponse response, OutputStream outputStream) {
         try {
-            Marshaller m = getMarshaller(response);
+            Marshaller m = buildMarshaller(response);
             m.marshal(response, outputStream);
         } catch (JAXBException e) {
             throw new RopException(e);
         }
     }
 
-    private Marshaller getMarshaller(RopResponse response) throws JAXBException {
-        if (!marshallerMap.containsKey(response.getClass())) {
-            JAXBContext context = JAXBContext.newInstance(response.getClass());
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
 
-            marshallerMap.put(response.getClass(), marshaller);
+    public Marshaller buildMarshaller(RopResponse response) throws JAXBException {
+        if (!jaxbContextHashMap.containsKey(response.getClass())) {
+            JAXBContext context = JAXBContext.newInstance(response.getClass());
+            jaxbContextHashMap.put(response.getClass(), context);
         }
-        return marshallerMap.get(response.getClass());
+        JAXBContext context = jaxbContextHashMap.get(response.getClass());
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
+        return marshaller;
     }
 }
 

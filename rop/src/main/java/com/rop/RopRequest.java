@@ -43,6 +43,11 @@ public class RopRequest {
     private String ip;
 
     /**
+     * 原始的请求对象
+     */
+    private Object rawRequestObject;
+
+    /**
      * 请求参数列表
      */
     private HashMap<String, String> paramValues;
@@ -138,6 +143,14 @@ public class RopRequest {
      */
     public String getParamValue(String paramName) {
         return paramValues.get(paramName);
+    }
+
+    public Object getRawRequestObject() {
+        return rawRequestObject;
+    }
+
+    public void setRawRequestObject(Object rawRequestObject) {
+        this.rawRequestObject = rawRequestObject;
     }
 }
 

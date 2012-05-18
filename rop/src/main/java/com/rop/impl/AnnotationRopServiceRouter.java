@@ -9,7 +9,9 @@ import com.rop.marshaller.JacksonJsonRopResponseMarshaller;
 import com.rop.marshaller.JaxbXmlRopResponseMarshaller;
 import com.rop.response.ErrorResponse;
 import com.rop.response.ServiceUnavailableErrorResponse;
-import com.rop.validation.*;
+import com.rop.validation.MainErrorType;
+import com.rop.validation.MainErrors;
+import com.rop.validation.SubErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -51,8 +53,6 @@ public class AnnotationRopServiceRouter implements RopServiceRouter {
     public static final String APPLICATION_JSON = "application/json";
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-
-    private static final String DEFAULT_ROP_ERROR = "ropError";
 
     private static final String I18N_ROP_ERROR = "i18n/rop/error";
 
@@ -179,6 +179,7 @@ public class AnnotationRopServiceRouter implements RopServiceRouter {
         HttpServletRequest request = (HttpServletRequest) context.getAttribute(SimpleRopServiceContext.HTTP_SERVLET_REQUEST_ATTRNAME);
         BindingResult bindingResult = doBind(request, context.getRopServiceHandler().getRequestType());
         RopRequest ropRequest = (RopRequest) bindingResult.getTarget();
+        ropRequest.setRawRequestObject(request);
 
         //将HttpServletRequest的所有参数填充到ropRequest中
         Map srcParamMap = request.getParameterMap();
