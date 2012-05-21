@@ -5,6 +5,8 @@
 package com.rop.impl;
 
 import com.rop.*;
+import com.rop.ApiMethod;
+import com.rop.IgnoreSign;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;

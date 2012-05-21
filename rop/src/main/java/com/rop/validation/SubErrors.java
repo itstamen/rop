@@ -4,6 +4,9 @@
  */
 package com.rop.validation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import java.util.EnumMap;
@@ -18,6 +21,8 @@ import java.util.Locale;
  * @version 1.0
  */
 public class SubErrors {
+
+    protected static Logger logger = LoggerFactory.getLogger(SubErrors.class);
 
     //子错误和主错误对应Map,key为子错误代码，值为主错误代码
     private static final EnumMap<SubErrorType, MainErrorType> SUBERROR_MAINERROR_MAPPINGS =
@@ -69,8 +74,14 @@ public class SubErrors {
      * @return
      */
     public static SubError getSubError(String subErrorCode, String subErrorKey, Locale locale, Object... params) {
-        String parsedSubErrorMessage = messageSourceAccessor.getMessage(subErrorKey, params, locale);
-        return new SubError(subErrorCode, parsedSubErrorMessage);
+        try {
+            String parsedSubErrorMessage = messageSourceAccessor.getMessage(subErrorKey, params, locale);
+            return new SubError(subErrorCode, parsedSubErrorMessage);
+        } catch (NoSuchMessageException e) {
+            logger.error("不存在对应的错误键：{}，请检查是否正确配置了应用的错误资源，"+
+                         "默认位置：i18n/rop/ropError",subErrorCode);
+            throw e;
+        }
     }
 
     public static String getSubErrorCode(SubErrorType subErrorType, Object... params) {

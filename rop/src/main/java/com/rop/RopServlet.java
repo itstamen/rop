@@ -58,7 +58,7 @@ public class RopServlet extends HttpServlet {
 
     private static final String NEED_CHECK_SIGN = "needCheckSign";
 
-    public static final String ERROR_RESOURCE_BASE_NAME_INITPARAM = "errorResourceBaseName";
+    private static final String ERROR_RESOURCE_BASE_NAME_INITPARAM = "errorResourceBaseName";
 
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -122,7 +122,7 @@ public class RopServlet extends HttpServlet {
             throw new IllegalArgumentException("初始化Rop组件时发生错误", e);
         }
 
-        //4.初始化错误资源
+        //6.初始化错误资源
         initErrorResource(servletConfig, ropConfig);
 
         ropServiceRouter = new AnnotationRopServiceRouter(ropConfig);
@@ -151,7 +151,7 @@ public class RopServlet extends HttpServlet {
      */
     private void initErrorResource(ServletConfig servletConfig, RopConfig ropConfig) {
         if (servletConfig.getInitParameter(ERROR_RESOURCE_BASE_NAME_INITPARAM) != null) {
-            ropErrorBaseName = servletConfig.getInitParameter("ropErrorBaseName");
+            ropErrorBaseName = servletConfig.getInitParameter(ERROR_RESOURCE_BASE_NAME_INITPARAM);
         }
         ropConfig.setErrorBaseName(ropErrorBaseName);
     }

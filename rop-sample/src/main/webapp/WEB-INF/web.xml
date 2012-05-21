@@ -53,8 +53,8 @@
             <param-value>com.rop.validation.FileBaseAppSecretManager</param-value>
         </init-param>-->
         <init-param>
-            <param-name>ropErrorBaseName</param-name>
-            <param-value>i18n/rop/ropError</param-value>
+            <param-name>errorResourceBaseName</param-name>
+            <param-value>i18n/rop/sampleRopError</param-value>
         </init-param>
         <init-param>
             <param-name>needCheckSign</param-name>

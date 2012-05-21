@@ -6,7 +6,7 @@
     <parent>
         <artifactId>rop-parent</artifactId>
         <groupId>com.rop</groupId>
-        <version>1.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>rop-sample</artifactId>

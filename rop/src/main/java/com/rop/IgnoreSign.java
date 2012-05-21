@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 
 /**
  * <pre>
- *     请求对象（{@link RopRequest}）中不需要签名的属性（默认都要签名）。
+ *     请求对象（{@link com.rop.RopRequest}）中不需要签名的属性（默认都要签名）。
  * </pre>
  *
  * @author 陈雄华
