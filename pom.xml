@@ -77,7 +77,18 @@
         <module>rop-sample</module>
     </modules>
 
-
+    <distributionManagement>
+        <repository>
+            <id>internal.repo.release</id>
+            <name>中图一购信息有限公司内部代码仓库</name>
+            <url>http://192.168.1.95:8081/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>internal.repo.snapshot</id>
+            <name>中图一购信息有限公司内部代码仓库</name>
+            <url>http://192.168.1.95:8081/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>

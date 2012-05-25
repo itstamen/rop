@@ -7,6 +7,7 @@ package com.rop.validation;
 import com.rop.RopException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.IOException;
@@ -34,7 +35,8 @@ public class FileBaseAppSecretManager implements AppSecretManager {
     public String getSecret(String appKey) {
         if (properties == null) {
             try {
-                properties = PropertiesLoaderUtils.loadAllProperties(appSecretFile);
+                ClassPathResource resource = new ClassPathResource(appSecretFile, FileBaseAppSecretManager.class);
+                properties = PropertiesLoaderUtils.loadProperties(resource);
             } catch (IOException e) {
                 throw new RopException("在类路径下找不到rop.appSecret.properties的应用密钥的属性文件", e);
             }

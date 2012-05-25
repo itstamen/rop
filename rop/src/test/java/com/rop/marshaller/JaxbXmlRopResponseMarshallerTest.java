@@ -4,8 +4,6 @@
  */
 package com.rop.marshaller;
 
-import com.rop.RopResponse;
-import junit.framework.TestCase;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -18,7 +16,7 @@ import java.io.ByteArrayOutputStream;
  * @author 陈雄华
  * @version 1.0
  */
-public class JaxbXmlRopResponseMarshallerTest extends TestCase {
+public class JaxbXmlRopResponseMarshallerTest{
 
     @Test
     public void buildMarshaller() throws Throwable{
