@@ -45,7 +45,7 @@ import java.util.*;
  */
 public class RopServlet extends HttpServlet {
 
-    private static final String ROP_CONFIG_FILE_INITPARAM = "ropConfigFile";
+    private static final String ROP_CONFIG_FILE_INITPARAM = "ropConfigLocation";
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -100,19 +100,27 @@ public class RopServlet extends HttpServlet {
                 ropConfig.setInterceptors(interceptors);
             }
 
-            //5.设置其它参数
-            if (servletConfig.getInitParameter(ConfigPropNames.NEED_CHECK_SIGN_PROPNAME) != null) {
-                ropConfig.setNeedCheckSign(Boolean.valueOf(servletConfig.getInitParameter(ConfigPropNames.NEED_CHECK_SIGN_PROPNAME)));
-            }
-
-            //6.初始化错误资源
+            //5.初始化错误资源
             initErrorResource(properties, ropConfig);
+
+            //6.设置其它参数,
+            initOtherParams(properties, ropConfig);
+
 
         } catch (Exception e) {
             throw new IllegalArgumentException("启动Rop时发生错误", e);
         }
 
         return ropConfig;
+    }
+
+    private void initOtherParams(Properties properties, RopConfig ropConfig) {
+
+        //初始化needCheckSign参数
+        Boolean needCheckSign = Boolean.valueOf(
+                properties.getProperty(ConfigPropNames.NEED_CHECK_SIGN_PROPNAME, ConfigPropNames.DEFAULT_NEED_CHECK_SIGN));
+        logger.debug("参数ConfigPropNames.NEED_CHECK_SIGN_PROPNAME值为："+needCheckSign);
+        ropConfig.setNeedCheckSign(needCheckSign);
     }
 
     private Properties getRopConfigProperties(ServletConfig servletConfig, ApplicationContext ctx) {
@@ -159,6 +167,7 @@ public class RopServlet extends HttpServlet {
     private void initErrorResource(Properties properties, RopConfig ropConfig) {
         String errorBaseName = properties.getProperty(ConfigPropNames.ERROR_RESOURCE_BASE_NAME_PROPNAME,
                 ConfigPropNames.DEFAULT_ERROR_RESOURCE_BASE_NAME);
+        logger.debug("加载应用错误国际化资源:"+errorBaseName);
         ropConfig.setErrorBaseName(errorBaseName);
     }
 
@@ -264,7 +273,7 @@ public class RopServlet extends HttpServlet {
         ArrayList<T> components = new ArrayList<T>();
         if (properties == null || !properties.containsKey(paramName)) {//没有配置文件，或者配置文件未定义
             String[] beanNamesForType = ctx.getBeanNamesForType(componentClass);
-            if (beanNamesForType != null) {
+            if (beanNamesForType != null && beanNamesForType.length > 0) {
                 if (allowMultiple) {
                     logger.debug("在Spring容器中找到" + beanNamesForType.length + "个" + componentClass.getName() + "Bean.");
                     components.addAll(ctx.getBeansOfType(componentClass).values());
@@ -277,16 +286,16 @@ public class RopServlet extends HttpServlet {
                     }
                 }
             } else {
-                if(defaultComponentClassName != null){
+                if (defaultComponentClassName != null) {
                     logger.debug("使用默认的组件类:" + defaultComponentClassName);
                     components.add(instantiateClassByClassName(defaultComponentClassName, componentClass));
                 }
             }
         } else {//配置文件中有指定
-            logger.debug("从Rop的配置文件中装载组件：" + defaultComponentClassName);
+            logger.debug("从Rop的配置文件中装载组件：" + componentClass.getName());
             try {
                 String componentClassName = properties.getProperty(paramName);
-                logger.debug("Rop装配组件："+componentClassName);
+                logger.debug("Rop装配组件：" + componentClassName);
                 if (allowMultiple) {
                     String[] componentNames = componentClassName.split(",");
                     for (String componentName : componentNames) {
@@ -329,6 +338,8 @@ public class RopServlet extends HttpServlet {
         public static final String INTERCEPTOR_CLASS_NAMES_PROPNAME = "interceptorClassNames";
 
         public static final String NEED_CHECK_SIGN_PROPNAME = "needCheckSign";
+
+        public static final String DEFAULT_NEED_CHECK_SIGN = "true";
 
         public static final String ERROR_RESOURCE_BASE_NAME_PROPNAME = "errorResourceBaseName";
 
