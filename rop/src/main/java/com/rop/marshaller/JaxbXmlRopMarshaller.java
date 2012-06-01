@@ -5,8 +5,7 @@
 package com.rop.marshaller;
 
 import com.rop.RopException;
-import com.rop.RopResponse;
-import com.rop.RopResponseMarshaller;
+import com.rop.RopMarshaller;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -23,26 +22,26 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author 陈雄华
  * @version 1.0
  */
-public class JaxbXmlRopResponseMarshaller implements RopResponseMarshaller {
+public class JaxbXmlRopMarshaller implements RopMarshaller {
 
     private static Map<Class, JAXBContext> jaxbContextHashMap = new ConcurrentHashMap<Class, JAXBContext>();
 
-    public void marshaller(RopResponse response, OutputStream outputStream) {
+    public void marshaller(Object object, OutputStream outputStream) {
         try {
-            Marshaller m = buildMarshaller(response);
-            m.marshal(response, outputStream);
+            Marshaller m = buildMarshaller(object);
+            m.marshal(object, outputStream);
         } catch (JAXBException e) {
             throw new RopException(e);
         }
     }
 
 
-    public Marshaller buildMarshaller(RopResponse response) throws JAXBException {
-        if (!jaxbContextHashMap.containsKey(response.getClass())) {
-            JAXBContext context = JAXBContext.newInstance(response.getClass());
-            jaxbContextHashMap.put(response.getClass(), context);
+    public Marshaller buildMarshaller(Object object) throws JAXBException {
+        if (!jaxbContextHashMap.containsKey(object.getClass())) {
+            JAXBContext context = JAXBContext.newInstance(object.getClass());
+            jaxbContextHashMap.put(object.getClass(), context);
         }
-        JAXBContext context = jaxbContextHashMap.get(response.getClass());
+        JAXBContext context = jaxbContextHashMap.get(object.getClass());
         Marshaller marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");

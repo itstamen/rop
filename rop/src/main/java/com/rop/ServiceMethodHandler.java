@@ -15,7 +15,7 @@ import java.util.List;
  * @author 陈雄华
  * @version 1.0
  */
-public class RopServiceHandler {
+public class ServiceMethodHandler {
 
     //处理器对象
     private Object handler;
@@ -23,16 +23,15 @@ public class RopServiceHandler {
     //处理器的处理方法
     private Method handlerMethod;
 
+    private ServiceMethodDefinition serviceMethodDefinition;
+
     //处理方法的请求对象类
     private Class<? extends RopRequest> requestType = RopRequest.class;
-
-    //处理方法是否需要在会话环境下运行
-    private boolean needInSession;
 
     //无需签名的字段列表
     private List<String> ignoreSignFieldNames;
 
-    public RopServiceHandler() {
+    public ServiceMethodHandler() {
     }
 
     public Object getHandler() {
@@ -72,12 +71,12 @@ public class RopServiceHandler {
         return ignoreSignFieldNames;
     }
 
-    public boolean isNeedInSession() {
-        return needInSession;
+    public ServiceMethodDefinition getServiceMethodDefinition() {
+        return serviceMethodDefinition;
     }
 
-    public void setNeedInSession(boolean needInSession) {
-        this.needInSession = needInSession;
+    public void setServiceMethodDefinition(ServiceMethodDefinition serviceMethodDefinition) {
+        this.serviceMethodDefinition = serviceMethodDefinition;
     }
 }
 

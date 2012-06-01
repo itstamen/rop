@@ -4,20 +4,14 @@
  */
 package com.rop.validation;
 
-import com.rop.RopException;
-import com.rop.RopRequest;
-import com.rop.RopServiceContext;
-import com.rop.impl.SimpleRopServiceContext;
+import com.rop.*;
+import com.rop.impl.SimpleServiceMethodContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.*;
 
@@ -36,11 +30,10 @@ public class DefaultRopValidator implements RopValidator {
     private static final Set SUPPORT_VERSIONS = new HashSet<String>();
 
     private static final Set SUPPORT_FORMATS = new HashSet<String>();
+
     private static final String SIGN = "sign";
 
-    private SessionChecker sessionChecker;
-
-    private AppSecretManager appSecretManager;
+    private RopContext ropContext;
 
     static {
         SUPPORT_VERSIONS.add("1.0");
@@ -68,75 +61,121 @@ public class DefaultRopValidator implements RopValidator {
         INVALIDE_CONSTRAINT_SUBERROR_MAPPINGS.put("AssertFalse", SubErrorType.ISV_INVALID_PARAMETE);
     }
 
-    public MainError validate(RopServiceContext context) {
+    public DefaultRopValidator(RopContext ropContext) {
+        this.ropContext = ropContext;
+    }
 
-        //1.格式格式
-        RopRequest ropRequest = context.getRopRequest();
-        MainError mainError = validateRopRequest(ropRequest);
-        List<ObjectError> errorList =
-                (List<ObjectError>) context.getAttribute(SimpleRopServiceContext.SPRING_VALIDATE_ERROR_ATTRNAME);
-        if (mainError == null && (errorList != null && errorList.size() > 0)) {
-            mainError = parseBeanConstraintError(errorList, ropRequest.getLocale());
+    public MainError validate(ServiceMethodContext methodContext) {
+
+        MainError mainError = null;
+
+        //1.校验appKey的正确性
+        mainError = checkAppKey(methodContext);
+        if (mainError != null) {
+            return mainError;
         }
 
-
         //2.签名检查
-        if (context.isNeedCheckSign() && mainError == null) {
-            mainError = checkSign(context);
-        }else {
-            if(logger.isInfoEnabled()){
-                logger.info("警告：未开启签名校验,可通过将needCheckSign参数设置为true打开");
-            }
+        mainError = checkSign(methodContext);
+        if (mainError != null) {
+            return mainError;
         }
 
         //3.会话检查
-        if (mainError == null) {
-            mainError = checkSession(context);
+        mainError = checkSession(methodContext);
+        if (mainError != null) {
+            return mainError;
         }
+
+        //4.安全检查
+        mainError = checkSecurity(methodContext);
+        if (mainError != null) {
+            return mainError;
+        }
+
+        //5.校验请求参数格式合法性
+        mainError = checkParamConstraints(methodContext);
 
         return mainError;
     }
 
-    public SessionChecker getSessionChecker() {
-        return this.sessionChecker;
+    private MainError checkSecurity(ServiceMethodContext methodContext) {
+        RopRequest ropRequest = methodContext.getRopRequest();
+        if (!ropContext.getRopConfig().getSecurityManager().isGranted(methodContext)) {
+            MainError mainError = SubErrors.getMainError(SubErrorType.ISV_INVALID_PERMISSION, ropRequest.getLocale());
+            SubError subError = SubErrors.getSubError(SubErrorType.ISV_INVALID_PERMISSION.value(),
+                    SubErrorType.ISV_INVALID_PERMISSION.value(),
+                    ropRequest.getLocale());
+            mainError.addSubError(subError);
+            if (mainError != null && logger.isErrorEnabled()) {
+                logger.debug("安全检查管理器禁止调用将服务。");
+            }
+            return mainError;
+        } else {
+            return null;
+        }
     }
 
-    public AppSecretManager getAppSecretManager() {
-        return this.appSecretManager;
+    private MainError checkAppKey(ServiceMethodContext methodContext) {
+        String secret = ropContext.getRopConfig().getAppSecretManager().getSecret(methodContext.getAppKey());
+        if (secret == null) {
+            MainError mainError = MainErrors.getError(MainErrorType.INVALID_APP_KEY, methodContext.getLocale());
+            if (mainError != null && logger.isErrorEnabled()) {
+                logger.error(methodContext.getAppKey() + "不是合法的appKey，请检查。");
+            }
+            return mainError;
+        } else {
+            return null;
+        }
     }
 
-    public void setSessionChecker(SessionChecker sessionChecker) {
-        this.sessionChecker = sessionChecker;
-    }
+    private MainError checkParamConstraints(ServiceMethodContext methodContext) {
 
-    public void setAppSecretManager(AppSecretManager appSecretManager) {
-        this.appSecretManager = appSecretManager;
+        MainError mainError = validateRopRequest(methodContext.getRopRequest());
+
+        List<ObjectError> errorList =
+                (List<ObjectError>) methodContext.getAttribute(SimpleServiceMethodContext.SPRING_VALIDATE_ERROR_ATTRNAME);
+
+        if (mainError == null && (errorList != null && errorList.size() > 0)) {
+            mainError = parseBeanConstraintError(errorList, methodContext.getLocale());
+        }
+        return mainError;
     }
 
     /**
      * 检查签名的有效性
      *
-     * @param context
+     * @param methodContext
      * @return
      */
-    private MainError checkSign(RopServiceContext context) {
-        RopRequest ropRequest = context.getRopRequest();
-        ArrayList<String> paramNames = new ArrayList<String>(ropRequest.getParamValues().keySet());
-        paramNames.removeAll(context.getRopServiceHandler().getIgnoreSignFieldNames());
+    private MainError checkSign(ServiceMethodContext methodContext) {
+        if (methodContext.getRopContext().getRopConfig().isNeedCheckSign()) {
+            RopRequest ropRequest = methodContext.getRopRequest();
+            ArrayList<String> paramNames = new ArrayList<String>(ropRequest.getParamValues().keySet());
+            paramNames.removeAll(methodContext.getServiceMethodHandler().getIgnoreSignFieldNames());
 
-        HashMap<String, String> paramSingleValueMap = new HashMap<String, String>();
-        for (String paramName : paramNames) {
-            paramSingleValueMap.put(paramName, ropRequest.getParamValue(paramName));
-        }
-        String signSecret = getSignSecret(context.getAppKey());
+            HashMap<String, String> paramSingleValueMap = new HashMap<String, String>();
+            for (String paramName : paramNames) {
+                paramSingleValueMap.put(paramName, ropRequest.getParamValue(paramName));
+            }
+            String signSecret = getSignSecret(methodContext.getAppKey());
 
-        if (signSecret == null) {
-            throw new RopException("无法获取" + context.getAppKey() + "对应的密钥");
-        }
-        String signValue = sign(paramNames, paramSingleValueMap, signSecret);
-        if (!signValue.equals(ropRequest.getParamValue(SIGN))) {
-            return MainErrors.getError(MainErrorType.INVALID_SIGNATURE, context.getLocale());
+            if (signSecret == null) {
+                throw new RopException("无法获取" + methodContext.getAppKey() + "对应的密钥");
+            }
+            String signValue = sign(paramNames, paramSingleValueMap, signSecret);
+            if (!signValue.equals(ropRequest.getParamValue(SIGN))) {
+                if (logger.isErrorEnabled()) {
+                    logger.error(methodContext.getAppKey() + "的签名不合法，请检查");
+                }
+                return MainErrors.getError(MainErrorType.INVALID_SIGNATURE, methodContext.getLocale());
+            } else {
+                return null;
+            }
         } else {
+            if (logger.isWarnEnabled()) {
+                logger.warn("未开启签名校验,可通过将配置文件的“needCheckSign”开启。");
+            }
             return null;
         }
     }
@@ -194,7 +233,7 @@ public class DefaultRopValidator implements RopValidator {
     }
 
     protected String getSignSecret(String appKey) {
-        return this.appSecretManager.getSecret(appKey);
+        return ropContext.getRopConfig().getAppSecretManager().getSecret(appKey);
     }
 
     /**
@@ -203,16 +242,23 @@ public class DefaultRopValidator implements RopValidator {
      * @param sessionId
      * @return
      */
-    private MainError checkSession(RopServiceContext context) {
-        MainError mainError = null;
-        if (context.getRopServiceHandler().isNeedInSession() && !isValidSession(context.getSessionId())) {
-            mainError = MainErrors.getError(MainErrorType.INVALID_SESSION, null);
+    private MainError checkSession(ServiceMethodContext methodContext) {
+        if (methodContext.getServiceMethodHandler().getServiceMethodDefinition().isNeedInSession()) {
+            if (!isValidSession(methodContext.getSessionId())) {
+                if (logger.isErrorEnabled()) {
+                    logger.error(methodContext.getSessionId() + "会话不存在，请检查。");
+                }
+                return MainErrors.getError(MainErrorType.INVALID_SESSION, null);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
         }
-        return mainError;
     }
 
-    protected boolean isValidSession(String sessionId) {
-        return this.sessionChecker.isValid(sessionId);
+    private boolean isValidSession(String sessionId) {
+        return ropContext.getRopConfig().getSessionChecker().isValid(sessionId);
     }
 
     private MainError validateRopRequest(RopRequest ropRequest) {
@@ -231,7 +277,7 @@ public class DefaultRopValidator implements RopValidator {
                 }
             }
 
-            if (!isValidFormat(ropRequest.getFormat())) {
+            if (!isValidFormat(ropRequest.getMsgFormat())) {
                 return MainErrors.getError(MainErrorType.INVALID_FORMAT, ropRequest.getLocale());
             }
 

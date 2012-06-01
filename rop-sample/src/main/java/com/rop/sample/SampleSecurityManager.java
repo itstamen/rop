@@ -4,8 +4,11 @@
  */
 package com.rop.sample;
 
-import com.rop.RopServiceContext;
+import com.rop.ServiceMethodContext;
 import com.rop.SecurityManager;
+
+import java.util.*;
+
 /**
  * <pre>
  * 功能说明：
@@ -15,10 +18,16 @@ import com.rop.SecurityManager;
  * @version 1.0
  */
 public class SampleSecurityManager implements SecurityManager{
+    
+    private static final Map<String,Boolean> aclMap = new HashMap<String,Boolean>();
+    static {
+        aclMap.put("mockSessionId1",true);
+        aclMap.put("mockSessionId2",false);
+    }
+    
     @Override
-    public boolean isGranted(RopServiceContext context) {
-        System.out.println("use SampleSecurityManager!");
-        return true;
+    public boolean isGranted(ServiceMethodContext methodContext) {
+        return aclMap.get(methodContext.getSessionId());
     }
 }
 

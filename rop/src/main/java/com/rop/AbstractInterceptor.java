@@ -14,15 +14,24 @@ package com.rop;
  */
 public abstract class AbstractInterceptor implements Interceptor {
 
-    public void beforeService(RopServiceContext context) {
-
+    public void beforeService(ServiceMethodContext methodContext) {
     }
 
-    public void beforeResponse(RopServiceContext context) {
+
+    public void beforeResponse(ServiceMethodContext methodContext) {
     }
 
+    @Override
+    public boolean isMatch(ServiceMethodContext methodContext) {
+        return true;
+    }
+
+    /**
+     * 放在拦截器链的最后
+     * @return
+     */
     public int getOrder() {
-        return 0;
+        return Integer.MIN_VALUE;
     }
 }
 

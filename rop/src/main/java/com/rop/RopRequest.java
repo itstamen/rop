@@ -4,6 +4,8 @@
  */
 package com.rop;
 
+import com.rop.annotation.IgnoreSign;
+
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -34,7 +36,7 @@ public class RopRequest {
     private String sign;
 
     //格式
-    private String format = "xml";
+    private String msgFormat = "xml";
 
     //本地化
     private Locale locale = Locale.SIMPLIFIED_CHINESE;
@@ -77,12 +79,12 @@ public class RopRequest {
         this.sign = sign;
     }
 
-    public String getFormat() {
-        return format;
+    public String getMsgFormat() {
+        return msgFormat;
     }
 
-    public void setFormat(String format) {
-        this.format = format;
+    public void setMsgFormat(String msgFormat) {
+        this.msgFormat = msgFormat;
     }
 
     public Locale getLocale() {

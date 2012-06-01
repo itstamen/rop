@@ -4,7 +4,14 @@
  */
 package com.rop.impl;
 
+import com.rop.MessageFormat;
 import com.rop.RopException;
+import com.rop.RopRequestParseException;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.AnnotationIntrospector;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -31,7 +38,17 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class RopRequestMessageConverter implements ConditionalGenericConverter {
 
-    private final ConcurrentMap<Class, JAXBContext> jaxbContexts = new ConcurrentHashMap<Class, JAXBContext>();
+    private static final ConcurrentMap<Class, JAXBContext> jaxbContexts = new ConcurrentHashMap<Class, JAXBContext>();
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    static {
+        AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
+        SerializationConfig serializationConfig = objectMapper.getSerializationConfig();
+        serializationConfig = serializationConfig.with(SerializationConfig.Feature.WRAP_ROOT_VALUE)
+                .withAnnotationIntrospector(introspector);
+        objectMapper.setSerializationConfig(serializationConfig);
+    }
 
 
     /**
@@ -52,11 +69,16 @@ public class RopRequestMessageConverter implements ConditionalGenericConverter {
 
     public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
         try {
-            Unmarshaller unmarshaller = createUnmarshaller(targetType.getObjectType());
-            StringReader reader = new StringReader((String) source);
-            return unmarshaller.unmarshal(reader);
-        } catch (JAXBException e) {
-            throw new RopException(e);
+            if (SimpleServiceMethodContext.messageFormat.get() == MessageFormat.JSON) {
+                JsonParser jsonParser = objectMapper.getJsonFactory().createJsonParser((String) source);
+                return jsonParser.readValueAs(targetType.getObjectType());
+            } else {//输入格式为JSON
+                Unmarshaller unmarshaller = createUnmarshaller(targetType.getObjectType());
+                StringReader reader = new StringReader((String) source);
+                return unmarshaller.unmarshal(reader);
+            }
+        } catch (Exception e) {
+            throw new RopRequestParseException((String) source, e);
         }
     }
 

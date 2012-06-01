@@ -5,9 +5,7 @@
 package com.rop.sample;
 
 import com.rop.AbstractInterceptor;
-import com.rop.RopResponse;
-import com.rop.RopServiceContext;
-import com.rop.response.ServiceErrorResponse;
+import com.rop.ServiceMethodContext;
 import com.rop.sample.response.InterceptorResponse;
 import org.springframework.stereotype.Component;
 
@@ -24,18 +22,18 @@ import org.springframework.stereotype.Component;
 public class MyInterceptor extends AbstractInterceptor {
 
     @Override
-    public void beforeService(RopServiceContext context) {
+    public void beforeService(ServiceMethodContext methodContext) {
         System.out.println("beforeService ...");
 
-        if("jhonson".equals(context.getRopRequest().getParamValue("userName"))){
+        if("jhonson".equals(methodContext.getRopRequest().getParamValue("userName"))){
             InterceptorResponse response = new InterceptorResponse();
             response.setTestField("the userName can't be jhonson!");
-            context.setRopResponse(response);
+            methodContext.setRopResponse(response);
         }
     }
 
     @Override
-    public void beforeResponse(RopServiceContext context) {
+    public void beforeResponse(ServiceMethodContext methodContext) {
         System.out.println("beforeResponse ...");
     }
 }

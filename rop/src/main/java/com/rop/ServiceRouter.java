@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * <pre>
- *      BOP的服务路由器，服务方法必须位于@Controller的类中，服务方法使用{@link ApiMethod}注解，有两个合法的方法签名方式：
+ *      BOP的服务路由器，服务方法必须位于@Controller的类中，服务方法使用{@link com.rop.annotation.ServiceMethod}注解，有两个合法的方法签名方式：
  * 签名方式1：有入参，且参数必须实现{@link RopRequest}接口，返回参数为BopResponse
  *   <code>
  *    @BopServiceMethod
@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author 陈雄华
  * @version 1.0
  */
-public interface RopServiceRouter {
+public interface ServiceRouter {
 
     /**
      * ROP框架的总入口，一般框架实现，开发者无需关注。
@@ -38,6 +38,6 @@ public interface RopServiceRouter {
      * @param webRequest
      * @param httpServletResponse
      */
-    void service(HttpServletRequest request, HttpServletResponse response);
+    void service(Object request, Object response);
 }
 

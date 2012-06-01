@@ -3,13 +3,13 @@
  */
 package com.rop;
 
-import com.rop.impl.AnnotationRopServiceRouter;
+import com.rop.impl.ServletServiceRouter;
+import com.rop.impl.ServletRequestServiceMethodContextBuilder;
 import com.rop.validation.AppSecretManager;
 import com.rop.validation.SessionChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
@@ -49,7 +49,7 @@ public class RopServlet extends HttpServlet {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private RopServiceRouter ropServiceRouter;
+    private ServiceRouter serviceRouter;
 
 
     /**
@@ -62,13 +62,13 @@ public class RopServlet extends HttpServlet {
      */
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        ropServiceRouter.service(req, resp);
+        serviceRouter.service(req, resp);
     }
 
     @Override
     public void init(ServletConfig servletConfig) throws ServletException {
         RopConfig ropConfig = buildRopConfig(servletConfig);
-        ropServiceRouter = new AnnotationRopServiceRouter(ropConfig);
+        serviceRouter = new ServletServiceRouter(ropConfig);
     }
 
     private RopConfig buildRopConfig(ServletConfig servletConfig) {
@@ -106,6 +106,9 @@ public class RopServlet extends HttpServlet {
             //6.设置其它参数,
             initOtherParams(properties, ropConfig);
 
+            //7.设置服务上下文转换器(基于Servlet的转换器)
+            ropConfig.setServiceMethodContextBuilder(new ServletRequestServiceMethodContextBuilder());
+
 
         } catch (Exception e) {
             throw new IllegalArgumentException("启动Rop时发生错误", e);
@@ -118,8 +121,9 @@ public class RopServlet extends HttpServlet {
 
         //初始化needCheckSign参数
         Boolean needCheckSign = Boolean.valueOf(
-                properties.getProperty(ConfigPropNames.NEED_CHECK_SIGN_PROPNAME, ConfigPropNames.DEFAULT_NEED_CHECK_SIGN));
-        logger.debug("参数ConfigPropNames.NEED_CHECK_SIGN_PROPNAME值为："+needCheckSign);
+                properties.getProperty(ConfigPropNames.NEED_CHECK_SIGN_PROPNAME,
+                        ConfigPropNames.DEFAULT_NEED_CHECK_SIGN));
+        logger.debug("参数ConfigPropNames.NEED_CHECK_SIGN_PROPNAME值为：" + needCheckSign);
         ropConfig.setNeedCheckSign(needCheckSign);
     }
 
@@ -167,7 +171,7 @@ public class RopServlet extends HttpServlet {
     private void initErrorResource(Properties properties, RopConfig ropConfig) {
         String errorBaseName = properties.getProperty(ConfigPropNames.ERROR_RESOURCE_BASE_NAME_PROPNAME,
                 ConfigPropNames.DEFAULT_ERROR_RESOURCE_BASE_NAME);
-        logger.debug("加载应用错误国际化资源:"+errorBaseName);
+        logger.debug("加载应用错误国际化资源:" + errorBaseName);
         ropConfig.setErrorBaseName(errorBaseName);
     }
 
@@ -210,7 +214,8 @@ public class RopServlet extends HttpServlet {
     private AppSecretManager initAppSecretManager(Properties properties, ApplicationContext applicationContext)
             throws ClassNotFoundException {
         List<AppSecretManager> component = getComponent(properties, applicationContext,
-                ConfigPropNames.APP_SECRET_MANAGER_CLASS_NAME_PROPNAME, ConfigPropNames.DEFAULT_APP_SECRET_MANAGER_CLASS_NAME,
+                ConfigPropNames.APP_SECRET_MANAGER_CLASS_NAME_PROPNAME,
+                ConfigPropNames.DEFAULT_APP_SECRET_MANAGER_CLASS_NAME,
                 AppSecretManager.class, false);
         Assert.notEmpty(component, "初始化" + AppSecretManager.class.getName() + "组件发生异常");
         return component.get(0);
@@ -228,7 +233,8 @@ public class RopServlet extends HttpServlet {
     private SecurityManager initSecurityManager(Properties properties, ApplicationContext applicationContext)
             throws ClassNotFoundException {
         List<SecurityManager> component = getComponent(properties, applicationContext,
-                ConfigPropNames.SECURITY_MANAGER_CLASS_NAME_PROPNAME, ConfigPropNames.DEFAULT_SECURITY_MANAGER_CLASS_NAME,
+                ConfigPropNames.SECURITY_MANAGER_CLASS_NAME_PROPNAME,
+                ConfigPropNames.DEFAULT_SECURITY_MANAGER_CLASS_NAME,
                 SecurityManager.class, false);
         Assert.notEmpty(component, "初始化" + SecurityManager.class.getName() + "组件发生异常");
         return component.get(0);
@@ -246,7 +252,8 @@ public class RopServlet extends HttpServlet {
     private SessionChecker initSessionChecker(Properties properties, ApplicationContext applicationContext)
             throws ClassNotFoundException {
         List<SessionChecker> component = getComponent(properties, applicationContext,
-                ConfigPropNames.SESSION_CHECKER_CLASS_NAME_PROPNAME, ConfigPropNames.DEFAULT_SESSION_CHECKER_CLASS_NAME,
+                ConfigPropNames.SESSION_CHECKER_CLASS_NAME_PROPNAME,
+                ConfigPropNames.DEFAULT_SESSION_CHECKER_CLASS_NAME,
                 SessionChecker.class, false);
         Assert.notEmpty(component, "初始化" + SessionChecker.class.getName() + "组件发生异常");
         return component.get(0);
@@ -321,7 +328,7 @@ public class RopServlet extends HttpServlet {
         return (T) BeanUtils.instantiateClass(sessionCheckerClass);
     }
 
-    private static class ConfigPropNames {
+    public static class ConfigPropNames {
 
         public static final String SESSION_CHECKER_CLASS_NAME_PROPNAME = "sessionCheckerClassName";
 
@@ -345,5 +352,7 @@ public class RopServlet extends HttpServlet {
 
         public static final String DEFAULT_ERROR_RESOURCE_BASE_NAME = "i18n/rop/ropError";
     }
+
+
 }
 

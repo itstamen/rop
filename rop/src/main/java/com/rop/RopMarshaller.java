@@ -14,7 +14,7 @@ import java.io.OutputStream;
  * @author 陈雄华
  * @version 1.0
  */
-public interface RopResponseMarshaller {
-    void marshaller(RopResponse response, OutputStream outputStream);
+public interface RopMarshaller {
+    void marshaller(Object object, OutputStream outputStream);
 }
 

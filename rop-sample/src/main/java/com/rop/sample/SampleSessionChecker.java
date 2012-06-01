@@ -6,6 +6,10 @@ package com.rop.sample;
 
 import com.rop.validation.SessionChecker;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /**
  * <pre>
  * 功能说明：
@@ -15,10 +19,16 @@ import com.rop.validation.SessionChecker;
  * @version 1.0
  */
 public class SampleSessionChecker implements SessionChecker{
+    
+    private static final List<String> invalidSessionIds = new ArrayList<String>();
+    static {
+        invalidSessionIds.add("mockSessionId1");
+        invalidSessionIds.add("mockSessionId2");
+    }
+    
     @Override
     public boolean isValid(String sessionId) {
-        System.out.println("use SampleSessionChecker!");
-        return true;
+        return invalidSessionIds.contains(sessionId);
     }
 }
 

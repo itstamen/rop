@@ -5,8 +5,7 @@
 package com.rop.marshaller;
 
 import com.rop.RopException;
-import com.rop.RopResponse;
-import com.rop.RopResponseMarshaller;
+import com.rop.RopMarshaller;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.AnnotationIntrospector;
@@ -25,14 +24,14 @@ import java.io.OutputStream;
  * @author 陈雄华
  * @version 1.0
  */
-public class JacksonJsonRopResponseMarshaller implements RopResponseMarshaller {
+public class JacksonJsonRopMarshaller implements RopMarshaller {
 
-    private ObjectMapper objectMapper;
+    private static ObjectMapper objectMapper;
 
-    public void marshaller(RopResponse response, OutputStream outputStream) {
+    public void marshaller(Object object, OutputStream outputStream) {
         try {
             JsonGenerator jsonGenerator = getObjectMapper().getJsonFactory().createJsonGenerator(outputStream, JsonEncoding.UTF8);
-            getObjectMapper().writeValue(jsonGenerator, response);
+            getObjectMapper().writeValue(jsonGenerator, object);
         } catch (IOException e) {
             throw new RopException(e);
         }
@@ -44,14 +43,11 @@ public class JacksonJsonRopResponseMarshaller implements RopResponseMarshaller {
             AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
             SerializationConfig serializationConfig = objectMapper.getSerializationConfig();
             serializationConfig = serializationConfig.with(SerializationConfig.Feature.WRAP_ROOT_VALUE)
-                    .withAnnotationIntrospector(introspector);
+                                                     .withAnnotationIntrospector(introspector);
             objectMapper.setSerializationConfig(serializationConfig);
             this.objectMapper = objectMapper;
         }
         return this.objectMapper;
-
     }
-
-
 }
 

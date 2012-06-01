@@ -20,7 +20,7 @@ public class JaxbXmlRopResponseMarshallerTest{
 
     @Test
     public void buildMarshaller() throws Throwable{
-        JaxbXmlRopResponseMarshaller marshaller = new JaxbXmlRopResponseMarshaller();
+        JaxbXmlRopMarshaller marshaller = new JaxbXmlRopMarshaller();
         marshaller.marshaller(new SampleResponse(), new ByteArrayOutputStream(1024));
     }
 }

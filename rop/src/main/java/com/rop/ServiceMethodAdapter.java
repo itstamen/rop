@@ -12,7 +12,7 @@ package com.rop;
  * @author 陈雄华
  * @version 1.0
  */
-public interface RopServiceMethodAdapter {
+public interface ServiceMethodAdapter {
     /**
      * 调用服务方法
      *
@@ -20,7 +20,7 @@ public interface RopServiceMethodAdapter {
      * @param webRequest
      * @return
      */
-    RopResponse invokeServiceMethod(RopServiceContext context);
+    RopResponse invokeServiceMethod(ServiceMethodContext methodContext);
 
 }
 

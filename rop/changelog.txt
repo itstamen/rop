@@ -1,0 +1,31 @@
+
+1.0-SNAPSHOP-1  (2012-05-18)
+
+1.解决JaxbXmlRopResponseMarshaller 存在的多线程安全问题；
+2.RopRequest添加一个rawRequestObject的属性，可以获取原始Request的对象（即HttpServletRequest）
+3.RopSample的UserRestServiceClient改为测试用例。
+4.可通过RopServlet的needCheckSign Servlet参数指定是否要进行签名校验。
+5.Rop框架的配置原来使用RopServlet的初始化参数，现在改为使用一个配置文件，默认的配置文件为：/WEB-INF/<ropServlet名称>.properties,参见RopSample的实例；
+6.解决JaxbXmlRopResponseMarshallerTest一个BUG，原来有依赖JUnit,现已经移除。
+
+1.0-SNAPSHOP-1 (2012-05-29)
+
+1.com.rop.ApiMethod及IgoreSign注解类迁移到com.rop.annotation包下，同时易名为com.rop.ServiceMethod，
+  新增group,tags,title,timeout,version,ignoreSign,ioLogLevel等属性。
+2.在com.rop.annotation包下，新增com.rop.ServiceMethodGroup，ServiceMethodGroup 用于标注在服务类中，由于其
+  已经标注了Spring的Component注解，因此服务类标注ServiceMethodGroup后，即成为Spring的Bean，无需额外标注
+  @Component或@Service等。
+3.新增com.rop.ServiceMethodDefinition，用于描述Rop的服务方法定义；
+4.com.rop.RopServiceContext易名为ServiceMethodContext，在ServiceMethodContext中新增获取ServiceMethodDefinition的方法。
+5.com.rop.RopServiceHandler添加serviceMethodDefinition()的方法；
+6.com.rop.Interceptor添加boolean isMatch(ServiceMethodContext methodContext)方法，以便指定拦截器的拦截范围。
+  com.rop.AbstractInterceptor添加isMatch()的默认实现，返回true。
+7.com.rop.ResponseFormat易名为com.rop.MessageFormat.
+8.com.rop.RopResponseMarshaller接口类名易名为RopMarshaller，接口方法：
+  void marshaller(RopResponse response, OutputStream outputStream) 调整为
+  void marshaller(Object obj, OutputStream outputStream)
+9.新增com.rop.marshaller.RopIOMarshallerUtils，可以对RopRequest和RopResponse对象进行序列化输出。
+
+
+
+

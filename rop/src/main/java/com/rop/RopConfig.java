@@ -30,6 +30,8 @@ public class RopConfig {
     private List<Interceptor> interceptors;
 
     private SecurityManager securityManager;
+    
+    private ServiceMethodContextBuilder serviceMethodContextBuilder;
 
     private boolean needCheckSign = true;
 
@@ -87,6 +89,14 @@ public class RopConfig {
 
     public void setNeedCheckSign(boolean needCheckSign) {
         this.needCheckSign = needCheckSign;
+    }
+
+    public ServiceMethodContextBuilder getServiceMethodContextBuilder() {
+        return serviceMethodContextBuilder;
+    }
+
+    public void setServiceMethodContextBuilder(ServiceMethodContextBuilder serviceMethodContextBuilder) {
+        this.serviceMethodContextBuilder = serviceMethodContextBuilder;
     }
 }
 

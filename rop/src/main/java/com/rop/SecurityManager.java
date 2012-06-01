@@ -21,6 +21,6 @@ public interface SecurityManager {
      * @param userId
      * @return
      */
-    boolean isGranted(RopServiceContext context);
+    boolean isGranted(ServiceMethodContext methodContext);
 }
 

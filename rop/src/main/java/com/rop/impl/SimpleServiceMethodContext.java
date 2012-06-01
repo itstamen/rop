@@ -19,21 +19,23 @@ import java.util.Map;
  * @author 陈雄华
  * @version 1.0
  */
-public class SimpleRopServiceContext implements RopServiceContext {
+public class SimpleServiceMethodContext implements ServiceMethodContext {
 
     public static final String HTTP_SERVLET_REQUEST_ATTRNAME = "$HTTP_SERVLET_REQUEST_ATTRNAME";
 
     public static final String SPRING_VALIDATE_ERROR_ATTRNAME = "$SPRING_VALIDATE_ERROR_ATTRNAME";
 
-    private Map<String, Object> attributes = new HashMap<String, Object>();
+    private RopContext ropContext;
 
+    private Map<String, Object> attributes = new HashMap<String, Object>();
+    
     private String method;
 
     private Locale locale;
 
-    private RopServiceHandler ropServiceHandler;
+    private ServiceMethodHandler serviceMethodHandler;
 
-    private ResponseFormat responseFormat;
+    public static ThreadLocal<MessageFormat> messageFormat = new ThreadLocal<MessageFormat>();
 
     private MainError mainError;
 
@@ -45,10 +47,43 @@ public class SimpleRopServiceContext implements RopServiceContext {
 
     private String appKey;
 
-    private boolean needCheckSign ;
+    private long serviceBeginTime = -1;
+
+    private long serviceEndTime = -1;
+
+    @Override
+    public long getServiceBeginTime() {
+        return this.serviceBeginTime;
+    }
+
+    @Override
+    public long getServiceEndTime() {
+        return this.serviceEndTime;
+    }
+
+    public void setServiceBeginTime(long serviceBeginTime) {
+        this.serviceBeginTime = serviceBeginTime;
+    }
+
+    public void setServiceEndTime(long serviceEndTime) {
+        this.serviceEndTime = serviceEndTime;
+    }
+
+    public SimpleServiceMethodContext(RopContext ropContext) {
+        this.ropContext = ropContext;
+    }
+
+    @Override
+    public RopContext getRopContext() {
+        return ropContext;
+    }
 
     public String getMethod() {
         return this.method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
     }
 
     public String getSessionId() {
@@ -59,12 +94,12 @@ public class SimpleRopServiceContext implements RopServiceContext {
         return this.locale;
     }
 
-    public RopServiceHandler getRopServiceHandler() {
-        return this.ropServiceHandler;
+    public ServiceMethodHandler getServiceMethodHandler() {
+        return this.serviceMethodHandler;
     }
 
-    public ResponseFormat getResponseFormat() {
-        return this.responseFormat;
+    public MessageFormat getMessageFormat() {
+        return messageFormat.get();
     }
 
     public RopResponse getRopResponse() {
@@ -83,22 +118,18 @@ public class SimpleRopServiceContext implements RopServiceContext {
         return this.appKey;
     }
 
-    public void setMethod(String method) {
-        this.method = method;
-    }
 
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
 
-    public void setRopServiceHandler(RopServiceHandler ropServiceHandler) {
-        this.ropServiceHandler = ropServiceHandler;
+    public void setServiceMethodHandler(ServiceMethodHandler serviceMethodHandler) {
+        this.serviceMethodHandler = serviceMethodHandler;
     }
 
-    public void setResponseFormat(ResponseFormat responseFormat) {
-        this.responseFormat = responseFormat;
+    public void setMessageFormat(MessageFormat messageFormat) {
+        this.messageFormat.set(messageFormat);
     }
-
 
     public void setRopResponse(RopResponse ropResponse) {
         this.ropResponse = ropResponse;
@@ -128,12 +159,17 @@ public class SimpleRopServiceContext implements RopServiceContext {
         this.attributes.put(name, value);
     }
 
-    public boolean isNeedCheckSign() {
-        return needCheckSign;
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 
-    public void setNeedCheckSign(boolean needCheckSign) {
-        this.needCheckSign = needCheckSign;
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
+    public ServiceMethodDefinition getServiceMethodDefinition() {
+        return serviceMethodHandler.getServiceMethodDefinition();
     }
 }
 

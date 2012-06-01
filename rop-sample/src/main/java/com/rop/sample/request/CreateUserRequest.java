@@ -5,12 +5,11 @@
 package com.rop.sample.request;
 
 import com.rop.RopRequest;
+import com.rop.annotation.IgnoreSign;
 import org.springframework.format.annotation.NumberFormat;
 
 import javax.validation.Valid;
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 
 /**
  * <pre>
@@ -25,6 +24,7 @@ public class CreateUserRequest extends RopRequest {
     @Pattern(regexp = "\\w{4,30}")
     private String userName;
 
+    @IgnoreSign
     @Pattern(regexp = "\\w{6,30}")
     private String password;
 
@@ -35,6 +35,8 @@ public class CreateUserRequest extends RopRequest {
 
     @Valid
     private Address address;
+    
+    private String format;
 
     public String getUserName() {
         return userName;
@@ -66,6 +68,14 @@ public class CreateUserRequest extends RopRequest {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
     }
 }
 
