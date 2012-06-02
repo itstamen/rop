@@ -31,7 +31,7 @@ public abstract class AbstractInterceptor implements Interceptor {
      * @return
      */
     public int getOrder() {
-        return Integer.MIN_VALUE;
+        return Integer.MAX_VALUE;
     }
 }
 

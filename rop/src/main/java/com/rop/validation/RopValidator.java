@@ -4,6 +4,7 @@
  */
 package com.rop.validation;
 
+import com.rop.SecurityManager;
 import com.rop.ServiceMethodContext;
 
 /**
@@ -23,5 +24,29 @@ public interface RopValidator {
      * @return
      */
     MainError validate(ServiceMethodContext methodContext);
+
+    /**
+     * 是否需要进行签名校验
+     * @return
+     */
+    boolean isNeedCheckSign();
+
+    /**
+     * 获取安全管理器
+     * @return
+     */
+    SecurityManager getSecurityManager();
+
+    /**
+     * 获取应用密钥管理器
+     * @return
+     */
+    AppSecretManager getAppSecretManager();
+
+    /**
+     * 获取会话校验器
+     * @return
+     */
+    SessionChecker getSessionChecker();
 }
 

@@ -25,7 +25,7 @@ import static org.testng.Assert.assertTrue;
  * @author 陈雄华
  * @version 1.0
  */
-public class DefaultServiceMethodHandlerRegistryTest {
+public class DefaultRopContextTest {
 
     @Test
     public void testWithoutGroupService() {
@@ -37,7 +37,7 @@ public class DefaultServiceMethodHandlerRegistryTest {
         when(context.getType("service1")).thenReturn(withoutGroupServiceClass);
 
         RopContext registryMethod = new DefaultRopContext(ropConfig);
-        ServiceMethodHandler handler = registryMethod.getServiceMethodHandler("service.method1");
+        ServiceMethodHandler handler = registryMethod.getServiceMethodHandler("service.method1","1.0");
         ServiceMethodDefinition definition = handler.getServiceMethodDefinition();
         assertNotNull(definition);
         assertEquals(definition.getMethod(), "service.method1");
@@ -61,10 +61,10 @@ public class DefaultServiceMethodHandlerRegistryTest {
         when(context.getBeanNamesForType(Object.class)).thenReturn(new String[]{"service1"});
         Class withGroupServiceClass = WithGroupService.class;
         when(context.getType("service1")).thenReturn(withGroupServiceClass);
-        RopContext registryMethod = new DefaultRopContext(ropConfig);
+        RopContext ropContext = new DefaultRopContext(ropConfig);
 
         //method1:都在ServiceMethodGroup中定义，在ServiceMethod中直接采用
-        ServiceMethodHandler handler = registryMethod.getServiceMethodHandler("service.method1");
+        ServiceMethodHandler handler = ropContext.getServiceMethodHandler("service.method1","1.0");
         ServiceMethodDefinition definition = handler.getServiceMethodDefinition();
         assertNotNull(definition);
         assertEquals(definition.getMethod(), "service.method1");
@@ -79,7 +79,7 @@ public class DefaultServiceMethodHandlerRegistryTest {
         assertEquals(definition.getVersion(), "1.0");
 
         //method2:在ServiceMethodGroup中定义，在ServiceMethod显式覆盖之
-        ServiceMethodHandler handler2 = registryMethod.getServiceMethodHandler("service.method2");
+        ServiceMethodHandler handler2 = ropContext.getServiceMethodHandler("service.method2","2.0");
         ServiceMethodDefinition definition2 = handler2.getServiceMethodDefinition();
         assertNotNull(definition2);
         assertEquals(definition2.getMethod(), "service.method2");
@@ -103,8 +103,8 @@ public class DefaultServiceMethodHandlerRegistryTest {
         when(context.getBeanNamesForType(Object.class)).thenReturn(new String[]{"method1"});
         Class serviceClass = IgnoreSignRopRequestService.class;
         when(context.getType("method1")).thenReturn(serviceClass);
-        RopContext registryMethod = new DefaultRopContext(ropConfig);
-        ServiceMethodHandler method1 = registryMethod.getServiceMethodHandler("method1");
+        RopContext ropContext = new DefaultRopContext(ropConfig);
+        ServiceMethodHandler method1 = ropContext.getServiceMethodHandler("method1","1.0");
         List<String> ignoreSignFieldNames = method1.getIgnoreSignFieldNames();
         assertNotNull(ignoreSignFieldNames);
         assertEquals(ignoreSignFieldNames.size(),3);
@@ -115,7 +115,7 @@ public class DefaultServiceMethodHandlerRegistryTest {
 
     public class IgnoreSignRopRequestService{
 
-        @ServiceMethod("method1")
+        @ServiceMethod(value = "method1",version = "1.0")
         public RopResponse method1(FooRopRequest request){
            return null;
         }
@@ -169,7 +169,7 @@ public class DefaultServiceMethodHandlerRegistryTest {
     public class WithoutGroupService {
 
         @ServiceMethod(value = "service.method1", title = "测试方法1", group = "GROUP1", groupTitle = "分组1",
-                tags = {"TAG1", "TAG2"}, ignoreSign = IgnoreSignType.YES, ioLogLevel = MessageLog.ON,
+                tags = {"TAG1", "TAG2"}, ignoreSign = IgnoreSignType.YES, messageLog = MessageLog.ON,
                 needInSession = NeedInSessionType.NO, timeout = 100, version = "1.0")
         public RopResponse service1() {
             return new RopResponse() {
@@ -182,14 +182,14 @@ public class DefaultServiceMethodHandlerRegistryTest {
             needInSession = NeedInSessionType.NO, timeout = 100, version = "1.0")
     public class WithGroupService {
 
-        @ServiceMethod(value = "service.method1", title = "测试方法1")
+        @ServiceMethod(value = "service.method1",version = "1.0",title = "测试方法1")
         public RopResponse service1() {
             return new RopResponse() {
             };
         }
 
         @ServiceMethod(value = "service.method2", title = "测试方法2", group = "GROUP2", groupTitle = "分组2",
-                tags = {"TAG11", "TAG21"}, ignoreSign = IgnoreSignType.NO, ioLogLevel = MessageLog.OFF,
+                tags = {"TAG11", "TAG21"}, ignoreSign = IgnoreSignType.NO, messageLog = MessageLog.OFF,
                 needInSession = NeedInSessionType.YES, timeout = 200, version = "2.0")
         public RopResponse service2() {
             return new RopResponse() {

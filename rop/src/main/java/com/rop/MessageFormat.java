@@ -8,13 +8,18 @@ package com.rop;
  */
 public enum MessageFormat {
 
-    XML, JSON;
+    xml, json;
 
     public static MessageFormat getFormat(String value) {
         if ("json".equalsIgnoreCase(value)) {
-            return JSON;
+            return json;
         } else {
-            return XML;
+            return xml;
         }
     }
+
+    public static boolean isValidFormat(String value) {
+        return xml.name().equalsIgnoreCase(value) || json.name().equalsIgnoreCase(value);
+    }
+
 }

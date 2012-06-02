@@ -3,11 +3,13 @@
  */
 package com.rop;
 
+import com.rop.event.RopEventListener;
 import com.rop.validation.AppSecretManager;
 import com.rop.validation.SessionChecker;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * <pre>
@@ -21,17 +23,19 @@ public class RopConfig {
 
     private String errorResourceBaseName = "ropError";
 
+    private ApplicationContext applicationContext;
+
     private SessionChecker sessionChecker;
 
     private AppSecretManager appSecretManager;
 
-    private ApplicationContext applicationContext;
+    private SecurityManager securityManager;
 
     private List<Interceptor> interceptors;
-
-    private SecurityManager securityManager;
     
-    private ServiceMethodContextBuilder serviceMethodContextBuilder;
+    private List<RopEventListener> ropEventListeners;
+
+    private Executor taskExecutor;
 
     private boolean needCheckSign = true;
 
@@ -75,6 +79,14 @@ public class RopConfig {
         this.interceptors = interceptors;
     }
 
+    public List<RopEventListener> getRopEventListeners() {
+        return ropEventListeners;
+    }
+
+    public void setRopEventListeners(List<RopEventListener> ropEventListeners) {
+        this.ropEventListeners = ropEventListeners;
+    }
+
     public void setSecurityManager(SecurityManager securityManager) {
         this.securityManager = securityManager;
     }
@@ -91,12 +103,12 @@ public class RopConfig {
         this.needCheckSign = needCheckSign;
     }
 
-    public ServiceMethodContextBuilder getServiceMethodContextBuilder() {
-        return serviceMethodContextBuilder;
+    public Executor getTaskExecutor() {
+        return taskExecutor;
     }
 
-    public void setServiceMethodContextBuilder(ServiceMethodContextBuilder serviceMethodContextBuilder) {
-        this.serviceMethodContextBuilder = serviceMethodContextBuilder;
+    public void setTaskExecutor(Executor taskExecutor) {
+        this.taskExecutor = taskExecutor;
     }
 }
 

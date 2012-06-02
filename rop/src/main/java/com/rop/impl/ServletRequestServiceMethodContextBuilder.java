@@ -4,10 +4,7 @@
  */
 package com.rop.impl;
 
-import com.rop.MessageFormat;
-import com.rop.RopContext;
-import com.rop.RopRequest;
-import com.rop.ServiceMethodContextBuilder;
+import com.rop.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.propertyeditors.LocaleEditor;
 import org.springframework.core.convert.ConversionService;
@@ -48,31 +45,64 @@ public class ServletRequestServiceMethodContextBuilder implements ServiceMethodC
 
     public static final String APP_KEY = "appKey";
 
+    public static final String VERSION = "v";
+    public static final String SIGN = "sign";
+
     private FormattingConversionService conversionService;
 
     private Validator validator;
 
 
-
     @Override
-    public SimpleServiceMethodContext buildBopServiceContext(RopContext ropContext,Object request) {
+    public SimpleServiceMethodContext buildBopServiceContext(RopContext ropContext, Object request) {
         if (!(request instanceof HttpServletRequest)) {
             throw new IllegalArgumentException("请求对象必须是HttpServletRequest的类型");
         }
 
         HttpServletRequest servletRequest = (HttpServletRequest) request;
-
         SimpleServiceMethodContext ropServiceContext = new SimpleServiceMethodContext(ropContext);
 
+        //设置系统参数
         ropServiceContext.setMethod(servletRequest.getParameter(METHOD));
-        ropServiceContext.setLocale(getLocale(servletRequest));
-        ropServiceContext.setServiceMethodHandler(ropContext.getServiceMethodHandler(servletRequest.getParameter(METHOD)));
-        ropServiceContext.setMessageFormat(getResponseFormat(servletRequest));
-        ropServiceContext.setAttribute(SimpleServiceMethodContext.HTTP_SERVLET_REQUEST_ATTRNAME, servletRequest);
-        ropServiceContext.setSessionId(servletRequest.getParameter(SESSION_ID));
+        ropServiceContext.setVersion(servletRequest.getParameter(VERSION));
         ropServiceContext.setAppKey(servletRequest.getParameter(APP_KEY));
+        ropServiceContext.setSessionId(servletRequest.getParameter(SESSION_ID));
+        ropServiceContext.setLocale(getLocale(servletRequest));
+        ropServiceContext.setFormat(getFormat(servletRequest));
+        ropServiceContext.setMessageFormat(getResponseFormat(servletRequest));
+        ropServiceContext.setSign(servletRequest.getParameter(SIGN));
+
+        //设置服务处理器
+        ServiceMethodHandler serviceMethodHandler =
+                ropContext.getServiceMethodHandler(servletRequest.getParameter(METHOD), servletRequest.getParameter(VERSION));
+        ropServiceContext.setServiceMethodHandler(serviceMethodHandler);
+
+        //设置请求对象
+        ropServiceContext.setAttribute(SimpleServiceMethodContext.HTTP_SERVLET_REQUEST_ATTRNAME, servletRequest);
+
         bindRequest(ropServiceContext);
         return ropServiceContext;
+    }
+
+    private String getFormat(HttpServletRequest servletRequest) {
+
+        if (MessageFormat.isValidFormat(servletRequest.getParameter(FORMAT))) {
+            return servletRequest.getParameter(FORMAT);
+        }
+
+        if (MessageFormat.isValidFormat(servletRequest.getParameter(MSG_FORMAT))) {
+            return servletRequest.getParameter(MSG_FORMAT);
+        }
+
+        if (servletRequest.getParameter(MSG_FORMAT) != null) {
+            return servletRequest.getParameter(MSG_FORMAT);
+        }
+
+        if (servletRequest.getParameter(FORMAT) != null) {
+            return servletRequest.getParameter(FORMAT);
+        }
+
+        return MessageFormat.xml.name();
     }
 
     private Locale getLocale(HttpServletRequest webRequest) {

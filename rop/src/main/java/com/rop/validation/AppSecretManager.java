@@ -21,5 +21,12 @@ public interface AppSecretManager {
      * @return
      */
     String getSecret(String appKey);
+
+    /**
+     * 是否是合法的appKey
+     * @param appKey
+     * @return
+     */
+    boolean isValidAppKey(String appKey);
 }
 

@@ -5,6 +5,7 @@
 package com.rop.impl;
 
 import com.rop.*;
+import com.rop.event.*;
 import com.rop.marshaller.JacksonJsonRopMarshaller;
 import com.rop.marshaller.JaxbXmlRopMarshaller;
 import com.rop.response.ErrorResponse;
@@ -38,52 +39,115 @@ public class ServletServiceRouter implements ServiceRouter {
 
     private RopMarshaller jsonMarshallerRop = new JacksonJsonRopMarshaller();
 
-    private RopContext ropContext;
+    private ServiceMethodContextBuilder serviceMethodContextBuilder = new ServletRequestServiceMethodContextBuilder();
 
-    private ServiceMethodContextBuilder serviceMethodContextBuilder;
+    private RopContext ropContext;
 
     private RopValidator ropValidator;
 
+    private RopEventMulticaster ropEventMulticaster;
+
+
     public ServletServiceRouter(RopConfig ropConfig) {
-        initRopContext(ropConfig);
-        this.serviceMethodContextBuilder = ropConfig.getServiceMethodContextBuilder();
+        if (logger.isInfoEnabled()) {
+            logger.info("初始化Rop框架");
+        }
+        this.ropContext = new DefaultRopContext(ropConfig);
+        this.serviceMethodAdapter = new AnnotationServiceMethodAdapter();
+        this.ropValidator = new DefaultRopValidator(this.ropContext.getRopConfig());
+
+        //初始化信息源
+        initMessageSource();
+
+        //初始化事件发布器
+        initRopEventMulticaster();
+
+        //产生Rop框架初始化事件
+        firePostInitializeEvent();
+    }
+
+    private void initRopEventMulticaster() {
+        SimpleRopEventMulticaster simpleRopEventMulticaster = new SimpleRopEventMulticaster();
+
+        //设置异步执行器
+        if (ropContext.getRopConfig().getTaskExecutor() != null) {
+            simpleRopEventMulticaster.setTaskExecutor(ropContext.getRopConfig().getTaskExecutor());
+        }
+
+        //添加事件监听器
+        List<RopEventListener> ropEventListeners = this.ropContext.getRopConfig().getRopEventListeners();
+        if (ropEventListeners != null && ropEventListeners.size() > 0) {
+            for (RopEventListener ropEventListener : ropEventListeners) {
+                simpleRopEventMulticaster.addRopListener(ropEventListener);
+            }
+        }
+
+        this.ropEventMulticaster = simpleRopEventMulticaster;
+    }
+
+    /**
+     * 发布Rop初始化事件
+     */
+    private void firePostInitializeEvent() {
+        PostInitializeEvent event = new PostInitializeEvent(this, this.ropContext);
+        this.ropEventMulticaster.multicastEvent(event);
     }
 
     @Override
     public void service(Object request, Object response) {
+        long beginTime = System.currentTimeMillis();
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         HttpServletResponse servletResponse = (HttpServletResponse) response;
         ServiceMethodContext serviceMethodContext = null;
 
         try {
-            //1.构造服务方法的上下文
+            //构造服务方法的上下文
             serviceMethodContext = buildBopServiceContext(servletRequest);
+            serviceMethodContext.setServiceBeginTime(beginTime);
 
-            //2.进行服务准入检查（包括appKey、签名、会话、服务安全，数据合法性等）
+            //发布事件
+            firePreDoServiceEvent(serviceMethodContext);
+
+            //进行服务准入检查（包括appKey、签名、会话、服务安全，数据合法性等）
             MainError mainError = ropValidator.validate(serviceMethodContext);
+
             if (mainError != null) {
                 serviceMethodContext.setRopResponse(new ErrorResponse(mainError));
-            } else {//3.通过服务准入检查后发起正式的服务调整
+            } else {//通过服务准入检查后发起正式的服务调整
 
-                //3.1 服务处理前拦截
+                //服务处理前拦截
                 invokeBeforceServiceOfInterceptors(serviceMethodContext);
 
-                //3.2 如果拦截器没有产生ropResponse时才调用服务方法
+                //如果拦截器没有产生ropResponse时才调用服务方法
                 serviceMethodContext.setRopResponse(doService(serviceMethodContext));
 
-                //3.3返回响应后拦截
+                //返回响应后拦截
                 invokeBeforceResponseOfInterceptors(serviceMethodContext);
             }
 
-            //4.输出响应
-            writeResponse(serviceMethodContext.getRopResponse(), servletResponse, serviceMethodContext.getMessageFormat());
 
+            //输出响应
+            writeResponse(serviceMethodContext.getRopResponse(), servletResponse, serviceMethodContext.getMessageFormat());
         } catch (Throwable e) {
             String method = serviceMethodContext.getMethod();
             Locale locale = serviceMethodContext.getLocale();
             ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale);
             writeResponse(ropResponse, servletResponse, serviceMethodContext.getMessageFormat());
+        } finally {
+            if (serviceMethodContext != null) {
+                //发布服务完成事件
+                serviceMethodContext.setServiceEndTime(System.currentTimeMillis());
+                fireAfterDoServiceEvent(serviceMethodContext);
+            }
         }
+    }
+
+    private void fireAfterDoServiceEvent(ServiceMethodContext serviceMethodContext) {
+        this.ropEventMulticaster.multicastEvent(new PreDoServiceEvent(this, serviceMethodContext));
+    }
+
+    private void firePreDoServiceEvent(ServiceMethodContext serviceMethodContext) {
+        this.ropEventMulticaster.multicastEvent(new AfterDoServiceEvent(this, serviceMethodContext));
     }
 
 
@@ -145,7 +209,7 @@ public class ServletServiceRouter implements ServiceRouter {
     private void writeResponse(RopResponse ropResponse, HttpServletResponse httpServletResponse, MessageFormat messageFormat) {
         try {
             httpServletResponse.setCharacterEncoding(UTF_8);
-            if (messageFormat == MessageFormat.XML) {
+            if (messageFormat == MessageFormat.xml) {
                 httpServletResponse.setContentType(APPLICATION_XML);
                 xmlMarshallerRop.marshaller(ropResponse, httpServletResponse.getOutputStream());
             } else {
@@ -174,22 +238,6 @@ public class ServletServiceRouter implements ServiceRouter {
             }
         }
         return ropResponse;
-    }
-
-
-    /**
-     * 在WebApplication初始化完成后执行，完成BOP的初始化工作
-     *
-     * @param event
-     */
-    private void initRopContext(RopConfig ropConfig) {
-        if (logger.isInfoEnabled()) {
-            logger.info("初始化Rop框架");
-        }
-        ropContext = new DefaultRopContext(ropConfig);
-        serviceMethodAdapter = new AnnotationServiceMethodAdapter();
-        ropValidator = new DefaultRopValidator(ropContext);
-        initMessageSource();
     }
 
     /**

@@ -23,18 +23,6 @@ public interface ServiceMethodContext {
     RopContext getRopContext();
 
     /**
-     * 获取服务开始时间，单位为毫秒，为-1表示无意义
-     * @return
-     */
-    long getServiceBeginTime();
-
-    /**
-     * 获取服务结束时间，单位为毫秒，为-1表示无意义
-     * @return
-     */
-    long getServiceEndTime();
-
-    /**
      * 获取服务的方法
      *
      * @return
@@ -42,10 +30,16 @@ public interface ServiceMethodContext {
     String getMethod();
 
     /**
-     * 获取服务方法对应的ApiMethod对象信息
+     * 获取服务的版本号
      * @return
      */
-    ServiceMethodDefinition getServiceMethodDefinition();
+    String getVersion();
+
+    /**
+     * 获取应用的appKey
+     * @return
+     */
+    String getAppKey();
 
     /**
      * 获取会话的ID
@@ -55,11 +49,60 @@ public interface ServiceMethodContext {
     String getSessionId();
 
     /**
+     * 获取报文格式化参数
+     * @return
+     */
+    String getFormat();
+    
+    /**
+     * 获取响应的格式
+     *
+     * @return
+     */
+    MessageFormat getMessageFormat();    
+
+    /**
      * 获取本地化对象
      *
      * @return
      */
     Locale getLocale();
+
+    /**
+     * 获取签名
+     * @return
+     */
+    String getSign();
+
+    /**
+     * 设置服务开始时间
+     * @param serviceBeginTime
+     */
+    void setServiceBeginTime(long serviceBeginTime);
+
+    /**
+     * 获取服务开始时间，单位为毫秒，为-1表示无意义
+     * @return
+     */
+    long getServiceBeginTime();
+
+    /**
+     * 设置服务开始时间
+     * @param serviceBeginTime
+     */
+    void setServiceEndTime(long serviceEndTime);
+
+    /**
+     * 获取服务结束时间，单位为毫秒，为-1表示无意义
+     * @return
+     */
+    long getServiceEndTime();
+
+    /**
+     * 获取服务方法对应的ApiMethod对象信息
+     * @return
+     */
+    ServiceMethodDefinition getServiceMethodDefinition();
 
     /**
      * 获取服务的处理者
@@ -68,12 +111,6 @@ public interface ServiceMethodContext {
      */
     ServiceMethodHandler getServiceMethodHandler();
 
-    /**
-     * 获取响应的格式
-     *
-     * @return
-     */
-    MessageFormat getMessageFormat();
 
     /**
      * 返回响应对象
@@ -88,11 +125,6 @@ public interface ServiceMethodContext {
      * @return
      */
     RopRequest getRopRequest();
-
-    /**
-     * @return
-     */
-    String getAppKey();
 
     /**
      * @param ropResponse

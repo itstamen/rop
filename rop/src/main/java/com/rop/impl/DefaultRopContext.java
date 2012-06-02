@@ -17,10 +17,7 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <pre>
@@ -34,7 +31,9 @@ public class DefaultRopContext implements RopContext {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Map<String, ServiceMethodHandler> serviceHandlerMap = new LinkedHashMap<String, ServiceMethodHandler>();
+    private final Map<String, ServiceMethodHandler> serviceHandlerMap = new HashMap<String, ServiceMethodHandler>();
+
+    private final Set<String> serviceMethods = new HashSet<String>();
 
     private RopConfig ropConfig;
 
@@ -44,18 +43,25 @@ public class DefaultRopContext implements RopContext {
     }
 
     @Override
-    public void addBopServiceHandler(String methodName, ServiceMethodHandler serviceMethodHandler) {
-        serviceHandlerMap.put(methodName, serviceMethodHandler);
+    public void addServiceMethod(String methodName, String version, ServiceMethodHandler serviceMethodHandler) {
+        serviceMethods.add(methodName);
+        serviceHandlerMap.put(ServiceMethodHandler.methodWithVersion(methodName, version), serviceMethodHandler);
     }
 
     @Override
-    public ServiceMethodHandler getServiceMethodHandler(String methodName) {
-        return serviceHandlerMap.get(methodName);
+    public ServiceMethodHandler getServiceMethodHandler(String methodName,String version) {
+        return serviceHandlerMap.get(ServiceMethodHandler.methodWithVersion(methodName, version));
     }
+
 
     @Override
     public boolean isValidMethod(String methodName) {
-        return serviceHandlerMap.containsKey(methodName);
+        return serviceMethods.contains(methodName);
+    }
+
+    @Override
+    public boolean isValidMethodVersion(String methodName, String version) {
+        return serviceHandlerMap.containsKey(ServiceMethodHandler.methodWithVersion(methodName, version));
     }
 
     @Override
@@ -87,6 +93,7 @@ public class DefaultRopContext implements RopContext {
 
                             ServiceMethod serviceMethod = method.getAnnotation(ServiceMethod.class);
                             ServiceMethodGroup serviceMethodGroup = method.getDeclaringClass().getAnnotation(ServiceMethodGroup.class);
+
                             ServiceMethodDefinition definition = null;
                             if (serviceMethodGroup != null) {
                                 definition = buildServiceMethodDefinition(serviceMethodGroup, serviceMethod);
@@ -101,16 +108,17 @@ public class DefaultRopContext implements RopContext {
                             serviceMethodHandler.setHandlerMethod(method); //handler'method
                             if (method.getParameterTypes().length > 0) {//handler method's parameter
                                 Class<?> aClass = method.getParameterTypes()[0];
-                                Assert.isAssignable(RopRequest.class, aClass, "@ApiMethod方法入参必须是RopRequest");
+                                Assert.isAssignable(RopRequest.class, aClass, "@ServiceMethod方法入参必须是RopRequest");
                                 serviceMethodHandler.setRequestType((Class<? extends RopRequest>) aClass);
                             }
 
                             //2.set sign fieldNames
                             serviceMethodHandler.setIgnoreSignFieldNames(getIgnoreSignFieldNames(serviceMethodHandler.getRequestType()));
 
-                            addBopServiceHandler(serviceMethod.value(), serviceMethodHandler);
+                            addServiceMethod(serviceMethod.value(), serviceMethod.version(), serviceMethodHandler);
+
                             if (logger.isDebugEnabled()) {
-                                logger.debug("发现并注册一个BOP服务方法：" + method.getDeclaringClass().getCanonicalName() +
+                                logger.debug("注册服务方法：" + method.getDeclaringClass().getCanonicalName() +
                                         "#" + method.getName() + "(..)");
                             }
                         }
@@ -141,7 +149,7 @@ public class DefaultRopContext implements RopContext {
         definition.setIgnoreSign(IgnoreSignType.isIgnoreSign(serviceMethod.ignoreSign()));
         definition.setVersion(serviceMethod.version());
         definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethod.needInSession()));
-        definition.setMessageLog(serviceMethod.ioLogLevel());
+        definition.setMessageLog(serviceMethod.messageLog());
         return definition;
     }
 
@@ -188,8 +196,8 @@ public class DefaultRopContext implements RopContext {
             definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethod.needInSession()));
         }
 
-        if(serviceMethod.ioLogLevel() != MessageLog.INVALID){
-            definition.setMessageLog(serviceMethod.ioLogLevel());
+        if(serviceMethod.messageLog() != MessageLog.INVALID){
+            definition.setMessageLog(serviceMethod.messageLog());
         }
         return definition;
     }

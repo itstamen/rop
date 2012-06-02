@@ -78,5 +78,9 @@ public class ServiceMethodHandler {
     public void setServiceMethodDefinition(ServiceMethodDefinition serviceMethodDefinition) {
         this.serviceMethodDefinition = serviceMethodDefinition;
     }
+
+    public static String methodWithVersion(String methodName, String version) {
+        return methodName+"#"+version;
+    }
 }
 

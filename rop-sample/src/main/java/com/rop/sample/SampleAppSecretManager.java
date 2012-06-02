@@ -28,5 +28,10 @@ public class SampleAppSecretManager implements AppSecretManager{
         System.out.println("use SampleAppSecretManager!");
         return appKeySecretMap.get(appKey);
     }
+
+    @Override
+    public boolean isValidAppKey(String appKey) {
+        return getSecret(appKey) != null;
+    }
 }
 

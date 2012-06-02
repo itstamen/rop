@@ -4,10 +4,6 @@
  */
 package com.rop;
 
-import com.rop.impl.SimpleServiceMethodContext;
-
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * <pre>
  *    更改请求对象创建{@link ServiceMethodContext}实例,子类可以根据多种传输协议定义自己的创建器。

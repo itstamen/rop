@@ -23,7 +23,6 @@ import java.util.Properties;
  */
 public class FileBaseAppSecretManager implements AppSecretManager {
 
-
     private static final String ROP_APP_SECRET_PROPERTIES = "rop.appSecret.properties";
 
     private String appSecretFile = ROP_APP_SECRET_PROPERTIES;
@@ -51,6 +50,11 @@ public class FileBaseAppSecretManager implements AppSecretManager {
 
     public void setAppSecretFile(String appSecretFile) {
         this.appSecretFile = appSecretFile;
+    }
+
+    @Override
+    public boolean isValidAppKey(String appKey) {
+        return getSecret(appKey) != null;
     }
 }
 

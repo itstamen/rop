@@ -3,8 +3,8 @@
  */
 package com.rop;
 
+import com.rop.event.RopEventListener;
 import com.rop.impl.ServletServiceRouter;
-import com.rop.impl.ServletRequestServiceMethodContextBuilder;
 import com.rop.validation.AppSecretManager;
 import com.rop.validation.SessionChecker;
 import org.slf4j.Logger;
@@ -100,21 +100,30 @@ public class RopServlet extends HttpServlet {
                 ropConfig.setInterceptors(interceptors);
             }
 
-            //5.初始化错误资源
+            //5.注册事件监听器
+            List<RopEventListener> listeners = initListeners(properties, ctx);
+            if (listeners != null && listeners.size() > 0) {
+                ropConfig.setRopEventListeners(listeners);
+            }
+
+            //6.初始化错误资源
             initErrorResource(properties, ropConfig);
 
-            //6.设置其它参数,
+            //7.设置其它参数,
             initOtherParams(properties, ropConfig);
-
-            //7.设置服务上下文转换器(基于Servlet的转换器)
-            ropConfig.setServiceMethodContextBuilder(new ServletRequestServiceMethodContextBuilder());
-
 
         } catch (Exception e) {
             throw new IllegalArgumentException("启动Rop时发生错误", e);
         }
-
         return ropConfig;
+    }
+
+    private List<RopEventListener> initListeners(Properties properties, ApplicationContext ctx)
+            throws ClassNotFoundException {
+        List<RopEventListener> ropEventListeners = getComponent(properties, ctx,
+                ConfigPropNames.LISTENER_CLASS_NAMES_PROPNAME, null,
+                RopEventListener.class, true);
+        return ropEventListeners;
     }
 
     private void initOtherParams(Properties properties, RopConfig ropConfig) {
@@ -160,7 +169,6 @@ public class RopServlet extends HttpServlet {
             }
         });
     }
-
 
     /**
      * 初始化错误国际化资源（资源基名），默认在i18n/rop/ropError中。
@@ -343,6 +351,8 @@ public class RopServlet extends HttpServlet {
         public static final String DEFAULT_APP_SECRET_MANAGER_CLASS_NAME = "com.rop.validation.FileBaseAppSecretManager";
 
         public static final String INTERCEPTOR_CLASS_NAMES_PROPNAME = "interceptorClassNames";
+
+        public static final String LISTENER_CLASS_NAMES_PROPNAME = "listenerClassNames";
 
         public static final String NEED_CHECK_SIGN_PROPNAME = "needCheckSign";
 

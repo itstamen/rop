@@ -27,25 +27,31 @@ public class SimpleServiceMethodContext implements ServiceMethodContext {
 
     private RopContext ropContext;
 
-    private Map<String, Object> attributes = new HashMap<String, Object>();
-    
     private String method;
 
-    private Locale locale;
+    private String version;
 
-    private ServiceMethodHandler serviceMethodHandler;
+    private String appKey;
+
+    private String sessionId;
+    
+    private Locale locale;
+    
+    private String format;
 
     public static ThreadLocal<MessageFormat> messageFormat = new ThreadLocal<MessageFormat>();
+
+    private String sign;
+
+    private Map<String, Object> attributes = new HashMap<String, Object>();
+
+    private ServiceMethodHandler serviceMethodHandler;
 
     private MainError mainError;
 
     private RopResponse ropResponse;
 
     private RopRequest ropRequest;
-
-    private String sessionId;
-
-    private String appKey;
 
     private long serviceBeginTime = -1;
 
@@ -61,16 +67,29 @@ public class SimpleServiceMethodContext implements ServiceMethodContext {
         return this.serviceEndTime;
     }
 
+    @Override
     public void setServiceBeginTime(long serviceBeginTime) {
         this.serviceBeginTime = serviceBeginTime;
     }
 
+    @Override
     public void setServiceEndTime(long serviceEndTime) {
         this.serviceEndTime = serviceEndTime;
     }
 
+    @Override
+    public String getFormat() {
+        return this.format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+
     public SimpleServiceMethodContext(RopContext ropContext) {
         this.ropContext = ropContext;
+        this.serviceBeginTime = System.currentTimeMillis();
     }
 
     @Override
@@ -141,6 +160,22 @@ public class SimpleServiceMethodContext implements ServiceMethodContext {
 
     public void setAppKey(String appKey) {
         this.appKey = appKey;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
     }
 
     public void setMainError(MainError mainError) {

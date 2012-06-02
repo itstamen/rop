@@ -24,7 +24,11 @@
 8.com.rop.RopResponseMarshaller接口类名易名为RopMarshaller，接口方法：
   void marshaller(RopResponse response, OutputStream outputStream) 调整为
   void marshaller(Object obj, OutputStream outputStream)
-9.新增com.rop.marshaller.RopIOMarshallerUtils，可以对RopRequest和RopResponse对象进行序列化输出。
+9.新增com.rop.marshaller.MessageMarshallerUtils，可以对RopRequest和RopResponse对象进行序列化输出。
+10.对RopValidator及其实现类进行重构，使代码更加清晰。
+11.新增SignUtils工具类，它负责对参数列表进行签名.
+12.新增com.rop.RopContext它代表Rop框架的上下文，服务处理器(ServiceMethodHandler)在RopContext中通过 method+version的方式
+  注册。
 
 
 

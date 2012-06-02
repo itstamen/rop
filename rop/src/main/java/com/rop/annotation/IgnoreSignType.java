@@ -13,13 +13,14 @@ package com.rop.annotation;
  * @version 1.0
  */
 public enum IgnoreSignType {
+
     YES, NO, INVALID;
 
     public static boolean isIgnoreSign(IgnoreSignType type){
-        if(YES == type || INVALID == type){
-            return true;
-        }else {
+        if( NO == type || INVALID == type){
             return false;
+        }else {
+            return true;
         }
     }
 }

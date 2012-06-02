@@ -4,9 +4,6 @@
  */
 package com.rop;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * <pre>
  *      BOP的服务路由器，服务方法必须位于@Controller的类中，服务方法使用{@link com.rop.annotation.ServiceMethod}注解，有两个合法的方法签名方式：

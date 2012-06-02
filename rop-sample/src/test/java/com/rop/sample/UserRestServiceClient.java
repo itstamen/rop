@@ -4,6 +4,7 @@
  */
 package com.rop.sample;
 
+import com.rop.utils.SignUtils;
 import com.rop.validation.DefaultRopValidator;
 import com.rop.validation.MainErrorType;
 import org.springframework.util.LinkedMultiValueMap;
@@ -26,10 +27,10 @@ import static org.testng.Assert.assertTrue;
 public class UserRestServiceClient {
 
     /**
-     * 在一切正确的情况下，返回正确的服务报文
+     * 在一切正确的情况下，返回正确的服务报文 (user.add + 1.0）
      */
     @Test
-    public void testServiceWorking() {
+    public void testAddUserByVersion1() {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
         form.add("method", "user.add");//<--指定方法名称
@@ -43,7 +44,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = DefaultRopValidator.sign(new ArrayList<String>(
+        String sign = SignUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
@@ -51,6 +52,34 @@ public class UserRestServiceClient {
                 "http://localhost:8088/router", form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
+    }
+
+    /**
+     * 在一切正确的情况下，返回正确的服务报文 (user.add + 1.0）
+     */
+    @Test
+    public void testAddUserByVersion2() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.add");//<--指定方法名称
+        form.add("appKey", "00001");
+        form.add("v", "2.0");
+        form.add("sessionId", "mockSessionId1");
+        form.add("msgFormat", "xml");
+        form.add("format", "format1");
+        form.add("locale", "en");
+        form.add("userName", "jhonson");
+        form.add("salary", "2,500.00");
+
+        //对请求参数列表进行签名
+        String sign = SignUtils.sign(new ArrayList<String>(
+                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+        String response = restTemplate.postForObject(
+                "http://localhost:8088/router", form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010102\" userId=\"2\">") > -1);
     }
 
     /**
@@ -80,7 +109,7 @@ public class UserRestServiceClient {
                         "</address>");
 
         //对请求参数列表进行签名
-        String sign = DefaultRopValidator.sign(new ArrayList<String>(
+        String sign = SignUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
@@ -105,7 +134,7 @@ public class UserRestServiceClient {
         form.add("format", "xml");
         form.add("userName", "tomsony");
         form.add("salary", "2,500.00");
-        String sign = DefaultRopValidator.sign(new ArrayList<String>(
+        String sign = SignUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
 
         form.add("sign", sign);
@@ -133,7 +162,7 @@ public class UserRestServiceClient {
         form.add("format", "xml");
         form.add("userName", "tomsony");
         form.add("salary", "100");
-        String sign = DefaultRopValidator.sign(new ArrayList<String>(
+        String sign = SignUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
@@ -164,7 +193,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
 
-        String sign = DefaultRopValidator.sign(new ArrayList<String>(
+        String sign = SignUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
@@ -223,7 +252,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //设置一个错误的签名
-        String sign = DefaultRopValidator.sign(new ArrayList<String>(
+        String sign = SignUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);;
 
@@ -253,7 +282,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //设置一个错误的签名
-        String sign = DefaultRopValidator.sign(new ArrayList<String>(
+        String sign = SignUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);;
 
@@ -279,7 +308,7 @@ public class UserRestServiceClient {
         form.add("userName", "jhon");
         form.add("salary", "2,500.00");
 
-        String sign = DefaultRopValidator.sign(new ArrayList<String>(
+        String sign = SignUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
 
         form.add("sign", sign);
@@ -292,8 +321,6 @@ public class UserRestServiceClient {
         //返回业务的错误报文
         assertTrue(response.indexOf("isv.user-add-service-error:USER_NAME_RESERVED") > 0);
     }
-
-
 
 
 }

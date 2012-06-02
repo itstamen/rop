@@ -4,11 +4,6 @@
  */
 package com.rop;
 
-import com.rop.validation.AppSecretManager;
-import com.rop.validation.SessionChecker;
-import org.springframework.context.ApplicationContext;
-
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,9 +20,10 @@ public interface RopContext {
      * 注册一个服务处理器
      *
      * @param methodName
+     * @param version
      * @param serviceMethodHandler
      */
-    void addBopServiceHandler(String methodName, ServiceMethodHandler serviceMethodHandler);
+    void addServiceMethod(String methodName, String version, ServiceMethodHandler serviceMethodHandler);
 
     /**
      * 获取服务处理器
@@ -35,7 +31,7 @@ public interface RopContext {
      * @param methodName
      * @return
      */
-    ServiceMethodHandler getServiceMethodHandler(String methodName);
+    ServiceMethodHandler getServiceMethodHandler(String methodName,String version);
 
     /**
      * 是否是合法的服务方法
@@ -45,6 +41,14 @@ public interface RopContext {
      */
     boolean isValidMethod(String methodName);
 
+    /**
+     * 是否是合法服务方法版本号
+     *
+     * @param methodName
+     * @param version
+     * @return
+     */
+    boolean isValidMethodVersion(String methodName,String version);
     /**
      * 获取所有的处理器列表
      * @return

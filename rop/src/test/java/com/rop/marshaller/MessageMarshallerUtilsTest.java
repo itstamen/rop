@@ -34,14 +34,14 @@ public class MessageMarshallerUtilsTest {
         map.put("key2", "key2Value");
         map.put("key3", "key3Value");
         when(ropRequest.getParamValues()).thenReturn(map);
-        String message = MessageMarshallerUtils.getMessage(ropRequest, MessageFormat.JSON);
+        String message = MessageMarshallerUtils.getMessage(ropRequest, MessageFormat.json);
         assertNotNull(message);
         assertTrue(message.indexOf("}") > -1);
         assertTrue(message.indexOf("{") > -1);
         assertTrue(message.indexOf("key1") > -1);
         assertTrue(message.indexOf("key1Value") > -1);
 
-        message = MessageMarshallerUtils.getMessage(ropRequest, MessageFormat.XML);
+        message = MessageMarshallerUtils.getMessage(ropRequest, MessageFormat.xml);
         assertNotNull(message);
         assertTrue(message.indexOf("<") > -1);
         assertTrue(message.indexOf(">") > -1);
@@ -55,14 +55,14 @@ public class MessageMarshallerUtilsTest {
         SampleResponse response = new SampleResponse();
         response.setUserId("tom");
         response.setCreateTime("20120101");
-        String message = MessageMarshallerUtils.getMessage(response, MessageFormat.JSON);
+        String message = MessageMarshallerUtils.getMessage(response, MessageFormat.json);
         assertTrue(message.indexOf("}") > -1);
         assertTrue(message.indexOf("{") > -1);
         assertTrue(message.indexOf("tom") > -1);
         assertTrue(message.indexOf("20120101") > -1);
 
         System.out.println(message);
-        message = MessageMarshallerUtils.getMessage(response, MessageFormat.XML);
+        message = MessageMarshallerUtils.getMessage(response, MessageFormat.xml);
         assertTrue(message.indexOf("<?xml") > -1);
         assertTrue(message.indexOf(">") > -1);
         assertTrue(message.indexOf("tom") > -1);
