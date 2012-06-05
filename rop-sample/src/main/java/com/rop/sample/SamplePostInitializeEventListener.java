@@ -4,7 +4,7 @@
  */
 package com.rop.sample;
 
-import com.rop.event.PostInitializeEvent;
+import com.rop.event.AfterStartedRopEvent;
 import com.rop.event.RopEventListener;
 
 /**
@@ -15,10 +15,10 @@ import com.rop.event.RopEventListener;
  * @author 陈雄华
  * @version 1.0
  */
-public class SamplePostInitializeEventListener implements RopEventListener<PostInitializeEvent>{
+public class SamplePostInitializeEventListener implements RopEventListener<AfterStartedRopEvent>{
 
     @Override
-    public void onRopEvent(PostInitializeEvent ropEvent) {
+    public void onRopEvent(AfterStartedRopEvent ropRopEvent) {
         System.out.println("execute SamplePostInitializeEventListener!");
     }
 

@@ -14,9 +14,9 @@ import com.rop.RopContext;
  * @author 陈雄华
  * @version 1.0
  */
-public class PostInitializeEvent extends RopEvent {
+public class AfterStartedRopEvent extends RopEvent {
 
-    public PostInitializeEvent(Object source, RopContext ropContext) {
+    public AfterStartedRopEvent(Object source, RopContext ropContext) {
         super(source, ropContext);
     }
 

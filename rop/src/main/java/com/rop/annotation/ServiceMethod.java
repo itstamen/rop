@@ -56,7 +56,7 @@ public @interface ServiceMethod {
      * 为0或负数则表示不进行过期限制
      * @return
      */
-    long timeout() default -100;
+    int timeout() default -100;
 
     /**
      * 该方法所对应的版本号，对应version请求参数的值，版本为空，表示不进行版本限定

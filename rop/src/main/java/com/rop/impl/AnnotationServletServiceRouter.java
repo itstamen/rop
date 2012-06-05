@@ -7,28 +7,33 @@ package com.rop.impl;
 import com.rop.*;
 import com.rop.config.InterceptorHolder;
 import com.rop.config.RopEventListenerHodler;
+import com.rop.config.SysparamNames;
 import com.rop.event.*;
 import com.rop.marshaller.JacksonJsonRopMarshaller;
 import com.rop.marshaller.JaxbXmlRopMarshaller;
 import com.rop.response.ErrorResponse;
+import com.rop.response.ServiceErrorResponse;
 import com.rop.response.ServiceUnavailableErrorResponse;
+import com.rop.response.TimeoutErrorResponse;
 import com.rop.validation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.core.task.TaskExecutor;
+import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.*;
 
-public class AnnotationServletServiceRouter implements ServiceRouter, ApplicationContextAware, InitializingBean {
+public class AnnotationServletServiceRouter implements ServiceRouter, ApplicationContextAware, InitializingBean, DisposableBean {
 
 
     public static final String UTF_8 = "UTF-8";
@@ -59,13 +64,128 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
 
     private List<RopEventListener> listeners;
 
-    private TaskExecutor taskExecutor;
+    private ThreadPoolExecutor threadPoolExecutor;
 
     private ApplicationContext applicationContext;
 
     private boolean signEnable = true;
 
+    //所有服务方法的最大过期时间，单位为秒(0或负数代表不限制)
+    private int serviceTimeoutSeconds = Integer.MAX_VALUE;
+
     private String extErrorBasename = "i18n/rop/ropError";
+
+    @Override
+    public void service(Object request, Object response) {
+        HttpServletRequest servletRequest = (HttpServletRequest) request;
+        HttpServletResponse servletResponse = (HttpServletResponse) response;
+
+        //获取服务方法最大过期时间
+        String method = servletRequest.getParameter(SysparamNames.getMethod());
+        String version = servletRequest.getParameter(SysparamNames.getVersion());
+        String format = servletRequest.getParameter(SysparamNames.getFormat());
+        int serviceMethodTimeout = getServiceMethodTimeout(method, version);
+
+        //使用异常方式调用服务方法
+        try {
+            ServiceRunnable runnable = new ServiceRunnable(servletRequest, servletResponse);
+            Future<?> future = this.threadPoolExecutor.submit(runnable);
+            while (!future.isDone()) {
+                future.get(serviceMethodTimeout, TimeUnit.SECONDS);
+            }
+        } catch (TimeoutException e) {
+            TimeoutErrorResponse ropResponse =
+                    new TimeoutErrorResponse(ServletRequestServiceMethodContextBuilder.getLocale(servletRequest));
+            writeResponse(ropResponse, servletResponse, ServletRequestServiceMethodContextBuilder.getResponseFormat(servletRequest));
+        } catch (Throwable throwable) {
+            ServiceUnavailableErrorResponse ropResponse =
+                    new ServiceUnavailableErrorResponse(method, ServletRequestServiceMethodContextBuilder.getLocale(servletRequest));
+            writeResponse(ropResponse, servletResponse, ServletRequestServiceMethodContextBuilder.getResponseFormat(servletRequest));
+        }
+    }
+
+
+    public int getServiceTimeoutSeconds() {
+        return serviceTimeoutSeconds > 0 ? serviceTimeoutSeconds : Integer.MAX_VALUE;
+    }
+
+    /**
+     * 取最小的过期时间
+     *
+     * @param method
+     * @param version
+     * @return
+     */
+    private int getServiceMethodTimeout(String method, String version) {
+        ServiceMethodHandler serviceMethodHandler = ropContext.getServiceMethodHandler(method, version);
+        if (serviceMethodHandler == null) {
+            return getServiceTimeoutSeconds();
+        } else {
+            int methodTimeout = serviceMethodHandler.getServiceMethodDefinition().getTimeout();
+            int serviceTimeout = getServiceTimeoutSeconds();
+            return serviceTimeout > methodTimeout ? methodTimeout : serviceTimeout;
+        }
+    }
+
+    private class ServiceRunnable implements Runnable {
+
+        private HttpServletRequest servletRequest;
+
+        private HttpServletResponse servletResponse;
+
+        private ServiceRunnable(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+            this.servletRequest = servletRequest;
+            this.servletResponse = servletResponse;
+        }
+
+        @Override
+        public void run() {
+            long beginTime = System.currentTimeMillis();
+            ServiceMethodContext serviceMethodContext = null;
+
+            try {
+                //构造服务方法的上下文
+                serviceMethodContext = buildBopServiceContext(servletRequest);
+                serviceMethodContext.setServiceBeginTime(beginTime);
+
+                //发布事件
+                firePreDoServiceEvent(serviceMethodContext);
+
+                //进行服务准入检查（包括appKey、签名、会话、服务安全，数据合法性等）
+                MainError mainError = ropValidator.validate(serviceMethodContext);
+
+                if (mainError != null) {
+                    serviceMethodContext.setRopResponse(new ErrorResponse(mainError));
+                } else {//通过服务准入检查后发起正式的服务调整
+
+                    //服务处理前拦截
+                    invokeBeforceServiceOfInterceptors(serviceMethodContext);
+
+                    //如果拦截器没有产生ropResponse时才调用服务方法
+                    serviceMethodContext.setRopResponse(doService(serviceMethodContext));
+
+                    //返回响应后拦截
+                    invokeBeforceResponseOfInterceptors(serviceMethodContext);
+                }
+
+
+                //输出响应
+                writeResponse(serviceMethodContext.getRopResponse(), servletResponse, serviceMethodContext.getMessageFormat());
+            } catch (Throwable e) {
+                String method = serviceMethodContext.getMethod();
+                Locale locale = serviceMethodContext.getLocale();
+                ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale);
+                writeResponse(ropResponse, servletResponse, serviceMethodContext.getMessageFormat());
+            } finally {
+                if (serviceMethodContext != null) {
+                    //发布服务完成事件
+                    serviceMethodContext.setServiceEndTime(System.currentTimeMillis());
+                    fireAfterDoServiceEvent(serviceMethodContext);
+                }
+            }
+
+        }
+    }
 
     private void initialize() {
         if (logger.isInfoEnabled()) {
@@ -87,7 +207,9 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         registerListeners();
 
         //产生Rop框架初始化事件
-        firePostInitializeEvent();
+        fireAfterStartedRopEvent();
+
+        Assert.notNull(threadPoolExecutor, "异常处理器不能为空");
 
         if (logger.isInfoEnabled()) {
             logger.info("Rop框架启动成功！");
@@ -146,10 +268,14 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
     }
 
     public void setSignEnable(boolean signEnable) {
-        if(!signEnable && logger.isInfoEnabled()){
+        if (!signEnable && logger.isInfoEnabled()) {
             logger.info("关闭签名验证功能");
         }
         this.signEnable = signEnable;
+    }
+
+    public void setServiceTimeoutSeconds(int serviceTimeoutSeconds) {
+        this.serviceTimeoutSeconds = serviceTimeoutSeconds;
     }
 
     public void setInterceptors(List<Interceptor> interceptors) {
@@ -160,9 +286,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         this.ropValidator = ropValidator;
     }
 
-    public void setTaskExecutor(TaskExecutor taskExecutor) {
-        this.taskExecutor = taskExecutor;
-    }
 
     public void setExtErrorBasename(String extErrorBasename) {
         this.extErrorBasename = extErrorBasename;
@@ -179,8 +302,12 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        //初始化Rop框架
         initialize();
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        fireBeforeCloseRopEvent();
     }
 
     private RopEventMulticaster buildRopEventMulticaster() {
@@ -188,8 +315,8 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         SimpleRopEventMulticaster simpleRopEventMulticaster = new SimpleRopEventMulticaster();
 
         //设置异步执行器
-        if (this.taskExecutor != null) {
-            simpleRopEventMulticaster.setTaskExecutor(this.taskExecutor);
+        if (this.threadPoolExecutor != null) {
+            simpleRopEventMulticaster.setExecutor(this.threadPoolExecutor);
         }
 
         //添加事件监听器
@@ -202,62 +329,26 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         return simpleRopEventMulticaster;
     }
 
+    public void setThreadPoolExecutor(ThreadPoolExecutor threadPoolExecutor) {
+        this.threadPoolExecutor = threadPoolExecutor;
+    }
+
     /**
-     * 发布Rop初始化事件
+     * 发布Rop启动后事件
      */
-    private void firePostInitializeEvent() {
-        PostInitializeEvent event = new PostInitializeEvent(this, this.ropContext);
-        this.ropEventMulticaster.multicastEvent(event);
+    private void fireAfterStartedRopEvent() {
+        AfterStartedRopEvent ropEvent = new AfterStartedRopEvent(this, this.ropContext);
+        this.ropEventMulticaster.multicastEvent(ropEvent);
     }
 
-    @Override
-    public void service(Object request, Object response) {
-        long beginTime = System.currentTimeMillis();
-        HttpServletRequest servletRequest = (HttpServletRequest) request;
-        HttpServletResponse servletResponse = (HttpServletResponse) response;
-        ServiceMethodContext serviceMethodContext = null;
-
-        try {
-            //构造服务方法的上下文
-            serviceMethodContext = buildBopServiceContext(servletRequest);
-            serviceMethodContext.setServiceBeginTime(beginTime);
-
-            //发布事件
-            firePreDoServiceEvent(serviceMethodContext);
-
-            //进行服务准入检查（包括appKey、签名、会话、服务安全，数据合法性等）
-            MainError mainError = ropValidator.validate(serviceMethodContext);
-
-            if (mainError != null) {
-                serviceMethodContext.setRopResponse(new ErrorResponse(mainError));
-            } else {//通过服务准入检查后发起正式的服务调整
-
-                //服务处理前拦截
-                invokeBeforceServiceOfInterceptors(serviceMethodContext);
-
-                //如果拦截器没有产生ropResponse时才调用服务方法
-                serviceMethodContext.setRopResponse(doService(serviceMethodContext));
-
-                //返回响应后拦截
-                invokeBeforceResponseOfInterceptors(serviceMethodContext);
-            }
-
-
-            //输出响应
-            writeResponse(serviceMethodContext.getRopResponse(), servletResponse, serviceMethodContext.getMessageFormat());
-        } catch (Throwable e) {
-            String method = serviceMethodContext.getMethod();
-            Locale locale = serviceMethodContext.getLocale();
-            ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale);
-            writeResponse(ropResponse, servletResponse, serviceMethodContext.getMessageFormat());
-        } finally {
-            if (serviceMethodContext != null) {
-                //发布服务完成事件
-                serviceMethodContext.setServiceEndTime(System.currentTimeMillis());
-                fireAfterDoServiceEvent(serviceMethodContext);
-            }
-        }
+    /**
+     * 发布Rop启动后事件
+     */
+    private void fireBeforeCloseRopEvent() {
+        PreCloseRopEvent ropEvent = new PreCloseRopEvent(this, this.ropContext);
+        this.ropEventMulticaster.multicastEvent(ropEvent);
     }
+
 
     private void fireAfterDoServiceEvent(ServiceMethodContext serviceMethodContext) {
         this.ropEventMulticaster.multicastEvent(new PreDoServiceEvent(this, serviceMethodContext));

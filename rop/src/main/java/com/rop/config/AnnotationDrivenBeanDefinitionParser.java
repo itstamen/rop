@@ -47,10 +47,8 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         serviceRouterDef.getPropertyValues().add("ropValidator", ropValidator);
 
         //设置TaskExecutor
-        RuntimeBeanReference taskExecutor = getTaskExecutor(element, source, parserContext);
-        if(taskExecutor != null){
-            serviceRouterDef.getPropertyValues().add("taskExecutor",taskExecutor);
-        }
+        RuntimeBeanReference taskExecutorBeanReference = getExecutor(element, source, parserContext);
+        serviceRouterDef.getPropertyValues().add("threadPoolExecutor", taskExecutorBeanReference);
 
         //设置signEnable
         String signEnable = element.getAttribute("sign-enable");
@@ -61,7 +59,12 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         //设置signEnable
         String extErrorBasename = element.getAttribute("ext-error-base-name");
         if (StringUtils.hasText(extErrorBasename)) {
-            serviceRouterDef.getPropertyValues().addPropertyValue("extErrorBasename",extErrorBasename);
+            serviceRouterDef.getPropertyValues().addPropertyValue("extErrorBasename", extErrorBasename);
+        }
+
+        String serviceTimeoutSeconds = element.getAttribute("service-timeout-seconds");
+        if (StringUtils.hasText(serviceTimeoutSeconds)) {
+            serviceRouterDef.getPropertyValues().addPropertyValue("serviceTimeoutSeconds", Integer.parseInt(serviceTimeoutSeconds));
         }
 
         parserContext.popAndRegisterContainingComponent();
@@ -72,8 +75,8 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         RuntimeBeanReference ropValidatorRbf;
         if (element.hasAttribute("rop-validator")) {
             ropValidatorRbf = new RuntimeBeanReference(element.getAttribute("rop-validator"));
-            if(logger.isInfoEnabled()){
-                logger.info("Rop装配一个自定义的RopValidator:"+ropValidatorRbf.getBeanName());
+            if (logger.isInfoEnabled()) {
+                logger.info("Rop装配一个自定义的RopValidator:" + ropValidatorRbf.getBeanName());
             }
         } else {
             RootBeanDefinition conversionDef = new RootBeanDefinition(DefaultRopValidator.class);
@@ -86,15 +89,45 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         return ropValidatorRbf;
     }
 
-    private RuntimeBeanReference getTaskExecutor(Element element, Object source, ParserContext parserContext) {
-        RuntimeBeanReference taskExecutorRef = null;
-        if (element.hasAttribute("task-executor")) {
-            taskExecutorRef = new RuntimeBeanReference(element.getAttribute("task-executor"));
-            if(logger.isInfoEnabled()){
-                logger.info("Rop装配一个异步任务执行器:"+taskExecutorRef.getBeanName());
-            }
+    /**
+     * 创建异步执行器
+     *
+     * @param element
+     * @param source
+     * @param parserContext
+     * @return
+     */
+    private RuntimeBeanReference getExecutor(Element element, Object source, ParserContext parserContext) {
+        RootBeanDefinition taskExecutorDef =
+                new RootBeanDefinition(org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean.class);
+        String taskExecutorName = parserContext.getReaderContext().registerWithGeneratedName(taskExecutorDef);
+
+        String corePoolSize = element.getAttribute("core-pool-size");
+        if (StringUtils.hasText(corePoolSize)) {
+            taskExecutorDef.getPropertyValues().addPropertyValue("corePoolSize", corePoolSize);
         }
-        return taskExecutorRef;
+
+        String maxPoolSize = element.getAttribute("max-pool-size");
+        if (StringUtils.hasText(maxPoolSize)) {
+            taskExecutorDef.getPropertyValues().addPropertyValue("maxPoolSize", maxPoolSize);
+        }
+
+        String keepAliveSeconds = element.getAttribute("keep-alive-seconds");
+        if (StringUtils.hasText(keepAliveSeconds)) {
+            taskExecutorDef.getPropertyValues().addPropertyValue("keepAliveSeconds", keepAliveSeconds);
+        } else {
+            taskExecutorDef.getPropertyValues().addPropertyValue("keepAliveSeconds", 2 * 60); //默认为2分钟
+        }
+
+        String queueCapacity = element.getAttribute("queue-capacity");
+        if (StringUtils.hasText(queueCapacity)) {
+            taskExecutorDef.getPropertyValues().addPropertyValue("queueCapacity", queueCapacity);
+        }
+
+        parserContext.registerComponent(new BeanComponentDefinition(taskExecutorDef, taskExecutorName));
+        RuntimeBeanReference taskExecutorBeanReference = new RuntimeBeanReference(taskExecutorName);
+
+        return taskExecutorBeanReference;
     }
 }
 

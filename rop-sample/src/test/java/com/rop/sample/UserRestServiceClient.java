@@ -72,7 +72,6 @@ public class UserRestServiceClient {
         String sign = SignUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
-
         String response = restTemplate.postForObject(
                 "http://localhost:8088/router", form, String.class);
         System.out.println("response:\n" + response);
@@ -220,7 +219,7 @@ public class UserRestServiceClient {
                 "http://localhost:8088/router", form, String.class);
 
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("code=\""+ MainErrorType.INVALID_APP_KEY.value()+"\"") > -1);
+        assertTrue(response.indexOf("code=\"" + MainErrorType.INVALID_APP_KEY.value() + "\"") > -1);
     }
 
     /**
@@ -247,7 +246,7 @@ public class UserRestServiceClient {
                 "http://localhost:8088/router", form, String.class);
 
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("code=\""+MainErrorType.INVALID_SIGNATURE.value()+"\"") > -1);
+        assertTrue(response.indexOf("code=\"" + MainErrorType.INVALID_SIGNATURE.value() + "\"") > -1);
     }
 
     /**
@@ -271,13 +270,14 @@ public class UserRestServiceClient {
         //设置一个错误的签名
         String sign = SignUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
-        form.add("sign", sign);;
+        form.add("sign", sign);
+        ;
 
         String response = restTemplate.postForObject(
                 "http://localhost:8088/router", form, String.class);
 
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("code=\""+MainErrorType.INSUFFICIENT_USER_PERMISSIONS.value()+"\"") > -1);
+        assertTrue(response.indexOf("code=\"" + MainErrorType.INSUFFICIENT_USER_PERMISSIONS.value() + "\"") > -1);
     }
 
     /**
@@ -300,13 +300,14 @@ public class UserRestServiceClient {
         //设置一个错误的签名
         String sign = SignUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
-        form.add("sign", sign);;
+        form.add("sign", sign);
+        ;
 
         String response = restTemplate.postForObject(
                 "http://localhost:8088/router", form, String.class);
 
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("code=\""+MainErrorType.INVALID_SESSION.value()+"\"") > -1);
+        assertTrue(response.indexOf("code=\"" + MainErrorType.INVALID_SESSION.value() + "\"") > -1);
     }
 
     /**
@@ -336,6 +337,63 @@ public class UserRestServiceClient {
 
         //返回业务的错误报文
         assertTrue(response.indexOf("isv.user-add-service-error:USER_NAME_RESERVED") > 0);
+    }
+
+    /**
+     * user.timeout 服务方法必须在1秒内执行完成，我们在服务端故意让user.timeout过期，看是否会返回正确的错误报文
+     */
+    @Test
+    public void testServiceWhenExceedTimeout() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.timeout");//<--指定方法名称
+        form.add("appKey", "00001");
+        form.add("v", "1.0");
+        form.add("sessionId", "mockSessionId1");
+        form.add("locale", "en");
+        form.add("userName", "jhonson");
+        form.add("salary", "2,500.00");
+
+        //对请求参数列表进行签名
+        String sign = SignUtils.sign(new ArrayList<String>(
+                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+
+        String response = restTemplate.postForObject(
+                "http://localhost:8088/router", form, String.class);
+        System.out.println("response:"+response);
+        assertTrue(response.indexOf("isp.remote-service-timeout") > -1);
+
+    }
+
+    /**
+     * 测试多次执行的服务性能: 100次调用，在1秒内完成！
+     */
+    @Test(timeOut = 1000)
+    public void testMultiTimeRun() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.add");//<--指定方法名称
+        form.add("appKey", "00001");
+        form.add("v", "1.0");
+        form.add("sessionId", "mockSessionId1");
+        form.add("locale", "en");
+        form.add("userName", "jhonson");
+        form.add("salary", "2,500.00");
+
+        //对请求参数列表进行签名
+        String sign = SignUtils.sign(new ArrayList<String>(
+                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+        long begin = System.currentTimeMillis();
+        for (int i = 0; i < 100; i++) {
+            String response = restTemplate.postForObject(
+                    "http://localhost:8088/router", form, String.class);
+            assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
+        }
+        System.out.println("time elapsed:" + (System.currentTimeMillis() - begin));
     }
 
 

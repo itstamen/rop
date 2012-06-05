@@ -16,12 +16,12 @@ import java.util.concurrent.Executor;
  */
 public class SimpleRopEventMulticaster extends AbstractRopEventMulticaster{
 
-    private Executor taskExecutor;
+    private Executor executor;
 
     @Override
     public void multicastEvent(final RopEvent event) {
         for (final RopEventListener listener : getRopEventListeners(event)) {
-     			Executor executor = getTaskExecutor();
+     			Executor executor = getExecutor();
      			if (executor != null) {
      				executor.execute(new Runnable() {
      					@Override
@@ -36,12 +36,12 @@ public class SimpleRopEventMulticaster extends AbstractRopEventMulticaster{
      		}
     }
 
-    public Executor getTaskExecutor() {
-        return taskExecutor;
+    public Executor getExecutor() {
+        return executor;
     }
 
-    public void setTaskExecutor(Executor taskExecutor) {
-        this.taskExecutor = taskExecutor;
+    public void setExecutor(Executor executor) {
+        this.executor = executor;
     }
 }
 

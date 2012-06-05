@@ -51,9 +51,9 @@ public class ServiceMethodDefinition {
     private String[] tags = {};
 
     /**
-     * 过期时间，单位为毫秒，0或负数表示不过期
+     * 过期时间，单位为秒，0或负数表示不过期
      */
-    private long timeout = 0;
+    private int timeout = Integer.MAX_VALUE;
 
     /**
      * 对应的版本号，如果为null或""表示不区分版本
@@ -111,11 +111,11 @@ public class ServiceMethodDefinition {
         this.tags = tags;
     }
 
-    public long getTimeout() {
-        return timeout;
+    public int getTimeout() {
+        return timeout > 0? timeout:Integer.MAX_VALUE;
     }
 
-    public void setTimeout(long timeout) {
+    public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
 

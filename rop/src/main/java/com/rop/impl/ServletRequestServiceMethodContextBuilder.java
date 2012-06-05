@@ -66,7 +66,7 @@ public class ServletRequestServiceMethodContextBuilder implements ServiceMethodC
         return ropServiceContext;
     }
 
-    private String getFormat(HttpServletRequest servletRequest) {
+    private  String getFormat(HttpServletRequest servletRequest) {
         String messageFormat = servletRequest.getParameter(SysparamNames.getFormat());
         if (messageFormat == null) {
             return MessageFormat.xml.name();
@@ -75,7 +75,7 @@ public class ServletRequestServiceMethodContextBuilder implements ServiceMethodC
         }
     }
 
-    private Locale getLocale(HttpServletRequest webRequest) {
+    public static  Locale getLocale(HttpServletRequest webRequest) {
         if (webRequest.getParameter(SysparamNames.getLocale()) != null) {
             LocaleEditor localeEditor = new LocaleEditor();
             localeEditor.setAsText(webRequest.getParameter(SysparamNames.getLocale()));
@@ -85,8 +85,8 @@ public class ServletRequestServiceMethodContextBuilder implements ServiceMethodC
         }
     }
 
-    private MessageFormat getResponseFormat(HttpServletRequest webRequest) {
-        String messageFormat = webRequest.getParameter(SysparamNames.getFormat());
+    public static MessageFormat getResponseFormat(HttpServletRequest servletRequest) {
+        String messageFormat = servletRequest.getParameter(SysparamNames.getFormat());
         if (MessageFormat.isValidFormat(messageFormat)) {
             return MessageFormat.getFormat(messageFormat);
         } else {
