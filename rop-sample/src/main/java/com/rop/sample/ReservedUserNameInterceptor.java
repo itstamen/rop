@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class MyInterceptor extends AbstractInterceptor {
+public class ReservedUserNameInterceptor extends AbstractInterceptor {
 
     @Override
     public void beforeService(ServiceMethodContext methodContext) {

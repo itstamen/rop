@@ -76,9 +76,4 @@ public @interface ServiceMethod {
      */
     IgnoreSignType ignoreSign() default IgnoreSignType.INVALID;
 
-    /**
-     * 请求报文和响应报文的LOG日志级别，默认关闭日志记录功能
-     * @return
-     */
-    MessageLog messageLog() default MessageLog.INVALID;
 }

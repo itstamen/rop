@@ -23,7 +23,7 @@ public class RopRequest {
     private String method;
 
     //版本号
-    private String v = "1.0";
+    private String version = "1.0";
 
     //会话ID
     private String sessionId;
@@ -36,7 +36,7 @@ public class RopRequest {
     private String sign;
 
     //格式
-    private String msgFormat = "xml";
+    private MessageFormat msgFormat = MessageFormat.xml;
 
     //本地化
     private Locale locale = Locale.SIMPLIFIED_CHINESE;
@@ -62,12 +62,12 @@ public class RopRequest {
         this.method = method;
     }
 
-    public String getV() {
-        return v;
+    public String getVersion() {
+        return version;
     }
 
-    public void setV(String v) {
-        this.v = v;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
 
@@ -79,11 +79,11 @@ public class RopRequest {
         this.sign = sign;
     }
 
-    public String getMsgFormat() {
+    public MessageFormat getMsgFormat() {
         return msgFormat;
     }
 
-    public void setMsgFormat(String msgFormat) {
+    public void setMsgFormat(MessageFormat msgFormat) {
         this.msgFormat = msgFormat;
     }
 

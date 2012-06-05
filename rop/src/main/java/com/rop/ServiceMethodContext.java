@@ -147,5 +147,11 @@ public interface ServiceMethodContext {
      */
     void setAttribute(String name, Object value);
 
+    /**
+     * 该方法是否开启签名的功能
+     * @return
+     */
+    boolean isSignEnable();
+
 }
 

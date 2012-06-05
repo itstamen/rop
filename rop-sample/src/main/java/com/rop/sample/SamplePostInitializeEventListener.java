@@ -15,11 +15,11 @@ import com.rop.event.RopEventListener;
  * @author 陈雄华
  * @version 1.0
  */
-public class SampleRopEventListener implements RopEventListener<PostInitializeEvent>{
+public class SamplePostInitializeEventListener implements RopEventListener<PostInitializeEvent>{
 
     @Override
     public void onRopEvent(PostInitializeEvent ropEvent) {
-        System.out.println("execute SampleRopEventListener!");
+        System.out.println("execute SamplePostInitializeEventListener!");
     }
 
     @Override

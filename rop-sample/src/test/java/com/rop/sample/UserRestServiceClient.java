@@ -37,8 +37,6 @@ public class UserRestServiceClient {
         form.add("appKey", "00001");
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
-        form.add("msgFormat", "xml");
-        form.add("format", "format1");
         form.add("locale", "en");
         form.add("userName", "jhonson");
         form.add("salary", "2,500.00");
@@ -55,6 +53,33 @@ public class UserRestServiceClient {
     }
 
     /**
+     * 显式指定返回的报文类型，在配置文件中已经显式指定了 报文格式参数的名称为messageFormat
+     */
+    @Test
+    public void testAddUserWithJsonFormat() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.add");//<--指定方法名称
+        form.add("appKey", "00001");
+        form.add("v", "1.0");
+        form.add("sessionId", "mockSessionId1");
+        form.add("locale", "en");
+        form.add("messageFormat", "json");
+        form.add("userName", "jhonson");
+        form.add("salary", "2,500.00");
+
+        //对请求参数列表进行签名
+        String sign = SignUtils.sign(new ArrayList<String>(
+                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+        String response = restTemplate.postForObject(
+                "http://localhost:8088/router", form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf("{\"createUserResponse\":{\"userId\":\"1\",") > -1);
+    }
+
+    /**
      * 在一切正确的情况下，返回正确的服务报文 (user.add + 1.0）
      */
     @Test
@@ -65,8 +90,6 @@ public class UserRestServiceClient {
         form.add("appKey", "00001");
         form.add("v", "2.0");
         form.add("sessionId", "mockSessionId1");
-        form.add("msgFormat", "xml");
-        form.add("format", "format1");
         form.add("locale", "en");
         form.add("userName", "jhonson");
         form.add("salary", "2,500.00");
@@ -95,7 +118,6 @@ public class UserRestServiceClient {
         form.add("appKey", "00001");
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
-        form.add("format", "xml");
         form.add("userName", "tomsony");
         form.add("salary", "2,500.00");
 
@@ -131,7 +153,6 @@ public class UserRestServiceClient {
         form.add("appKey", "00001");
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
-        form.add("format", "xml");
         form.add("userName", "tomsony");
         form.add("salary", "2,500.00");
         String sign = SignUtils.sign(new ArrayList<String>(
@@ -159,7 +180,6 @@ public class UserRestServiceClient {
         form.add("appKey", "00001");
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
-        form.add("format", "xml");
         form.add("userName", "tomsony");
         form.add("salary", "100");
         String sign = SignUtils.sign(new ArrayList<String>(
@@ -188,7 +208,6 @@ public class UserRestServiceClient {
         form.add("appKey", "xxxx");
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
-        form.add("format", "xml");
         form.add("userName", "tomsony");
         form.add("salary", "2,500.00");
 
@@ -217,7 +236,6 @@ public class UserRestServiceClient {
         form.add("appKey", "00001");
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
-        form.add("format", "xml");
         form.add("userName", "tomsony");
         form.add("salary", "2,500.00");
 
@@ -247,7 +265,6 @@ public class UserRestServiceClient {
 
         form.add("sessionId", "mockSessionId2"); //<--模拟一个错误的sessionId
 
-        form.add("format", "xml");
         form.add("userName", "tomsony");
         form.add("salary", "2,500.00");
 
@@ -277,7 +294,6 @@ public class UserRestServiceClient {
 
         form.add("sessionId", "xxxx"); //<--模拟一个错误的sessionId
 
-        form.add("format", "xml");
         form.add("userName", "tomsony");
         form.add("salary", "2,500.00");
 

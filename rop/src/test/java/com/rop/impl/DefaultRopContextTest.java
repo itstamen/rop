@@ -30,13 +30,11 @@ public class DefaultRopContextTest {
     @Test
     public void testWithoutGroupService() {
         ApplicationContext context = mock(ApplicationContext.class);
-        RopConfig ropConfig = mock(RopConfig.class);
-        when(ropConfig.getApplicationContext()).thenReturn(context);
         when(context.getBeanNamesForType(Object.class)).thenReturn(new String[]{"service1"});
         Class withoutGroupServiceClass = WithoutGroupService.class;
         when(context.getType("service1")).thenReturn(withoutGroupServiceClass);
 
-        RopContext registryMethod = new DefaultRopContext(ropConfig);
+        RopContext registryMethod = new DefaultRopContext(context);
         ServiceMethodHandler handler = registryMethod.getServiceMethodHandler("service.method1","1.0");
         ServiceMethodDefinition definition = handler.getServiceMethodDefinition();
         assertNotNull(definition);
@@ -46,7 +44,6 @@ public class DefaultRopContextTest {
         assertEquals(definition.getMethodGroupTitle(), "分组1");
         assertEquals(definition.getTags(), new String[]{"TAG1", "TAG2"});
         assertEquals(definition.isIgnoreSign(), true);
-        assertEquals(definition.getMessageLog(), MessageLog.ON);
         assertEquals(definition.isNeedInSession(), false);
         assertEquals(definition.getTimeout(), 100);
         assertEquals(definition.getVersion(), "1.0");
@@ -55,13 +52,11 @@ public class DefaultRopContextTest {
     @Test
     public void testWithGroupService() {
         ApplicationContext context = mock(ApplicationContext.class);
-        RopConfig ropConfig = mock(RopConfig.class);
-        when(ropConfig.getApplicationContext()).thenReturn(context);
 
         when(context.getBeanNamesForType(Object.class)).thenReturn(new String[]{"service1"});
         Class withGroupServiceClass = WithGroupService.class;
         when(context.getType("service1")).thenReturn(withGroupServiceClass);
-        RopContext ropContext = new DefaultRopContext(ropConfig);
+        RopContext ropContext = new DefaultRopContext(context);
 
         //method1:都在ServiceMethodGroup中定义，在ServiceMethod中直接采用
         ServiceMethodHandler handler = ropContext.getServiceMethodHandler("service.method1","1.0");
@@ -73,7 +68,6 @@ public class DefaultRopContextTest {
         assertEquals(definition.getMethodGroupTitle(), "分组1");
         assertEquals(definition.getTags(), new String[]{"TAG1", "TAG2"});
         assertEquals(definition.isIgnoreSign(), true);
-        assertEquals(definition.getMessageLog(), MessageLog.ON);
         assertEquals(definition.isNeedInSession(), false);
         assertEquals(definition.getTimeout(), 100);
         assertEquals(definition.getVersion(), "1.0");
@@ -88,7 +82,6 @@ public class DefaultRopContextTest {
         assertEquals(definition2.getMethodGroupTitle(), "分组2");
         assertEquals(definition2.getTags(), new String[]{"TAG11", "TAG21"});
         assertEquals(definition2.isIgnoreSign(), false);
-        assertEquals(definition2.getMessageLog(), MessageLog.OFF);
         assertEquals(definition2.isNeedInSession(), true);
         assertEquals(definition2.getTimeout(), 200);
         assertEquals(definition2.getVersion(), "2.0");
@@ -97,13 +90,11 @@ public class DefaultRopContextTest {
     @Test
     public void testIngoreSignField(){
         ApplicationContext context = mock(ApplicationContext.class);
-        RopConfig ropConfig = mock(RopConfig.class);
-        when(ropConfig.getApplicationContext()).thenReturn(context);
 
         when(context.getBeanNamesForType(Object.class)).thenReturn(new String[]{"method1"});
         Class serviceClass = IgnoreSignRopRequestService.class;
         when(context.getType("method1")).thenReturn(serviceClass);
-        RopContext ropContext = new DefaultRopContext(ropConfig);
+        RopContext ropContext = new DefaultRopContext(context);
         ServiceMethodHandler method1 = ropContext.getServiceMethodHandler("method1","1.0");
         List<String> ignoreSignFieldNames = method1.getIgnoreSignFieldNames();
         assertNotNull(ignoreSignFieldNames);
@@ -169,7 +160,7 @@ public class DefaultRopContextTest {
     public class WithoutGroupService {
 
         @ServiceMethod(value = "service.method1", title = "测试方法1", group = "GROUP1", groupTitle = "分组1",
-                tags = {"TAG1", "TAG2"}, ignoreSign = IgnoreSignType.YES, messageLog = MessageLog.ON,
+                tags = {"TAG1", "TAG2"}, ignoreSign = IgnoreSignType.YES,
                 needInSession = NeedInSessionType.NO, timeout = 100, version = "1.0")
         public RopResponse service1() {
             return new RopResponse() {
@@ -178,7 +169,7 @@ public class DefaultRopContextTest {
     }
 
     @ServiceMethodGroup(value = "GROUP1", title = "分组1",
-            tags = {"TAG1", "TAG2"}, ignoreSign = IgnoreSignType.YES, ioLogLevel = MessageLog.ON,
+            tags = {"TAG1", "TAG2"}, ignoreSign = IgnoreSignType.YES,
             needInSession = NeedInSessionType.NO, timeout = 100, version = "1.0")
     public class WithGroupService {
 
@@ -189,7 +180,7 @@ public class DefaultRopContextTest {
         }
 
         @ServiceMethod(value = "service.method2", title = "测试方法2", group = "GROUP2", groupTitle = "分组2",
-                tags = {"TAG11", "TAG21"}, ignoreSign = IgnoreSignType.NO, messageLog = MessageLog.OFF,
+                tags = {"TAG11", "TAG21"}, ignoreSign = IgnoreSignType.NO,
                 needInSession = NeedInSessionType.YES, timeout = 200, version = "2.0")
         public RopResponse service2() {
             return new RopResponse() {

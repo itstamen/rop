@@ -67,12 +67,6 @@ public @interface ServiceMethodGroup {
     IgnoreSignType ignoreSign() default IgnoreSignType.INVALID;
 
     /**
-     * 请求报文和响应报文的LOG日志级别，默认关闭日志记录功能
-     * @return
-     */
-    MessageLog ioLogLevel() default MessageLog.INVALID;
-
-    /**
      * 默认的组
      */
     public static final String DEFAULT_GROUP ="DEFAULT";

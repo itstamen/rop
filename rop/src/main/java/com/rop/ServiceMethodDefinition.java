@@ -4,7 +4,6 @@
  */
 package com.rop;
 
-import com.rop.annotation.MessageLog;
 
 /**
  * <pre>
@@ -70,11 +69,6 @@ public class ServiceMethodDefinition {
      * 是否忽略服务请求签名的校验，默认为false
      */
     private boolean ignoreSign = false;
-
-    /**
-     * 请求及响应报文的日志记录级别，默认关闭日志功能
-     */
-    private MessageLog messageLog = MessageLog.OFF;
 
 
     public String getMethod() {
@@ -147,14 +141,6 @@ public class ServiceMethodDefinition {
 
     public void setIgnoreSign(boolean ignoreSign) {
         this.ignoreSign = ignoreSign;
-    }
-
-    public MessageLog getMessageLog() {
-        return messageLog;
-    }
-
-    public void setMessageLog(MessageLog messageLog) {
-        this.messageLog = messageLog;
     }
 }
 

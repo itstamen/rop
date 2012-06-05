@@ -35,11 +35,10 @@ public class DefaultRopContext implements RopContext {
 
     private final Set<String> serviceMethods = new HashSet<String>();
 
-    private RopConfig ropConfig;
+    private boolean signEnable;
 
-    public DefaultRopContext(RopConfig ropConfig) {
-        registerFromContext(ropConfig.getApplicationContext());
-        this.ropConfig = ropConfig;
+    public DefaultRopContext(ApplicationContext context) {
+        registerFromContext(context);
     }
 
     @Override
@@ -70,8 +69,12 @@ public class DefaultRopContext implements RopContext {
     }
 
     @Override
-    public RopConfig getRopConfig() {
-        return this.ropConfig;
+    public boolean isSignEnable() {
+        return signEnable;
+    }
+
+    public void setSignEnable(boolean signEnable) {
+        this.signEnable = signEnable;
     }
 
     /**
@@ -149,7 +152,6 @@ public class DefaultRopContext implements RopContext {
         definition.setIgnoreSign(IgnoreSignType.isIgnoreSign(serviceMethod.ignoreSign()));
         definition.setVersion(serviceMethod.version());
         definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethod.needInSession()));
-        definition.setMessageLog(serviceMethod.messageLog());
         return definition;
     }
 
@@ -162,7 +164,6 @@ public class DefaultRopContext implements RopContext {
         definition.setIgnoreSign(IgnoreSignType.isIgnoreSign(serviceMethodGroup.ignoreSign()));
         definition.setVersion(serviceMethodGroup.version());
         definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethodGroup.needInSession()));
-        definition.setMessageLog(serviceMethodGroup.ioLogLevel());
 
         //如果ServiceMethod所提供的值和ServiceMethodGroup不一样，覆盖之
         definition.setMethod(serviceMethod.value());
@@ -196,9 +197,6 @@ public class DefaultRopContext implements RopContext {
             definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethod.needInSession()));
         }
 
-        if(serviceMethod.messageLog() != MessageLog.INVALID){
-            definition.setMessageLog(serviceMethod.messageLog());
-        }
         return definition;
     }
 

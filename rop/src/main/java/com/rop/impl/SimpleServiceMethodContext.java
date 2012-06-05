@@ -203,6 +203,11 @@ public class SimpleServiceMethodContext implements ServiceMethodContext {
     }
 
     @Override
+    public boolean isSignEnable() {
+        return ropContext.isSignEnable() && !getServiceMethodDefinition().isIgnoreSign();
+    }
+
+    @Override
     public ServiceMethodDefinition getServiceMethodDefinition() {
         return serviceMethodHandler.getServiceMethodDefinition();
     }

@@ -56,10 +56,10 @@ public interface RopContext {
     Map<String,ServiceMethodHandler> getAllServiceMethodHandlers();
 
     /**
-     * 获取Rop框架的配置
+     * 是开启签名功能
      * @return
      */
-    RopConfig getRopConfig();
+    boolean isSignEnable();
 
 }
 

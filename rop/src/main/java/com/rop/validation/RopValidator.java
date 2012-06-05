@@ -9,7 +9,7 @@ import com.rop.ServiceMethodContext;
 
 /**
  * <pre>
- * 功能说明：
+ *   负责对请求数据、会话、业务安全、应用密钥安全进行检查并返回相应的错误
  * </pre>
  *
  * @author 陈雄华
@@ -24,12 +24,6 @@ public interface RopValidator {
      * @return
      */
     MainError validate(ServiceMethodContext methodContext);
-
-    /**
-     * 是否需要进行签名校验
-     * @return
-     */
-    boolean isNeedCheckSign();
 
     /**
      * 获取安全管理器

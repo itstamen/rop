@@ -5,6 +5,8 @@
 package com.rop.impl;
 
 import com.rop.*;
+import com.rop.config.InterceptorHolder;
+import com.rop.config.RopEventListenerHodler;
 import com.rop.event.*;
 import com.rop.marshaller.JacksonJsonRopMarshaller;
 import com.rop.marshaller.JaxbXmlRopMarshaller;
@@ -13,27 +15,33 @@ import com.rop.response.ServiceUnavailableErrorResponse;
 import com.rop.validation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.core.task.TaskExecutor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
-public class ServletServiceRouter implements ServiceRouter {
+public class AnnotationServletServiceRouter implements ServiceRouter, ApplicationContextAware, InitializingBean {
 
 
     public static final String UTF_8 = "UTF-8";
+
     public static final String APPLICATION_XML = "application/xml";
+
     public static final String APPLICATION_JSON = "application/json";
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String I18N_ROP_ERROR = "i18n/rop/error";
 
-    private ServiceMethodAdapter serviceMethodAdapter;
+    private ServiceMethodAdapter serviceMethodAdapter = new AnnotationServiceMethodAdapter();
 
     private RopMarshaller xmlMarshallerRop = new JaxbXmlRopMarshaller();
 
@@ -43,46 +51,155 @@ public class ServletServiceRouter implements ServiceRouter {
 
     private RopContext ropContext;
 
-    private RopValidator ropValidator;
-
     private RopEventMulticaster ropEventMulticaster;
 
+    private RopValidator ropValidator;
 
-    public ServletServiceRouter(RopConfig ropConfig) {
+    private List<Interceptor> interceptors;
+
+    private List<RopEventListener> listeners;
+
+    private TaskExecutor taskExecutor;
+
+    private ApplicationContext applicationContext;
+
+    private boolean signEnable = true;
+
+    private String extErrorBasename = "i18n/rop/ropError";
+
+    private void initialize() {
         if (logger.isInfoEnabled()) {
-            logger.info("初始化Rop框架");
+            logger.info("开始启动Rop框架...");
         }
-        this.ropContext = new DefaultRopContext(ropConfig);
-        this.serviceMethodAdapter = new AnnotationServiceMethodAdapter();
-        this.ropValidator = new DefaultRopValidator(this.ropContext.getRopConfig());
+        //创建Rop上下文
+        this.ropContext = buildRopContext();
+
+        //初始化事件发布器
+        this.ropEventMulticaster = buildRopEventMulticaster();
 
         //初始化信息源
         initMessageSource();
 
-        //初始化事件发布器
-        initRopEventMulticaster();
+        //注册拦截器（查看Spring容器中）
+        registerInterceptors();
+
+        //注册拦截器（查看Spring容器中）
+        registerListeners();
 
         //产生Rop框架初始化事件
         firePostInitializeEvent();
+
+        if (logger.isInfoEnabled()) {
+            logger.info("Rop框架启动成功！");
+        }
     }
 
-    private void initRopEventMulticaster() {
+    private void registerListeners() {
+        Map<String, RopEventListenerHodler> listenerMap = this.applicationContext.getBeansOfType(RopEventListenerHodler.class);
+        if (listenerMap != null && listenerMap.size() > 0) {
+            this.listeners = new ArrayList<RopEventListener>(listenerMap.size());
+
+            //从Spring容器中获取Interceptor
+            for (RopEventListenerHodler listenerHolder : listenerMap.values()) {
+                this.listeners.add(listenerHolder.getRopEventListener());
+            }
+
+            if (logger.isInfoEnabled()) {
+                logger.info("共注册了" + listenerMap.size() + "事件监听器.");
+            }
+        }
+    }
+
+    private void registerInterceptors() {
+        Map<String, InterceptorHolder> interceptorMap = this.applicationContext.getBeansOfType(InterceptorHolder.class);
+        if (interceptorMap != null && interceptorMap.size() > 0) {
+            this.interceptors = new ArrayList<Interceptor>(interceptorMap.size());
+
+            //从Spring容器中获取Interceptor
+            for (InterceptorHolder interceptorHolder : interceptorMap.values()) {
+                this.interceptors.add(interceptorHolder.getInterceptor());
+            }
+
+            //根据getOrder()值排序
+            Collections.sort(this.interceptors, new Comparator<Interceptor>() {
+                public int compare(Interceptor o1, Interceptor o2) {
+                    if (o1.getOrder() > o2.getOrder()) {
+                        return 1;
+                    } else if (o1.getOrder() < o2.getOrder()) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+
+            if (logger.isInfoEnabled()) {
+                logger.info("共注册了" + interceptorMap.size() + "拦截器.");
+            }
+        }
+    }
+
+    private RopContext buildRopContext() {
+        DefaultRopContext defaultRopContext = new DefaultRopContext(this.applicationContext);
+        defaultRopContext.setSignEnable(this.signEnable);
+        return defaultRopContext;
+    }
+
+    public void setSignEnable(boolean signEnable) {
+        if(!signEnable && logger.isInfoEnabled()){
+            logger.info("关闭签名验证功能");
+        }
+        this.signEnable = signEnable;
+    }
+
+    public void setInterceptors(List<Interceptor> interceptors) {
+        this.interceptors = interceptors;
+    }
+
+    public void setRopValidator(RopValidator ropValidator) {
+        this.ropValidator = ropValidator;
+    }
+
+    public void setTaskExecutor(TaskExecutor taskExecutor) {
+        this.taskExecutor = taskExecutor;
+    }
+
+    public void setExtErrorBasename(String extErrorBasename) {
+        this.extErrorBasename = extErrorBasename;
+    }
+
+    public void setListeners(List<RopEventListener> listeners) {
+        this.listeners = listeners;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        //初始化Rop框架
+        initialize();
+    }
+
+    private RopEventMulticaster buildRopEventMulticaster() {
+
         SimpleRopEventMulticaster simpleRopEventMulticaster = new SimpleRopEventMulticaster();
 
         //设置异步执行器
-        if (ropContext.getRopConfig().getTaskExecutor() != null) {
-            simpleRopEventMulticaster.setTaskExecutor(ropContext.getRopConfig().getTaskExecutor());
+        if (this.taskExecutor != null) {
+            simpleRopEventMulticaster.setTaskExecutor(this.taskExecutor);
         }
 
         //添加事件监听器
-        List<RopEventListener> ropEventListeners = this.ropContext.getRopConfig().getRopEventListeners();
-        if (ropEventListeners != null && ropEventListeners.size() > 0) {
-            for (RopEventListener ropEventListener : ropEventListeners) {
+        if (this.listeners != null && this.listeners.size() > 0) {
+            for (RopEventListener ropEventListener : this.listeners) {
                 simpleRopEventMulticaster.addRopListener(ropEventListener);
             }
         }
 
-        this.ropEventMulticaster = simpleRopEventMulticaster;
+        return simpleRopEventMulticaster;
     }
 
     /**
@@ -159,7 +276,6 @@ public class ServletServiceRouter implements ServiceRouter {
     private void invokeBeforceServiceOfInterceptors(ServiceMethodContext context) {
         Interceptor tempInterceptor = null;
         try {
-            List<Interceptor> interceptors = ropContext.getRopConfig().getInterceptors();
             if (interceptors != null && interceptors.size() > 0) {
                 for (Interceptor interceptor : interceptors) {
 
@@ -189,7 +305,6 @@ public class ServletServiceRouter implements ServiceRouter {
     private void invokeBeforceResponseOfInterceptors(ServiceMethodContext context) {
         Interceptor tempInterceptor = null;
         try {
-            List<Interceptor> interceptors = ropContext.getRopConfig().getInterceptors();
             if (interceptors != null && interceptors.size() > 0) {
                 for (Interceptor interceptor : interceptors) {
                     interceptor.beforeResponse(context);
@@ -244,11 +359,11 @@ public class ServletServiceRouter implements ServiceRouter {
      * 设置国际化资源信息
      */
     private void initMessageSource() {
-        if (logger.isDebugEnabled()) {
-            logger.debug("注册错误码国际化资源：" + I18N_ROP_ERROR + "," + ropContext.getRopConfig().getErrorResourceBaseName());
+        if (logger.isInfoEnabled()) {
+            logger.info("加载错误码国际化资源：" + I18N_ROP_ERROR + "," + this.extErrorBasename);
         }
         ResourceBundleMessageSource bundleMessageSource = new ResourceBundleMessageSource();
-        bundleMessageSource.setBasenames(I18N_ROP_ERROR, ropContext.getRopConfig().getErrorResourceBaseName());
+        bundleMessageSource.setBasenames(I18N_ROP_ERROR, this.extErrorBasename);
         MessageSourceAccessor messageSourceAccessor = new MessageSourceAccessor(bundleMessageSource);
         MainErrors.setErrorMessageSourceAccessor(messageSourceAccessor);
         SubErrors.setErrorMessageSourceAccessor(messageSourceAccessor);
