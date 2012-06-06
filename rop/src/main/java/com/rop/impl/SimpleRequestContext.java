@@ -19,9 +19,7 @@ import java.util.Map;
  * @author 陈雄华
  * @version 1.0
  */
-public class SimpleServiceMethodContext implements ServiceMethodContext {
-
-    public static final String HTTP_SERVLET_REQUEST_ATTRNAME = "$HTTP_SERVLET_REQUEST_ATTRNAME";
+public class SimpleRequestContext implements RequestContext {
 
     public static final String SPRING_VALIDATE_ERROR_ATTRNAME = "$SPRING_VALIDATE_ERROR_ATTRNAME";
 
@@ -56,6 +54,12 @@ public class SimpleServiceMethodContext implements ServiceMethodContext {
     private long serviceBeginTime = -1;
 
     private long serviceEndTime = -1;
+    
+    private String ip;
+
+    private Object rawRequestObject;
+
+    private Map<String,String> allParams;
 
     @Override
     public long getServiceBeginTime() {
@@ -86,10 +90,27 @@ public class SimpleServiceMethodContext implements ServiceMethodContext {
         this.format = format;
     }
 
+    @Override
+    public Object getRawRequestObject() {
+        return this.rawRequestObject;
+    }
 
-    public SimpleServiceMethodContext(RopContext ropContext) {
+    public void setRawRequestObject(Object rawRequestObject) {
+        this.rawRequestObject = rawRequestObject;
+    }
+
+    public SimpleRequestContext(RopContext ropContext) {
         this.ropContext = ropContext;
         this.serviceBeginTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public String getIp() {
+        return this.ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
     @Override
@@ -210,6 +231,24 @@ public class SimpleServiceMethodContext implements ServiceMethodContext {
     @Override
     public ServiceMethodDefinition getServiceMethodDefinition() {
         return serviceMethodHandler.getServiceMethodDefinition();
+    }
+
+    @Override
+    public Map<String, String> getAllParams() {
+        return this.allParams;
+    }
+
+    public void setAllParams(Map<String, String> allParams) {
+        this.allParams = allParams;
+    }
+
+    @Override
+    public String getParamValue(String paramName) {
+        if(allParams != null){
+            return allParams.get(paramName);
+        }else{
+            return null;
+        }
     }
 }
 

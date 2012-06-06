@@ -15,7 +15,7 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * <pre>
- *
+ *   对请求响应的对象转成相应的报文。
  * </pre>
  *
  * @author 陈雄华
@@ -56,9 +56,17 @@ public class MessageMarshallerUtils {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
             if (format == MessageFormat.json) {
-                jsonObjectMapper.writeValue(bos, request.getParamValues());
+                if(request.getRequestContext() != null){
+                    jsonObjectMapper.writeValue(bos, request.getRequestContext().getAllParams());
+                }else{
+                    return "";
+                }
             } else {
-                xmlObjectMapper.writeValue(bos, request.getParamValues());
+                if(request.getRequestContext() != null){
+                     xmlObjectMapper.writeValue(bos, request.getRequestContext().getAllParams());
+                }else {
+                    return "";
+                }
             }
             return bos.toString(UTF_8);
         } catch (Exception e) {

@@ -21,6 +21,6 @@ public interface SecurityManager {
      * @param userId
      * @return
      */
-    boolean isGranted(ServiceMethodContext methodContext);
+    boolean isGranted(RequestContext methodContext);
 }
 

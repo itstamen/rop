@@ -12,7 +12,6 @@ import com.rop.event.*;
 import com.rop.marshaller.JacksonJsonRopMarshaller;
 import com.rop.marshaller.JaxbXmlRopMarshaller;
 import com.rop.response.ErrorResponse;
-import com.rop.response.ServiceErrorResponse;
 import com.rop.response.ServiceUnavailableErrorResponse;
 import com.rop.response.TimeoutErrorResponse;
 import com.rop.validation.*;
@@ -52,7 +51,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
 
     private RopMarshaller jsonMarshallerRop = new JacksonJsonRopMarshaller();
 
-    private ServiceMethodContextBuilder serviceMethodContextBuilder = new ServletRequestServiceMethodContextBuilder();
+    private RequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder();
 
     private RopContext ropContext;
 
@@ -95,12 +94,12 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
             }
         } catch (TimeoutException e) {
             TimeoutErrorResponse ropResponse =
-                    new TimeoutErrorResponse(ServletRequestServiceMethodContextBuilder.getLocale(servletRequest));
-            writeResponse(ropResponse, servletResponse, ServletRequestServiceMethodContextBuilder.getResponseFormat(servletRequest));
+                    new TimeoutErrorResponse(ServletRequestContextBuilder.getLocale(servletRequest));
+            writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
         } catch (Throwable throwable) {
             ServiceUnavailableErrorResponse ropResponse =
-                    new ServiceUnavailableErrorResponse(method, ServletRequestServiceMethodContextBuilder.getLocale(servletRequest));
-            writeResponse(ropResponse, servletResponse, ServletRequestServiceMethodContextBuilder.getResponseFormat(servletRequest));
+                    new ServiceUnavailableErrorResponse(method, ServletRequestContextBuilder.getLocale(servletRequest));
+            writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
         }
     }
 
@@ -141,46 +140,46 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         @Override
         public void run() {
             long beginTime = System.currentTimeMillis();
-            ServiceMethodContext serviceMethodContext = null;
+            RequestContext requestContext = null;
 
             try {
                 //构造服务方法的上下文
-                serviceMethodContext = buildBopServiceContext(servletRequest);
-                serviceMethodContext.setServiceBeginTime(beginTime);
+                requestContext = buildBopServiceContext(servletRequest);
+                requestContext.setServiceBeginTime(beginTime);
 
                 //发布事件
-                firePreDoServiceEvent(serviceMethodContext);
+                firePreDoServiceEvent(requestContext);
 
                 //进行服务准入检查（包括appKey、签名、会话、服务安全，数据合法性等）
-                MainError mainError = ropValidator.validate(serviceMethodContext);
+                MainError mainError = ropValidator.validate(requestContext);
 
                 if (mainError != null) {
-                    serviceMethodContext.setRopResponse(new ErrorResponse(mainError));
+                    requestContext.setRopResponse(new ErrorResponse(mainError));
                 } else {//通过服务准入检查后发起正式的服务调整
 
                     //服务处理前拦截
-                    invokeBeforceServiceOfInterceptors(serviceMethodContext);
+                    invokeBeforceServiceOfInterceptors(requestContext);
 
                     //如果拦截器没有产生ropResponse时才调用服务方法
-                    serviceMethodContext.setRopResponse(doService(serviceMethodContext));
+                    requestContext.setRopResponse(doService(requestContext));
 
                     //返回响应后拦截
-                    invokeBeforceResponseOfInterceptors(serviceMethodContext);
+                    invokeBeforceResponseOfInterceptors(requestContext);
                 }
 
 
                 //输出响应
-                writeResponse(serviceMethodContext.getRopResponse(), servletResponse, serviceMethodContext.getMessageFormat());
+                writeResponse(requestContext.getRopResponse(), servletResponse, requestContext.getMessageFormat());
             } catch (Throwable e) {
-                String method = serviceMethodContext.getMethod();
-                Locale locale = serviceMethodContext.getLocale();
+                String method = requestContext.getMethod();
+                Locale locale = requestContext.getLocale();
                 ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale);
-                writeResponse(ropResponse, servletResponse, serviceMethodContext.getMessageFormat());
+                writeResponse(ropResponse, servletResponse, requestContext.getMessageFormat());
             } finally {
-                if (serviceMethodContext != null) {
+                if (requestContext != null) {
                     //发布服务完成事件
-                    serviceMethodContext.setServiceEndTime(System.currentTimeMillis());
-                    fireAfterDoServiceEvent(serviceMethodContext);
+                    requestContext.setServiceEndTime(System.currentTimeMillis());
+                    fireAfterDoServiceEvent(requestContext);
                 }
             }
 
@@ -350,12 +349,12 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
     }
 
 
-    private void fireAfterDoServiceEvent(ServiceMethodContext serviceMethodContext) {
-        this.ropEventMulticaster.multicastEvent(new PreDoServiceEvent(this, serviceMethodContext));
+    private void fireAfterDoServiceEvent(RequestContext requestContext) {
+        this.ropEventMulticaster.multicastEvent(new PreDoServiceEvent(this, requestContext));
     }
 
-    private void firePreDoServiceEvent(ServiceMethodContext serviceMethodContext) {
-        this.ropEventMulticaster.multicastEvent(new AfterDoServiceEvent(this, serviceMethodContext));
+    private void firePreDoServiceEvent(RequestContext requestContext) {
+        this.ropEventMulticaster.multicastEvent(new AfterDoServiceEvent(this, requestContext));
     }
 
 
@@ -364,7 +363,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
      *
      * @param context
      */
-    private void invokeBeforceServiceOfInterceptors(ServiceMethodContext context) {
+    private void invokeBeforceServiceOfInterceptors(RequestContext context) {
         Interceptor tempInterceptor = null;
         try {
             if (interceptors != null && interceptors.size() > 0) {
@@ -393,7 +392,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
      *
      * @param context
      */
-    private void invokeBeforceResponseOfInterceptors(ServiceMethodContext context) {
+    private void invokeBeforceResponseOfInterceptors(RequestContext context) {
         Interceptor tempInterceptor = null;
         try {
             if (interceptors != null && interceptors.size() > 0) {
@@ -407,8 +406,8 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         }
     }
 
-    private ServiceMethodContext buildBopServiceContext(HttpServletRequest request) {
-        return serviceMethodContextBuilder.buildBopServiceContext(this.ropContext, request);
+    private RequestContext buildBopServiceContext(HttpServletRequest request) {
+        return requestContextBuilder.buildRequestContext(this.ropContext, request);
     }
 
 
@@ -427,7 +426,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         }
     }
 
-    private RopResponse doService(ServiceMethodContext methodContext) {
+    private RopResponse doService(RequestContext methodContext) {
         RopResponse ropResponse = null;
         if (methodContext.getMethod() == null) {
             ropResponse = new ErrorResponse(MainErrors.getError(MainErrorType.MISSING_METHOD, methodContext.getLocale()));

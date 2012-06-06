@@ -3,9 +3,9 @@
  */
 package com.rop.impl;
 
+import com.rop.RequestContext;
 import com.rop.RopResponse;
 import com.rop.ServiceMethodAdapter;
-import com.rop.ServiceMethodContext;
 import com.rop.ServiceMethodHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +30,13 @@ public class AnnotationServiceMethodAdapter implements ServiceMethodAdapter {
      * @param webRequest
      * @return
      */
-    public RopResponse invokeServiceMethod(ServiceMethodContext methodContext) {
+    public RopResponse invokeServiceMethod(RequestContext methodContext) {
         try {
             //分析上下文中的错误
             ServiceMethodHandler serviceMethodHandler = methodContext.getServiceMethodHandler();
             if (logger.isDebugEnabled()) {
-                logger.debug("执行" + serviceMethodHandler.getHandler().getClass() + "." + serviceMethodHandler.getHandlerMethod().getName());
+                logger.debug("执行" + serviceMethodHandler.getHandler().getClass() +
+                        "." + serviceMethodHandler.getHandlerMethod().getName());
             }
             if (serviceMethodHandler.isHandlerMethodWithParameter()) {
                 return (RopResponse) serviceMethodHandler.getHandlerMethod().invoke(

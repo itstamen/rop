@@ -6,6 +6,8 @@ package com.rop.impl;
 
 import com.rop.*;
 import com.rop.config.SysparamNames;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.propertyeditors.LocaleEditor;
 import org.springframework.core.convert.ConversionService;
@@ -22,51 +24,56 @@ import java.util.*;
 
 /**
  * <pre>
- *    构建{@link ServiceMethodContext}实例
+ *    构建{@link com.rop.RequestContext}实例
  * </pre>
  *
  * @author 陈雄华
  * @version 1.0
  */
-public class ServletRequestServiceMethodContextBuilder implements ServiceMethodContextBuilder {
+public class ServletRequestContextBuilder implements RequestContextBuilder {
 
     private FormattingConversionService conversionService;
 
     private Validator validator;
 
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+
 
     @Override
-    public SimpleServiceMethodContext buildBopServiceContext(RopContext ropContext, Object request) {
+    public SimpleRequestContext buildRequestContext(RopContext ropContext, Object request) {
         if (!(request instanceof HttpServletRequest)) {
             throw new IllegalArgumentException("请求对象必须是HttpServletRequest的类型");
         }
 
         HttpServletRequest servletRequest = (HttpServletRequest) request;
-        SimpleServiceMethodContext ropServiceContext = new SimpleServiceMethodContext(ropContext);
+        SimpleRequestContext reqeustContext = new SimpleRequestContext(ropContext);
 
-        //设置系统参数
-        ropServiceContext.setMethod(servletRequest.getParameter(SysparamNames.getMethod()));
-        ropServiceContext.setVersion(servletRequest.getParameter(SysparamNames.getVersion()));
-        ropServiceContext.setAppKey(servletRequest.getParameter(SysparamNames.getAppKey()));
-        ropServiceContext.setSessionId(servletRequest.getParameter(SysparamNames.getSessionId()));
-        ropServiceContext.setLocale(getLocale(servletRequest));
-        ropServiceContext.setFormat(getFormat(servletRequest));
-        ropServiceContext.setMessageFormat(getResponseFormat(servletRequest));
-        ropServiceContext.setSign(servletRequest.getParameter(SysparamNames.getSign()));
+        //设置请求对象及参数列表
+        reqeustContext.setRawRequestObject(servletRequest);
+        reqeustContext.setAllParams(getRequestParams(servletRequest));
+        reqeustContext.setIp(servletRequest.getRemoteAddr());
+
+        //设置服务的系统级参数
+        reqeustContext.setMethod(servletRequest.getParameter(SysparamNames.getMethod()));
+        reqeustContext.setVersion(servletRequest.getParameter(SysparamNames.getVersion()));
+        reqeustContext.setAppKey(servletRequest.getParameter(SysparamNames.getAppKey()));
+        reqeustContext.setSessionId(servletRequest.getParameter(SysparamNames.getSessionId()));
+        reqeustContext.setLocale(getLocale(servletRequest));
+        reqeustContext.setFormat(getFormat(servletRequest));
+        reqeustContext.setMessageFormat(getResponseFormat(servletRequest));
+        reqeustContext.setSign(servletRequest.getParameter(SysparamNames.getSign()));
 
         //设置服务处理器
         ServiceMethodHandler serviceMethodHandler =
-                ropContext.getServiceMethodHandler(ropServiceContext.getMethod(),ropServiceContext.getVersion());
-        ropServiceContext.setServiceMethodHandler(serviceMethodHandler);
+                ropContext.getServiceMethodHandler(reqeustContext.getMethod(), reqeustContext.getVersion());
+        reqeustContext.setServiceMethodHandler(serviceMethodHandler);
 
         //设置请求对象
-        ropServiceContext.setAttribute(SimpleServiceMethodContext.HTTP_SERVLET_REQUEST_ATTRNAME, servletRequest);
-
-        bindRequest(ropServiceContext);
-        return ropServiceContext;
+        buildRopRequest(reqeustContext);
+        return reqeustContext;
     }
 
-    private  String getFormat(HttpServletRequest servletRequest) {
+    private String getFormat(HttpServletRequest servletRequest) {
         String messageFormat = servletRequest.getParameter(SysparamNames.getFormat());
         if (messageFormat == null) {
             return MessageFormat.xml.name();
@@ -75,7 +82,7 @@ public class ServletRequestServiceMethodContextBuilder implements ServiceMethodC
         }
     }
 
-    public static  Locale getLocale(HttpServletRequest webRequest) {
+    public static Locale getLocale(HttpServletRequest webRequest) {
         if (webRequest.getParameter(SysparamNames.getLocale()) != null) {
             LocaleEditor localeEditor = new LocaleEditor();
             localeEditor.setAsText(webRequest.getParameter(SysparamNames.getLocale()));
@@ -96,41 +103,41 @@ public class ServletRequestServiceMethodContextBuilder implements ServiceMethodC
 
 
     /**
-     * 将{@link HttpServletRequest}的数据绑定到{@link com.rop.ServiceMethodContext}的{@link com.rop.RopRequest}中，同时使用
-     * JSR 303对请求数据进行校验，将错误信息设置到{@link com.rop.ServiceMethodContext}的属性列表中。
+     * 将{@link HttpServletRequest}的数据绑定到{@link com.rop.RequestContext}的{@link com.rop.RopRequest}中，同时使用
+     * JSR 303对请求数据进行校验，将错误信息设置到{@link com.rop.RequestContext}的属性列表中。
      *
-     * @param context
+     * @param requestContext
      */
-    private void bindRequest(SimpleServiceMethodContext context) {
-        HttpServletRequest request =
-                (HttpServletRequest) context.getAttribute(SimpleServiceMethodContext.HTTP_SERVLET_REQUEST_ATTRNAME);
+    private void buildRopRequest(SimpleRequestContext requestContext) {
+        AbstractRopRequest ropRequest = null;
+        if (requestContext.getServiceMethodHandler().isRopRequestImplType()) {
+            HttpServletRequest request =
+                    (HttpServletRequest) requestContext.getRawRequestObject();
+            BindingResult bindingResult = doBind(request, requestContext.getServiceMethodHandler().getRequestType());
+            ropRequest = buildRopRequestFromBindingResult(requestContext, bindingResult);
 
-        //按参数名和属性名称匹配绑定数据
-        BindingResult bindingResult = doBind(request, context.getServiceMethodHandler().getRequestType());
-
-        //1.创建RopRequest
-        RopRequest ropRequest = buildRopRequest(context, request, bindingResult);
-        context.setRopRequest(ropRequest);
-
-        //2.设置校验错误信息
-        List<ObjectError> allErrors = bindingResult.getAllErrors();
-        context.setAttribute(SimpleServiceMethodContext.SPRING_VALIDATE_ERROR_ATTRNAME, allErrors);
+            List<ObjectError> allErrors = bindingResult.getAllErrors();
+                    requestContext.setAttribute(SimpleRequestContext.SPRING_VALIDATE_ERROR_ATTRNAME, allErrors);
+        }else{
+            ropRequest = new DefaultRopRequest();
+        }
+        ropRequest.setRequestContext(requestContext);
+        requestContext.setRopRequest(ropRequest);
     }
 
-    private RopRequest buildRopRequest(ServiceMethodContext context, HttpServletRequest request, BindingResult bindingResult) {
-        RopRequest ropRequest = (RopRequest) bindingResult.getTarget();
-        ropRequest.setRawRequestObject(request);
+    private AbstractRopRequest buildRopRequestFromBindingResult(RequestContext requestContext, BindingResult bindingResult) {
+        AbstractRopRequest ropRequest = (AbstractRopRequest) bindingResult.getTarget();
+        if (ropRequest instanceof AbstractRopRequest) {
+            AbstractRopRequest abstractRopRequest = (AbstractRopRequest) ropRequest;
+            abstractRopRequest.setRequestContext(requestContext);
+        } else {
+            logger.warn(ropRequest.getClass().getName() + "不是扩展于" + AbstractRopRequest.class.getName() +
+                    ",无法设置" + RequestContext.class.getName());
+        }
+        return ropRequest;
+    }
 
-        //1.设置系统参数
-        ropRequest.setAppKey(context.getAppKey());
-        ropRequest.setSessionId(context.getSessionId());
-        ropRequest.setMethod(context.getMethod());
-        ropRequest.setVersion(context.getVersion());
-        ropRequest.setMsgFormat(context.getMessageFormat());
-        ropRequest.setLocale(context.getLocale());
-        ropRequest.setSign(context.getSign());
-
-        //2.将HttpServletRequest的所有参数填充到ropRequest中
+    private HashMap<String, String> getRequestParams(HttpServletRequest request) {
         Map srcParamMap = request.getParameterMap();
         HashMap<String, String> destParamMap = new HashMap<String, String>(srcParamMap.size());
         for (Object obj : srcParamMap.keySet()) {
@@ -141,15 +148,12 @@ public class ServletRequestServiceMethodContextBuilder implements ServiceMethodC
                 destParamMap.put((String) obj, null);
             }
         }
-        ropRequest.setParamValues(destParamMap);
-
-        return ropRequest;
+        return destParamMap;
     }
 
 
     private BindingResult doBind(HttpServletRequest webRequest, Class<? extends RopRequest> requestType) {
         RopRequest bindObject = BeanUtils.instantiateClass(requestType);
-        bindObject.setIp(webRequest.getRemoteAddr());
         ServletRequestDataBinder dataBinder = new ServletRequestDataBinder(bindObject, "bindObject");
         dataBinder.setConversionService(getConversionService());
         dataBinder.setValidator(getValidator());
@@ -177,6 +181,10 @@ public class ServletRequestServiceMethodContextBuilder implements ServiceMethodC
             this.validator = localValidatorFactoryBean;
         }
         return this.validator;
+    }
+
+    private class DefaultRopRequest extends AbstractRopRequest{
+
     }
 
 }

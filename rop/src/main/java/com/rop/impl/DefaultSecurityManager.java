@@ -4,7 +4,7 @@
  */
 package com.rop.impl;
 
-import com.rop.ServiceMethodContext;
+import com.rop.RequestContext;
 
 /**
  * <pre>
@@ -16,7 +16,7 @@ import com.rop.ServiceMethodContext;
  */
 public class DefaultSecurityManager implements com.rop.SecurityManager {
 
-    public boolean isGranted(ServiceMethodContext methodContext) {
+    public boolean isGranted(RequestContext methodContext) {
         return true;
     }
 

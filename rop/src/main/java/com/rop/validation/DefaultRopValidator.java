@@ -7,7 +7,7 @@ package com.rop.validation;
 import com.rop.*;
 import com.rop.SecurityManager;
 import com.rop.impl.DefaultSecurityManager;
-import com.rop.impl.SimpleServiceMethodContext;
+import com.rop.impl.SimpleRequestContext;
 import com.rop.utils.SignUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class DefaultRopValidator implements RopValidator {
     }
 
     @Override
-    public MainError validate(ServiceMethodContext methodContext) {
+    public MainError validate(RequestContext methodContext) {
 
         MainError mainError = null;
 
@@ -72,33 +72,33 @@ public class DefaultRopValidator implements RopValidator {
         return  checkServiceAccessAllow(methodContext);
     }
 
-    private MainError validateSysParams(ServiceMethodContext smc) {
+    private MainError validateSysParams(RequestContext smc) {
         RopContext ropContext = smc.getRopContext();
         RopRequest ropRequest = smc.getRopRequest();
 
         //1.检查method参数
         if (smc.getMethod() == null) {
-            return MainErrors.getError(MainErrorType.MISSING_METHOD, ropRequest.getLocale());
+            return MainErrors.getError(MainErrorType.MISSING_METHOD, smc.getLocale());
         } else {
             if (!ropContext.isValidMethod(smc.getMethod())) {
-                return MainErrors.getError(MainErrorType.INVALID_METHOD, ropRequest.getLocale());
+                return MainErrors.getError(MainErrorType.INVALID_METHOD, smc.getLocale());
             }
         }
 
         //2.检查v参数
         if (smc.getVersion() == null) {
-            return MainErrors.getError(MainErrorType.MISSING_VERSION, ropRequest.getLocale());
+            return MainErrors.getError(MainErrorType.MISSING_VERSION, smc.getLocale());
         } else {
             if (!ropContext.isValidMethodVersion(smc.getMethod(), smc.getVersion())) {
-                return MainErrors.getError(MainErrorType.UNSUPPORTED_VERSION, ropRequest.getLocale());
+                return MainErrors.getError(MainErrorType.UNSUPPORTED_VERSION, smc.getLocale());
             }
         }
 
         //3.检查appKey
         if (smc.getAppKey() == null)
-            return MainErrors.getError(MainErrorType.MISSING_APP_KEY, ropRequest.getLocale());
+            return MainErrors.getError(MainErrorType.MISSING_APP_KEY, smc.getLocale());
         if (!appSecretManager.isValidAppKey(smc.getAppKey())) {
-            return MainErrors.getError(MainErrorType.INVALID_APP_KEY, ropRequest.getLocale());
+            return MainErrors.getError(MainErrorType.INVALID_APP_KEY, smc.getLocale());
         }
 
         //4.检查sessionId
@@ -109,7 +109,7 @@ public class DefaultRopValidator implements RopValidator {
 
         //5.检查 format
         if (!MessageFormat.isValidFormat(smc.getFormat())) {
-            return MainErrors.getError(MainErrorType.INVALID_FORMAT, ropRequest.getLocale());
+            return MainErrors.getError(MainErrorType.INVALID_FORMAT, smc.getLocale());
         }
 
         //6.检查sign
@@ -148,13 +148,12 @@ public class DefaultRopValidator implements RopValidator {
         this.sessionChecker = sessionChecker;
     }
 
-    private MainError checkServiceAccessAllow(ServiceMethodContext methodContext) {
-        RopRequest ropRequest = methodContext.getRopRequest();
-        if (!getSecurityManager().isGranted(methodContext)) {
-            MainError mainError = SubErrors.getMainError(SubErrorType.ISV_INVALID_PERMISSION, ropRequest.getLocale());
+    private MainError checkServiceAccessAllow(RequestContext smc) {
+        if (!getSecurityManager().isGranted(smc)) {
+            MainError mainError = SubErrors.getMainError(SubErrorType.ISV_INVALID_PERMISSION, smc.getLocale());
             SubError subError = SubErrors.getSubError(SubErrorType.ISV_INVALID_PERMISSION.value(),
                     SubErrorType.ISV_INVALID_PERMISSION.value(),
-                    ropRequest.getLocale());
+                    smc.getLocale());
             mainError.addSubError(subError);
             if (mainError != null && logger.isErrorEnabled()) {
                 logger.debug("安全检查管理器禁止调用将服务。");
@@ -165,9 +164,9 @@ public class DefaultRopValidator implements RopValidator {
         }
     }
 
-    private MainError validateBusinessParams(ServiceMethodContext methodContext) {
+    private MainError validateBusinessParams(RequestContext methodContext) {
         List<ObjectError> errorList =
-                (List<ObjectError>) methodContext.getAttribute(SimpleServiceMethodContext.SPRING_VALIDATE_ERROR_ATTRNAME);
+                (List<ObjectError>) methodContext.getAttribute(SimpleRequestContext.SPRING_VALIDATE_ERROR_ATTRNAME);
 
         //将Bean数据绑定时产生的错误转换为Rop的错误
         if (errorList != null && errorList.size() > 0) {
@@ -183,7 +182,7 @@ public class DefaultRopValidator implements RopValidator {
      * @param smc
      * @return
      */
-    private MainError checkSign(ServiceMethodContext smc) {
+    private MainError checkSign(RequestContext smc) {
 
         //系统级签名开启,且服务方法需求签名
         if (smc.isSignEnable()) {
@@ -191,13 +190,12 @@ public class DefaultRopValidator implements RopValidator {
                 if (smc.getSign() == null) {
                     return MainErrors.getError(MainErrorType.MISSING_SIGNATURE, smc.getLocale());
                 } else {
-                    RopRequest ropRequest = smc.getRopRequest();
-                    ArrayList<String> paramNames = new ArrayList<String>(ropRequest.getParamValues().keySet());
+                    ArrayList<String> paramNames = new ArrayList<String>(smc.getAllParams().keySet());
                     paramNames.removeAll(smc.getServiceMethodHandler().getIgnoreSignFieldNames());
 
                     HashMap<String, String> paramSingleValueMap = new HashMap<String, String>();
                     for (String paramName : paramNames) {
-                        paramSingleValueMap.put(paramName, ropRequest.getParamValue(paramName));
+                        paramSingleValueMap.put(paramName, smc.getParamValue(paramName));
                     }
 
                     //查看密钥是否存在，不存在则说明appKey是非法的
@@ -237,7 +235,7 @@ public class DefaultRopValidator implements RopValidator {
      * @param sessionId
      * @return
      */
-    private MainError checkSession(ServiceMethodContext smc) {
+    private MainError checkSession(RequestContext smc) {
         //需要进行session检查
         if (smc.getServiceMethodHandler() != null &&
                 smc.getServiceMethodHandler().getServiceMethodDefinition().isNeedInSession()) {

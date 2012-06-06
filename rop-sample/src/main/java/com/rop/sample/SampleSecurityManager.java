@@ -4,8 +4,8 @@
  */
 package com.rop.sample;
 
+import com.rop.RequestContext;
 import com.rop.SecurityManager;
-import com.rop.ServiceMethodContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,7 @@ public class SampleSecurityManager implements SecurityManager{
     }
     
     @Override
-    public boolean isGranted(ServiceMethodContext methodContext) {
+    public boolean isGranted(RequestContext methodContext) {
         return aclMap.get(methodContext.getSessionId());
     }
 }

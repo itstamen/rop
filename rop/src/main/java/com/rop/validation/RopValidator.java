@@ -4,8 +4,8 @@
  */
 package com.rop.validation;
 
+import com.rop.RequestContext;
 import com.rop.SecurityManager;
-import com.rop.ServiceMethodContext;
 
 /**
  * <pre>
@@ -23,7 +23,7 @@ public interface RopValidator {
      * @param methodContext
      * @return
      */
-    MainError validate(ServiceMethodContext methodContext);
+    MainError validate(RequestContext methodContext);
 
     /**
      * 获取安全管理器

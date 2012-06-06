@@ -4,7 +4,7 @@
  */
 package com.rop.event;
 
-import com.rop.ServiceMethodContext;
+import com.rop.RequestContext;
 
 /**
  * <pre>
@@ -16,19 +16,19 @@ import com.rop.ServiceMethodContext;
  */
 public class PreDoServiceEvent extends RopEvent {
 
-    private ServiceMethodContext serviceMethodContext;
+    private RequestContext requestContext;
 
-    public PreDoServiceEvent(Object source, ServiceMethodContext serviceMethodContext) {
-        super(source, serviceMethodContext.getRopContext());
-        this.serviceMethodContext = serviceMethodContext;
+    public PreDoServiceEvent(Object source, RequestContext requestContext) {
+        super(source, requestContext.getRopContext());
+        this.requestContext = requestContext;
     }
 
-    public ServiceMethodContext getServiceMethodContext() {
-        return serviceMethodContext;
+    public RequestContext getRequestContext() {
+        return requestContext;
     }
 
     public long getServiceBeginTime() {
-        return serviceMethodContext.getServiceBeginTime();
+        return requestContext.getServiceBeginTime();
     }
 }
 

@@ -112,7 +112,7 @@ public class DefaultRopContextTest {
         }
     }
     
-    public class FooRopRequest extends RopRequest {
+    public class FooRopRequest extends AbstractRopRequest {
 
         @IgnoreSign
         private String field1;

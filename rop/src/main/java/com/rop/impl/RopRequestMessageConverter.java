@@ -69,7 +69,7 @@ public class RopRequestMessageConverter implements ConditionalGenericConverter {
 
     public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
         try {
-            if (SimpleServiceMethodContext.messageFormat.get() == MessageFormat.json) {
+            if (SimpleRequestContext.messageFormat.get() == MessageFormat.json) {
                 JsonParser jsonParser = objectMapper.getJsonFactory().createJsonParser((String) source);
                 return jsonParser.readValueAs(targetType.getObjectType());
             } else {//输入格式为JSON

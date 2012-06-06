@@ -31,6 +31,9 @@ public class ServiceMethodHandler {
     //无需签名的字段列表
     private List<String> ignoreSignFieldNames;
 
+    //是否是实现类
+    private boolean ropRequestImplType;
+
     public ServiceMethodHandler() {
     }
 
@@ -81,6 +84,14 @@ public class ServiceMethodHandler {
 
     public static String methodWithVersion(String methodName, String version) {
         return methodName+"#"+version;
+    }
+
+    public boolean isRopRequestImplType() {
+        return ropRequestImplType;
+    }
+
+    public void setRopRequestImplType(boolean ropRequestImplType) {
+        this.ropRequestImplType = ropRequestImplType;
     }
 }
 

@@ -370,7 +370,7 @@ public class UserRestServiceClient {
     /**
      * 测试多次执行的服务性能: 100次调用，在1秒内完成！
      */
-    @Test(timeOut = 1000)
+    @Test(timeOut = 2000)
     public void testMultiTimeRun() {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();

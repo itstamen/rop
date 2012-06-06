@@ -4,6 +4,7 @@
  */
 package com.rop.sample.request;
 
+import com.rop.AbstractRopRequest;
 import com.rop.RopRequest;
 import com.rop.annotation.IgnoreSign;
 import org.springframework.format.annotation.NumberFormat;
@@ -21,7 +22,7 @@ import javax.validation.constraints.Pattern;
  * @author 陈雄华
  * @version 1.0
  */
-public class CreateUserRequest extends RopRequest {
+public class CreateUserRequest extends AbstractRopRequest {
 
     @Pattern(regexp = "\\w{4,30}")
     private String userName;

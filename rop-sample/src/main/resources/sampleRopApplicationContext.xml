@@ -16,7 +16,7 @@
 
    <rop:annotation-driven  rop-validator="ropValidator"
            ext-error-base-name="i18n/rop/sampleRopError"
-           sign-enable="true"/>
+           sign-enable="false"/>
 
    <bean id="ropValidator" class="com.rop.validation.DefaultRopValidator">
        <property name="appSecretManager">

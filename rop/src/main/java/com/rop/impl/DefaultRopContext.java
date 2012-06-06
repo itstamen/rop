@@ -6,12 +6,14 @@ package com.rop.impl;
 
 import com.rop.*;
 import com.rop.annotation.*;
+import com.rop.config.SysparamNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -109,10 +111,22 @@ public class DefaultRopContext implements RopContext {
                             //1.set handler
                             serviceMethodHandler.setHandler(context.getBean(beanName)); //handler
                             serviceMethodHandler.setHandlerMethod(method); //handler'method
-                            if (method.getParameterTypes().length > 0) {//handler method's parameter
-                                Class<?> aClass = method.getParameterTypes()[0];
-                                Assert.isAssignable(RopRequest.class, aClass, "@ServiceMethod方法入参必须是RopRequest");
-                                serviceMethodHandler.setRequestType((Class<? extends RopRequest>) aClass);
+
+                            if (method.getParameterTypes().length > 1) {//handler method's parameter
+                                throw new RopException(method.getDeclaringClass().getName()+"."+method.getName()
+                                        +"的入参只能是"+RopRequest.class.getName()+"或无入参。");
+                            }else if(method.getParameterTypes().length == 1){
+                                Class<?> paramType = method.getParameterTypes()[0];
+                                if(!ClassUtils.isAssignable(RopRequest.class, paramType)){
+                                    throw new RopException(method.getDeclaringClass().getName()+"."+method.getName()
+                                            +"的入参必须是"+RopRequest.class.getName());
+                                }
+                                boolean ropRequestImplType = !(paramType.isAssignableFrom(RopRequest.class) ||
+                                        paramType.isAssignableFrom(AbstractRopRequest.class));
+                                serviceMethodHandler.setRopRequestImplType(ropRequestImplType);
+                                serviceMethodHandler.setRequestType((Class<? extends RopRequest>) paramType);
+                            }else{
+                                logger.info(method.getDeclaringClass().getName()+"."+method.getName()+"无入参");
                             }
 
                             //2.set sign fieldNames
@@ -201,24 +215,27 @@ public class DefaultRopContext implements RopContext {
     }
 
     private List<String> getIgnoreSignFieldNames(Class<? extends RopRequest> requestType) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("获取" + requestType.getCanonicalName() + "需要签名的属性");
-        }
-        final ArrayList<String> igoreSignFieldNames = new ArrayList<String>(10);
-        ReflectionUtils.doWithFields(requestType, new ReflectionUtils.FieldCallback() {
-                    public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
-                        igoreSignFieldNames.add(field.getName());
+        final ArrayList<String> igoreSignFieldNames = new ArrayList<String>(1);
+        igoreSignFieldNames.add(SysparamNames.getSign());
+        if(requestType != null){
+            if (logger.isDebugEnabled()) {
+                logger.debug("获取" + requestType.getCanonicalName() + "不需要签名的属性");
+            }
+            ReflectionUtils.doWithFields(requestType, new ReflectionUtils.FieldCallback() {
+                        public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+                            igoreSignFieldNames.add(field.getName());
+                        }
+                    },
+                    new ReflectionUtils.FieldFilter() {
+                        public boolean matches(Field field) {
+                            IgnoreSign ignoreSign = field.getAnnotation(IgnoreSign.class);
+                            return ignoreSign != null;
+                        }
                     }
-                },
-                new ReflectionUtils.FieldFilter() {
-                    public boolean matches(Field field) {
-                        IgnoreSign ignoreSign = field.getAnnotation(IgnoreSign.class);
-                        return ignoreSign != null;
-                    }
-                }
-        );
-        if (logger.isDebugEnabled()) {
-            logger.debug(requestType.getCanonicalName() + "需要签名的属性:" + igoreSignFieldNames.toString());
+            );
+            if (logger.isDebugEnabled()) {
+                logger.debug(requestType.getCanonicalName() + "不需要签名的属性:" + igoreSignFieldNames.toString());
+            }
         }
         return igoreSignFieldNames;
     }

@@ -19,21 +19,21 @@ public interface Interceptor {
      *
      * @param methodContext
      */
-    void beforeService(ServiceMethodContext methodContext);
+    void beforeService(RequestContext methodContext);
 
     /**
      * 在服务之后，响应之前调用
      *
      * @param methodContext
      */
-    void beforeResponse(ServiceMethodContext methodContext);
+    void beforeResponse(RequestContext methodContext);
 
     /**
-     * 该方法返回true时才实施拦截，否则不拦截。可以通过{@link ServiceMethodContext}
+     * 该方法返回true时才实施拦截，否则不拦截。可以通过{@link RequestContext}
      * @param methodContext
      * @return
      */
-    boolean isMatch(ServiceMethodContext methodContext);
+    boolean isMatch(RequestContext methodContext);
 
     /**
      *   执行的顺序，整数值越小的越早执行

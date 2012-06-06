@@ -14,15 +14,15 @@ package com.rop;
  */
 public abstract class AbstractInterceptor implements Interceptor {
 
-    public void beforeService(ServiceMethodContext methodContext) {
+    public void beforeService(RequestContext methodContext) {
     }
 
 
-    public void beforeResponse(ServiceMethodContext methodContext) {
+    public void beforeResponse(RequestContext methodContext) {
     }
 
     @Override
-    public boolean isMatch(ServiceMethodContext methodContext) {
+    public boolean isMatch(RequestContext methodContext) {
         return true;
     }
 

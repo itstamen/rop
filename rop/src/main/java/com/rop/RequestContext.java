@@ -5,16 +5,17 @@
 package com.rop;
 
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * <pre>
- *    接到服务请求后，将产生一个{@link ServiceMethodContext}上下文对象，它被本次请求直到返回响应的这个线程共享。
+ *    接到服务请求后，将产生一个{@link RequestContext}上下文对象，它被本次请求直到返回响应的这个线程共享。
  * </pre>
  *
  * @author 陈雄华
  * @version 1.0
  */
-public interface ServiceMethodContext {
+public interface RequestContext {
 
     /**
      * 获取Rop的上下文
@@ -73,6 +74,19 @@ public interface ServiceMethodContext {
      * @return
      */
     String getSign();
+
+    /**
+     * 获取客户端的IP
+     * @return
+     */
+    String getIp();
+
+
+    /**
+     * 获取请求的原对象（如HttpServletRequest）
+     * @return
+     */
+    Object getRawRequestObject();
 
     /**
      * 设置服务开始时间
@@ -152,6 +166,19 @@ public interface ServiceMethodContext {
      * @return
      */
     boolean isSignEnable();
+
+    /**
+     * 获取请求参数列表
+     * @return
+     */
+    Map<String,String> getAllParams();
+
+    /**
+     * 获取请求参数值
+     * @param paramName
+     * @return
+     */
+    String getParamValue(String paramName);
 
 }
 

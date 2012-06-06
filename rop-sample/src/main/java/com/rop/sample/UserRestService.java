@@ -4,8 +4,10 @@
  */
 package com.rop.sample;
 
+import com.rop.RopRequest;
 import com.rop.RopResponse;
 import com.rop.annotation.ServiceMethod;
+import com.rop.annotation.ServiceMethodGroup;
 import com.rop.response.ServiceErrorResponse;
 import com.rop.sample.request.CreateUserRequest;
 import com.rop.sample.response.CreateUserResponse;
@@ -22,7 +24,7 @@ import java.util.List;
  * @author 陈雄华
  * @version 1.0
  */
-@Service
+@ServiceMethodGroup(value="group1",title = "组1")
 public class UserRestService {
 
     private static final String USER_NAME_RESERVED = "USER_NAME_RESERVED";
@@ -31,8 +33,10 @@ public class UserRestService {
     @ServiceMethod(value = "user.add", version = "1.0")//② Let this method service the sample.user.add method
     public RopResponse addUser(CreateUserRequest request) {
         if (reservesUserNames.contains(request.getUserName())) { //如果注册的用户是预留的帐号，则返回错误的报文
+
             return new ServiceErrorResponse(
-                    request.getMethod(), USER_NAME_RESERVED, request.getLocale(), request.getUserName());
+                    request.getRequestContext().getMethod(), USER_NAME_RESERVED,
+                    request.getRequestContext().getLocale(), request.getUserName());
         } else {
             CreateUserResponse response = new CreateUserResponse();
             //add creaet new user here...
@@ -47,7 +51,8 @@ public class UserRestService {
     public RopResponse addUser2(CreateUserRequest request) {
         if (reservesUserNames.contains(request.getUserName())) { //如果注册的用户是预留的帐号，则返回错误的报文
             return new ServiceErrorResponse(
-                    request.getMethod(), USER_NAME_RESERVED, request.getLocale(), request.getUserName());
+                    request.getRequestContext().getMethod(), USER_NAME_RESERVED,
+                    request.getRequestContext().getLocale(), request.getUserName());
         } else {
             CreateUserResponse response = new CreateUserResponse();
             //add creaet new user here...
@@ -67,5 +72,16 @@ public class UserRestService {
         response.setUserId("2");
         return response;
     }
+
+    @ServiceMethod(value = "user.rawRopRequest", version = "1.0")
+    public RopResponse useRawRopRequest(RopRequest request) throws Throwable {
+        String userId = request.getRequestContext().getParamValue("userId");
+        CreateUserResponse response = new CreateUserResponse();
+        //add creaet new user here...
+        response.setCreateTime("20120101010102");
+        response.setUserId(userId);
+        return response;
+    }
+
 }
 

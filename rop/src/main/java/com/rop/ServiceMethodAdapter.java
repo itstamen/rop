@@ -20,7 +20,7 @@ public interface ServiceMethodAdapter {
      * @param webRequest
      * @return
      */
-    RopResponse invokeServiceMethod(ServiceMethodContext methodContext);
+    RopResponse invokeServiceMethod(RequestContext methodContext);
 
 }
 
