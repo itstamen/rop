@@ -29,6 +29,9 @@ public class CreateUserResponse implements RopResponse{
     @XmlElement
     private Foo foo= new Foo();
 
+    @XmlElement
+    private String feedback;
+
     public String getUserId() {
         return userId;
     }
@@ -43,6 +46,22 @@ public class CreateUserResponse implements RopResponse{
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
+
+    public Foo getFoo() {
+        return foo;
+    }
+
+    public void setFoo(Foo foo) {
+        this.foo = foo;
     }
 }
 

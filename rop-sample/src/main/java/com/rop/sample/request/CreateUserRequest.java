@@ -41,6 +41,8 @@ public class CreateUserRequest extends AbstractRopRequest {
     
     private String format;
 
+    private Telephone telephone;
+
     public String getUserName() {
         return userName;
     }
@@ -79,6 +81,14 @@ public class CreateUserRequest extends AbstractRopRequest {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public Telephone getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(Telephone telephone) {
+        this.telephone = telephone;
     }
 }
 

@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:rop="http://www.rop.com/schema/rop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
        http://www.rop.com/schema/rop http://www.rop.com/schema/rop/rop-1.0.xsd
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
-    <!--① 扫描Web类包-->
-    <context:component-scan base-package="com.rop.sample">
-        <!-- 假设所有的服务方法都放在rop包下-->
-        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
-    </context:component-scan>
-
    <rop:annotation-driven
            rop-validator="ropValidator"
            formatting-conversion-service="conversionService"
            ext-error-base-name="i18n/rop/sampleRopError"
-           sign-enable="true"/>
+           core-pool-size="2"
+           max-pool-size="100"
+           keep-alive-seconds="200"
+           queue-capacity="120"
+           service-timeout-seconds="10"
+           sign-enable="false"/>
 
    <bean id="ropValidator" class="com.rop.validation.DefaultRopValidator">
        <property name="appSecretManager">
@@ -50,6 +48,14 @@
         <bean class="com.rop.sample.SampleAfterDoServiceEventListener"/>
     </rop:listeners>
 
-    <rop:sysparams format-param-name="messageFormat"/>
+    <rop:sysparams
+            format-param-name="f1"
+            appkey-param-name="a1"
+            locale-param-name="l1"
+            method-param-name="m1"
+            sessionid-param-name="s1"
+            sign-param-name="s2"
+            version-param-name="v1"
+            />
 
 </beans>

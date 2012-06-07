@@ -38,15 +38,15 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-
     @Override
-    public SimpleRequestContext buildRequestContext(RopContext ropContext, Object request) {
+    public SimpleRequestContext buildRequestContext(RopContext ropContext, Object request,FormattingConversionService conversionService) {
         if (!(request instanceof HttpServletRequest)) {
             throw new IllegalArgumentException("请求对象必须是HttpServletRequest的类型");
         }
 
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         SimpleRequestContext reqeustContext = new SimpleRequestContext(ropContext);
+        this.conversionService = conversionService;
 
         //设置请求对象及参数列表
         reqeustContext.setRawRequestObject(servletRequest);
@@ -162,18 +162,6 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
         return dataBinder.getBindingResult();
     }
 
-    private ConversionService getConversionService() {
-        if (this.conversionService == null) {
-            FormattingConversionServiceFactoryBean serviceFactoryBean = new FormattingConversionServiceFactoryBean();
-            Set<Object> converters = new HashSet<Object>();
-            converters.add(new RopRequestMessageConverter());
-            serviceFactoryBean.setConverters(converters);
-            serviceFactoryBean.afterPropertiesSet();
-            this.conversionService = serviceFactoryBean.getObject();
-        }
-        return this.conversionService;
-    }
-
     private Validator getValidator() {
         if (this.validator == null) {
             LocalValidatorFactoryBean localValidatorFactoryBean = new LocalValidatorFactoryBean();
@@ -183,9 +171,12 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
         return this.validator;
     }
 
-    private class DefaultRopRequest extends AbstractRopRequest{
-
+    public FormattingConversionService getConversionService() {
+        return conversionService;
     }
 
+    //默认的{@link RopRequest}实现类
+    private class DefaultRopRequest extends AbstractRopRequest{
+    }
 }
 

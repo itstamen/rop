@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * <pre>
- *    BOP服务方法的处理者的注册表
+ *    ROP服务方法的处理者的注册表
  * </pre>
  *
  * @author 陈雄华

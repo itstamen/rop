@@ -16,23 +16,22 @@
 							</xsd:appinfo>
 						</xsd:annotation>
 					</xsd:attribute>
-					<xsd:attribute name="task-executor" type="xsd:string">
+					<xsd:attribute name="formatting-conversion-service" type="xsd:string">
 						<xsd:annotation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="java:java.util.concurrent.Executor"/>
+									<tool:expected-type type="java:org.springframework.format.support.FormattingConversionService"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>
-					</xsd:attribute>
+					</xsd:attribute>					
 					<xsd:attribute name="sign-enable" type="xsd:boolean"/>
 					<xsd:attribute name="ext-error-base-name" type="xsd:string"/>
-					
 					<xsd:attribute name="core-pool-size" type="xsd:integer"/>
 					<xsd:attribute name="max-pool-size" type="xsd:integer"/>
 					<xsd:attribute name="keep-alive-seconds" type="xsd:integer"/>
-					<xsd:attribute name="queue-capacity" type="xsd:integer"/>	
-					<xsd:attribute name="service-timeout-seconds" type="xsd:integer"/>			
+					<xsd:attribute name="queue-capacity" type="xsd:integer"/>
+					<xsd:attribute name="service-timeout-seconds" type="xsd:integer"/>
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>

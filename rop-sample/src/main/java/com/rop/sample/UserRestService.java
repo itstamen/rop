@@ -83,5 +83,16 @@ public class UserRestService {
         return response;
     }
 
+    @ServiceMethod(value = "user.customConverter", version = "1.0")
+    public RopResponse customConverter(CreateUserRequest request) throws Throwable {
+        String userId = request.getRequestContext().getParamValue("userId");
+        CreateUserResponse response = new CreateUserResponse();
+        //add creaet new user here...
+        response.setCreateTime("20120101010102");
+        response.setUserId(userId);
+        response.setFeedback(request.getTelephone().getZoneCode()+"#"+request.getTelephone().getTelephoneCode());
+        return response;
+    }
+
 }
 

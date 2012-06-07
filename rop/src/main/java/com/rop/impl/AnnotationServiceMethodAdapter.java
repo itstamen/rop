@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <pre>
- *    调用<code>@BopServiceMethod</code>注解的BOP方法适配器
+ *    通过该服务方法适配器调用目标的服务方法
  * </pre>
  *
  * @author 陈雄华
@@ -24,10 +24,9 @@ public class AnnotationServiceMethodAdapter implements ServiceMethodAdapter {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
-     * 调用BOP服务方法
+     * 调用ROP服务方法
      *
-     * @param bopServiceHandler
-     * @param webRequest
+     * @param methodContext
      * @return
      */
     public RopResponse invokeServiceMethod(RequestContext methodContext) {

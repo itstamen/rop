@@ -103,6 +103,33 @@ public class UserRestServiceClient {
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010102\" userId=\"2\">") > -1);
     }
+    
+    /**
+     * 测试自定义的类型转换器{@link com.rop.sample.request.TelephoneConverter}
+     */
+    @Test
+    public void testCustomConverter() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.customConverter");//<--指定方法名称
+        form.add("appKey", "00001");
+        form.add("v", "1.0");
+        form.add("sessionId", "mockSessionId1");
+        form.add("locale", "en");
+        form.add("userName", "jhonson");
+        form.add("salary", "2,500.00");
+        form.add("telephone", "0592-12345678");
+
+        //对请求参数列表进行签名
+        String sign = SignUtils.sign(new ArrayList<String>(
+                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+        String response = restTemplate.postForObject(
+                "http://localhost:8088/router", form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf("0592#12345678") > -1);
+    }    
 
     /**
      * 验证内部格式为XML的请求参数会正确绑定到RopRequest的内部属性对象中，参见{@link com.rop.sample.request.CreateUserRequest#address}
@@ -139,7 +166,7 @@ public class UserRestServiceClient {
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
     }
-
+    
     /**
      * 由于{@link com.rop.sample.request.CreateUserRequest#password}标注了{@link com.rop.annotation.IgnoreSign},所以Rop
      * 会忽略对password请求参数进行签名验证。

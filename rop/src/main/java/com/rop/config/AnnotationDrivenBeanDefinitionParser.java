@@ -5,6 +5,7 @@
 package com.rop.config;
 
 import com.rop.impl.AnnotationServletServiceRouter;
+import com.rop.impl.AnnotationServletServiceRouterFactoryBean;
 import com.rop.validation.DefaultRopValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.format.support.FormattingConversionServiceFactoryBean;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
@@ -38,9 +40,13 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
 
 
         //注册ServiceRouter Bean
-        RootBeanDefinition serviceRouterDef = new RootBeanDefinition(AnnotationServletServiceRouter.class);
+        RootBeanDefinition serviceRouterDef = new RootBeanDefinition(AnnotationServletServiceRouterFactoryBean.class);
         String serviceRouterName = parserContext.getReaderContext().registerWithGeneratedName(serviceRouterDef);
         parserContext.registerComponent(new BeanComponentDefinition(serviceRouterDef, serviceRouterName));
+
+        //设置formattingConversionService
+        RuntimeBeanReference conversionServiceRbf = getConversionService(element, source, parserContext);
+        serviceRouterDef.getPropertyValues().add("formattingConversionService", conversionServiceRbf);
 
         //设置RopValidator
         RuntimeBeanReference ropValidator = getRopValidator(element, source, parserContext);
@@ -69,6 +75,24 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
 
         parserContext.popAndRegisterContainingComponent();
         return null;
+    }
+
+    private RuntimeBeanReference getConversionService(Element element, Object source, ParserContext parserContext) {
+        RuntimeBeanReference conversionServiceRbf;
+        if (element.hasAttribute("formatting-conversion-service")) {
+            conversionServiceRbf = new RuntimeBeanReference(element.getAttribute("formatting-conversion-service"));
+            if (logger.isInfoEnabled()) {
+                logger.info("Rop装配一个自定义的FormattingConversionService:" + conversionServiceRbf.getBeanName());
+            }
+        } else {
+            RootBeanDefinition conversionDef = new RootBeanDefinition(FormattingConversionServiceFactoryBean.class);
+            conversionDef.setSource(source);
+            conversionDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            String conversionName = parserContext.getReaderContext().registerWithGeneratedName(conversionDef);
+            parserContext.registerComponent(new BeanComponentDefinition(conversionDef, conversionName));
+            conversionServiceRbf = new RuntimeBeanReference(conversionName);
+        }
+        return conversionServiceRbf;
     }
 
     private RuntimeBeanReference getRopValidator(Element element, Object source, ParserContext parserContext) {

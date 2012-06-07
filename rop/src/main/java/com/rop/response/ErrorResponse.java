@@ -94,13 +94,12 @@ public class ErrorResponse implements RopResponse {
     }
 
     /**
-     * 对服务名进行标准化处理：如bop.book.upload转换为book-upload，
+     * 对服务名进行标准化处理：如book.upload转换为book-upload，
      *
      * @param method
      * @return
      */
     protected String transform(String method) {
-        method = method.replace("bop.", "");
         method = method.replace(".", "-");
         return method;
     }

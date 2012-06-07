@@ -23,7 +23,7 @@ import java.util.*;
 
 /**
  * <pre>
- *    BOP服务器的注册表
+ *    ROP框架的上下文
  * </pre>
  *
  * @author 陈雄华
@@ -80,7 +80,7 @@ public class DefaultRopContext implements RopContext {
     }
 
     /**
-     * 检查上下文中的BOP服务方法
+     * 扫描Spring容器中的Bean，查找有标注{@link ServiceMethod}注解的服务方法，将它们注册到{@link RopContext}中缓存起来。
      *
      * @throws org.springframework.beans.BeansException
      *

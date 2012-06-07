@@ -51,10 +51,6 @@ public class SimpleMainError implements MainError {
         this.subErrors = subErrors;
     }
 
-    public void addSubBopError(SubError subError) {
-        this.subErrors.add(subError);
-    }
-
     public MainError addSubError(SubError subError) {
         this.subErrors.add(subError);
         return this;

@@ -5,8 +5,6 @@
 package com.rop.impl;
 
 import com.rop.*;
-import com.rop.config.InterceptorHolder;
-import com.rop.config.RopEventListenerHodler;
 import com.rop.config.SysparamNames;
 import com.rop.event.*;
 import com.rop.marshaller.JacksonJsonRopMarshaller;
@@ -17,13 +15,11 @@ import com.rop.response.TimeoutErrorResponse;
 import com.rop.validation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.format.support.FormattingConversionService;
+import org.springframework.format.support.FormattingConversionServiceFactoryBean;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,8 +28,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class AnnotationServletServiceRouter implements ServiceRouter, ApplicationContextAware, InitializingBean, DisposableBean {
-
+public class AnnotationServletServiceRouter implements ServiceRouter {
 
     public static final String UTF_8 = "UTF-8";
 
@@ -53,21 +48,23 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
 
     private RequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder();
 
+    private RopValidator ropValidator;
+
+    private FormattingConversionService formattingConversionService;
+
+    private ThreadPoolExecutor threadPoolExecutor;
+
     private RopContext ropContext;
 
     private RopEventMulticaster ropEventMulticaster;
 
-    private RopValidator ropValidator;
+    private List<Interceptor> interceptors = new ArrayList<Interceptor>();
 
-    private List<Interceptor> interceptors;
-
-    private List<RopEventListener> listeners;
-
-    private ThreadPoolExecutor threadPoolExecutor;
-
-    private ApplicationContext applicationContext;
+    private List<RopEventListener> listeners = new ArrayList<RopEventListener>();
 
     private boolean signEnable = true;
+
+    private ApplicationContext applicationContext;
 
     //所有服务方法的最大过期时间，单位为秒(0或负数代表不限制)
     private int serviceTimeoutSeconds = Integer.MAX_VALUE;
@@ -82,7 +79,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         //获取服务方法最大过期时间
         String method = servletRequest.getParameter(SysparamNames.getMethod());
         String version = servletRequest.getParameter(SysparamNames.getVersion());
-        String format = servletRequest.getParameter(SysparamNames.getFormat());
         int serviceMethodTimeout = getServiceMethodTimeout(method, version);
 
         //使用异常方式调用服务方法
@@ -103,6 +99,115 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         }
     }
 
+    @Override
+    public void startup() {
+        if (logger.isInfoEnabled()) {
+            logger.info("开始启动Rop框架...");
+        }
+        Assert.notNull(this.applicationContext, "Spring上下文不能为空");
+
+        //初始化类型转换器
+        if (this.formattingConversionService == null) {
+            this.formattingConversionService = getDefaultConversionService();
+        }
+        this.formattingConversionService.addConverter(new RopRequestMessageConverter());//支持JAXB的转换器
+
+        //设置校验器
+        if (this.ropValidator == null) {
+            this.ropValidator = new DefaultRopValidator();
+        }
+
+        //设置异步执行器
+        if (this.threadPoolExecutor == null) {
+            this.threadPoolExecutor =
+                    new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
+        }
+
+        //创建Rop上下文
+        this.ropContext = buildRopContext();
+
+        //初始化事件发布器
+        this.ropEventMulticaster = buildRopEventMulticaster();
+
+        //初始化信息源
+        initMessageSource();
+
+        //产生Rop框架初始化事件
+        fireAfterStartedRopEvent();
+
+        if (logger.isInfoEnabled()) {
+            logger.info("Rop框架启动成功！");
+        }
+    }
+
+    @Override
+    public void shutdown() {
+        fireBeforeCloseRopEvent();
+        threadPoolExecutor.shutdown();
+    }
+
+    @Override
+    public void setSignEnable(boolean signEnable) {
+        if (!signEnable && logger.isInfoEnabled()) {
+            logger.info("关闭签名验证功能");
+        }
+        this.signEnable = signEnable;
+    }
+
+    @Override
+    public void setServiceTimeoutSeconds(int serviceTimeoutSeconds) {
+        this.serviceTimeoutSeconds = serviceTimeoutSeconds;
+    }
+
+    @Override
+    public void setRopValidator(RopValidator ropValidator) {
+        this.ropValidator = ropValidator;
+    }
+
+    @Override
+    public void setFormattingConversionService(FormattingConversionService formatConversionService) {
+        this.formattingConversionService = formatConversionService;
+    }
+
+    /**
+     * 获取默认的格式化转换器
+     * @return
+     */
+    private FormattingConversionService getDefaultConversionService() {
+        FormattingConversionServiceFactoryBean serviceFactoryBean = new FormattingConversionServiceFactoryBean();
+        serviceFactoryBean.afterPropertiesSet();
+        return serviceFactoryBean.getObject();
+    }
+
+    @Override
+    public void setExtErrorBasename(String extErrorBasename) {
+        this.extErrorBasename = extErrorBasename;
+    }
+
+    @Override
+    public void setThreadPoolExecutor(ThreadPoolExecutor threadPoolExecutor) {
+        this.threadPoolExecutor = threadPoolExecutor;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public RopContext getRopContext() {
+        return this.ropContext;
+    }
+
+    @Override
+    public void addInterceptor(Interceptor interceptor) {
+        this.interceptors.add(interceptor);
+    }
+
+    @Override
+    public void addListener(RopEventListener listener) {
+        this.listeners.add(listener);
+    }
 
     public int getServiceTimeoutSeconds() {
         return serviceTimeoutSeconds > 0 ? serviceTimeoutSeconds : Integer.MAX_VALUE;
@@ -129,7 +234,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
     private class ServiceRunnable implements Runnable {
 
         private HttpServletRequest servletRequest;
-
         private HttpServletResponse servletResponse;
 
         private ServiceRunnable(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
@@ -144,7 +248,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
 
             try {
                 //构造服务方法的上下文
-                requestContext = buildBopServiceContext(servletRequest);
+                requestContext = buildRequestContext(servletRequest);
                 requestContext.setServiceBeginTime(beginTime);
 
                 //发布事件
@@ -167,7 +271,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
                     invokeBeforceResponseOfInterceptors(requestContext);
                 }
 
-
                 //输出响应
                 writeResponse(requestContext.getRopResponse(), servletResponse, requestContext.getMessageFormat());
             } catch (Throwable e) {
@@ -182,81 +285,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
                     fireAfterDoServiceEvent(requestContext);
                 }
             }
-
-        }
-    }
-
-    private void initialize() {
-        if (logger.isInfoEnabled()) {
-            logger.info("开始启动Rop框架...");
-        }
-        //创建Rop上下文
-        this.ropContext = buildRopContext();
-
-        //初始化事件发布器
-        this.ropEventMulticaster = buildRopEventMulticaster();
-
-        //初始化信息源
-        initMessageSource();
-
-        //注册拦截器（查看Spring容器中）
-        registerInterceptors();
-
-        //注册拦截器（查看Spring容器中）
-        registerListeners();
-
-        //产生Rop框架初始化事件
-        fireAfterStartedRopEvent();
-
-        Assert.notNull(threadPoolExecutor, "异常处理器不能为空");
-
-        if (logger.isInfoEnabled()) {
-            logger.info("Rop框架启动成功！");
-        }
-    }
-
-    private void registerListeners() {
-        Map<String, RopEventListenerHodler> listenerMap = this.applicationContext.getBeansOfType(RopEventListenerHodler.class);
-        if (listenerMap != null && listenerMap.size() > 0) {
-            this.listeners = new ArrayList<RopEventListener>(listenerMap.size());
-
-            //从Spring容器中获取Interceptor
-            for (RopEventListenerHodler listenerHolder : listenerMap.values()) {
-                this.listeners.add(listenerHolder.getRopEventListener());
-            }
-
-            if (logger.isInfoEnabled()) {
-                logger.info("共注册了" + listenerMap.size() + "事件监听器.");
-            }
-        }
-    }
-
-    private void registerInterceptors() {
-        Map<String, InterceptorHolder> interceptorMap = this.applicationContext.getBeansOfType(InterceptorHolder.class);
-        if (interceptorMap != null && interceptorMap.size() > 0) {
-            this.interceptors = new ArrayList<Interceptor>(interceptorMap.size());
-
-            //从Spring容器中获取Interceptor
-            for (InterceptorHolder interceptorHolder : interceptorMap.values()) {
-                this.interceptors.add(interceptorHolder.getInterceptor());
-            }
-
-            //根据getOrder()值排序
-            Collections.sort(this.interceptors, new Comparator<Interceptor>() {
-                public int compare(Interceptor o1, Interceptor o2) {
-                    if (o1.getOrder() > o2.getOrder()) {
-                        return 1;
-                    } else if (o1.getOrder() < o2.getOrder()) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                }
-            });
-
-            if (logger.isInfoEnabled()) {
-                logger.info("共注册了" + interceptorMap.size() + "拦截器.");
-            }
         }
     }
 
@@ -264,49 +292,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         DefaultRopContext defaultRopContext = new DefaultRopContext(this.applicationContext);
         defaultRopContext.setSignEnable(this.signEnable);
         return defaultRopContext;
-    }
-
-    public void setSignEnable(boolean signEnable) {
-        if (!signEnable && logger.isInfoEnabled()) {
-            logger.info("关闭签名验证功能");
-        }
-        this.signEnable = signEnable;
-    }
-
-    public void setServiceTimeoutSeconds(int serviceTimeoutSeconds) {
-        this.serviceTimeoutSeconds = serviceTimeoutSeconds;
-    }
-
-    public void setInterceptors(List<Interceptor> interceptors) {
-        this.interceptors = interceptors;
-    }
-
-    public void setRopValidator(RopValidator ropValidator) {
-        this.ropValidator = ropValidator;
-    }
-
-
-    public void setExtErrorBasename(String extErrorBasename) {
-        this.extErrorBasename = extErrorBasename;
-    }
-
-    public void setListeners(List<RopEventListener> listeners) {
-        this.listeners = listeners;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        initialize();
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        fireBeforeCloseRopEvent();
     }
 
     private RopEventMulticaster buildRopEventMulticaster() {
@@ -328,10 +313,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         return simpleRopEventMulticaster;
     }
 
-    public void setThreadPoolExecutor(ThreadPoolExecutor threadPoolExecutor) {
-        this.threadPoolExecutor = threadPoolExecutor;
-    }
-
     /**
      * 发布Rop启动后事件
      */
@@ -348,7 +329,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         this.ropEventMulticaster.multicastEvent(ropEvent);
     }
 
-
     private void fireAfterDoServiceEvent(RequestContext requestContext) {
         this.ropEventMulticaster.multicastEvent(new PreDoServiceEvent(this, requestContext));
     }
@@ -356,7 +336,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
     private void firePreDoServiceEvent(RequestContext requestContext) {
         this.ropEventMulticaster.multicastEvent(new AfterDoServiceEvent(this, requestContext));
     }
-
 
     /**
      * 在服务调用之前拦截
@@ -406,10 +385,9 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         }
     }
 
-    private RequestContext buildBopServiceContext(HttpServletRequest request) {
-        return requestContextBuilder.buildRequestContext(this.ropContext, request);
+    private RequestContext buildRequestContext(HttpServletRequest request) {
+        return requestContextBuilder.buildRequestContext(this.ropContext, request,this.formattingConversionService);
     }
-
 
     private void writeResponse(RopResponse ropResponse, HttpServletResponse httpServletResponse, MessageFormat messageFormat) {
         try {
@@ -458,5 +436,40 @@ public class AnnotationServletServiceRouter implements ServiceRouter, Applicatio
         MainErrors.setErrorMessageSourceAccessor(messageSourceAccessor);
         SubErrors.setErrorMessageSourceAccessor(messageSourceAccessor);
     }
-}
 
+    public RopValidator getRopValidator() {
+        return ropValidator;
+    }
+
+    public FormattingConversionService getFormattingConversionService() {
+        return formattingConversionService;
+    }
+
+    public ThreadPoolExecutor getThreadPoolExecutor() {
+        return threadPoolExecutor;
+    }
+
+    public RopEventMulticaster getRopEventMulticaster() {
+        return ropEventMulticaster;
+    }
+
+    public List<Interceptor> getInterceptors() {
+        return interceptors;
+    }
+
+    public List<RopEventListener> getListeners() {
+        return listeners;
+    }
+
+    public boolean isSignEnable() {
+        return signEnable;
+    }
+
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
+    public String getExtErrorBasename() {
+        return extErrorBasename;
+    }
+}
