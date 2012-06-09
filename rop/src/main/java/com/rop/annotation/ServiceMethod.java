@@ -12,6 +12,7 @@ import java.lang.annotation.*;
 /**
  * <pre>
  *     使用该注解对服务方法进行标注，这些方法必须是Spring的Service:既打了@Service的注解。
+ *
  * </pre>
  *
  * @author 陈雄华
@@ -57,6 +58,12 @@ public @interface ServiceMethod {
      * @return
      */
     int timeout() default -100;
+
+    /**
+     *请求方法，默认不限制
+     * @return
+     */
+    HttpAction[] httpAction() default {};
 
     /**
      * 该方法所对应的版本号，对应version请求参数的值，版本为空，表示不进行版本限定
