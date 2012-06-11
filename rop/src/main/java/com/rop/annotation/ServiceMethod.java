@@ -49,6 +49,7 @@ public @interface ServiceMethod {
     String[] tags() default {};
 
     /**
+     *
      * 服务的中文名称
      * @return
      */
