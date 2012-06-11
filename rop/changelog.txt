@@ -1,4 +1,4 @@
-
+﻿
 1.0-SNAPSHOP-1  (2012-05-18)
 
 1.解决JaxbXmlRopResponseMarshaller 存在的多线程安全问题；
@@ -29,6 +29,8 @@
 11.新增SignUtils工具类，它负责对参数列表进行签名.
 12.新增com.rop.RopContext它代表Rop框架的上下文，服务处理器(ServiceMethodHandler)在RopContext中通过 method+version的方式
   注册。
+
+
 
 
 

@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 /**
  * <pre>
  *    在服务类中标该类，以便确定服务方法所属的组及相关信息。由于ApiMethodGroup已经标注了
- * Spring的{@link Component}注解，因此标注了{@link ServiceMethodGroup}的类自动成为Spring的Bean.
+ * Spring的{@link Component}注解，因此标注了{@link ServiceMethodBean}的类自动成为Spring的Bean.
  * </pre>
  *
  * @author 陈雄华
@@ -22,7 +22,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Component
-public @interface ServiceMethodGroup {
+public @interface ServiceMethodBean {
     /**
      * 所属的服务分组，默认为"DEFAULT"
      * @return
