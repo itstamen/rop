@@ -6,7 +6,7 @@ package com.rop.impl;
 
 import com.rop.*;
 import com.rop.annotation.*;
-import com.rop.config.SysParamNames;
+import com.rop.config.SystemParameterNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -49,7 +49,7 @@ public class DefaultRopContext implements RopContext {
     }
 
     @Override
-    public ServiceMethodHandler getServiceMethodHandler(String methodName,String version) {
+    public ServiceMethodHandler getServiceMethodHandler(String methodName, String version) {
         return serviceHandlerMap.get(ServiceMethodHandler.methodWithVersion(methodName, version));
     }
 
@@ -112,20 +112,20 @@ public class DefaultRopContext implements RopContext {
                             serviceMethodHandler.setHandlerMethod(method); //handler'method
 
                             if (method.getParameterTypes().length > 1) {//handler method's parameter
-                                throw new RopException(method.getDeclaringClass().getName()+"."+method.getName()
-                                        +"的入参只能是"+RopRequest.class.getName()+"或无入参。");
-                            }else if(method.getParameterTypes().length == 1){
+                                throw new RopException(method.getDeclaringClass().getName() + "." + method.getName()
+                                        + "的入参只能是" + RopRequest.class.getName() + "或无入参。");
+                            } else if (method.getParameterTypes().length == 1) {
                                 Class<?> paramType = method.getParameterTypes()[0];
-                                if(!ClassUtils.isAssignable(RopRequest.class, paramType)){
-                                    throw new RopException(method.getDeclaringClass().getName()+"."+method.getName()
-                                            +"的入参必须是"+RopRequest.class.getName());
+                                if (!ClassUtils.isAssignable(RopRequest.class, paramType)) {
+                                    throw new RopException(method.getDeclaringClass().getName() + "." + method.getName()
+                                            + "的入参必须是" + RopRequest.class.getName());
                                 }
                                 boolean ropRequestImplType = !(paramType.isAssignableFrom(RopRequest.class) ||
                                         paramType.isAssignableFrom(AbstractRopRequest.class));
                                 serviceMethodHandler.setRopRequestImplType(ropRequestImplType);
                                 serviceMethodHandler.setRequestType((Class<? extends RopRequest>) paramType);
-                            }else{
-                                logger.info(method.getDeclaringClass().getName()+"."+method.getName()+"无入参");
+                            } else {
+                                logger.info(method.getDeclaringClass().getName() + "." + method.getName() + "无入参");
                             }
 
                             //2.set sign fieldNames
@@ -212,7 +212,7 @@ public class DefaultRopContext implements RopContext {
             definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethod.needInSession()));
         }
 
-        if(serviceMethod.httpAction().length > 0){
+        if (serviceMethod.httpAction().length > 0) {
             definition.setHttpAction(serviceMethod.httpAction());
         }
 
@@ -221,8 +221,8 @@ public class DefaultRopContext implements RopContext {
 
     private List<String> getIgnoreSignFieldNames(Class<? extends RopRequest> requestType) {
         final ArrayList<String> igoreSignFieldNames = new ArrayList<String>(1);
-        igoreSignFieldNames.add(SysParamNames.getSign());
-        if(requestType != null){
+        igoreSignFieldNames.add(SystemParameterNames.getSign());
+        if (requestType != null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("获取" + requestType.getCanonicalName() + "不需要签名的属性");
             }

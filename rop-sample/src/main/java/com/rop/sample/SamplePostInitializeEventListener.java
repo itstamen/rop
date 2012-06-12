@@ -15,7 +15,7 @@ import com.rop.event.RopEventListener;
  * @author 陈雄华
  * @version 1.0
  */
-public class SamplePostInitializeEventListener implements RopEventListener<AfterStartedRopEvent>{
+public class SamplePostInitializeEventListener implements RopEventListener<AfterStartedRopEvent> {
 
     @Override
     public void onRopEvent(AfterStartedRopEvent ropRopEvent) {

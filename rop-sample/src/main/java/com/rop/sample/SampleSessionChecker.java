@@ -17,14 +17,15 @@ import java.util.List;
  * @author 陈雄华
  * @version 1.0
  */
-public class SampleSessionChecker implements SessionChecker{
-    
+public class SampleSessionChecker implements SessionChecker {
+
     private static final List<String> invalidSessionIds = new ArrayList<String>();
+
     static {
         invalidSessionIds.add("mockSessionId1");
         invalidSessionIds.add("mockSessionId2");
     }
-    
+
     @Override
     public boolean isValid(String sessionId) {
         return invalidSessionIds.contains(sessionId);

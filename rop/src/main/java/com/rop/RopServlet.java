@@ -59,9 +59,9 @@ public class RopServlet extends HttpServlet {
     public void init(ServletConfig servletConfig) throws ServletException {
         ApplicationContext ctx = getApplicationContext(servletConfig);
         this.serviceRouter = ctx.getBean(ServiceRouter.class);
-        if(this.serviceRouter == null){
-             logger.error("在Spring容器中未找到"+ServiceRouter.class.getName()+
-                           "的Bean,请在Spring配置文件中通过<aop:annotation-driven/>安装rop框架。");
+        if (this.serviceRouter == null) {
+            logger.error("在Spring容器中未找到" + ServiceRouter.class.getName() +
+                    "的Bean,请在Spring配置文件中通过<aop:annotation-driven/>安装rop框架。");
         }
     }
 
@@ -69,7 +69,6 @@ public class RopServlet extends HttpServlet {
         return (ApplicationContext) servletConfig.getServletContext().getAttribute(
                 WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     }
-
 
 
 }

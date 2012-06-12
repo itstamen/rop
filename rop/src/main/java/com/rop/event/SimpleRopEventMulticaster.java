@@ -14,26 +14,25 @@ import java.util.concurrent.Executor;
  * @author 陈雄华
  * @version 1.0
  */
-public class SimpleRopEventMulticaster extends AbstractRopEventMulticaster{
+public class SimpleRopEventMulticaster extends AbstractRopEventMulticaster {
 
     private Executor executor;
 
     @Override
     public void multicastEvent(final RopEvent event) {
         for (final RopEventListener listener : getRopEventListeners(event)) {
-     			Executor executor = getExecutor();
-     			if (executor != null) {
-     				executor.execute(new Runnable() {
-     					@Override
-     					public void run() {
-     						listener.onRopEvent(event);
-     					}
-     				});
-     			}
-     			else {
-     				listener.onRopEvent(event);
-     			}
-     		}
+            Executor executor = getExecutor();
+            if (executor != null) {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onRopEvent(event);
+                    }
+                });
+            } else {
+                listener.onRopEvent(event);
+            }
+        }
     }
 
     public Executor getExecutor() {

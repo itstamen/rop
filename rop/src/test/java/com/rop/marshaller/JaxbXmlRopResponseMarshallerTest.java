@@ -16,10 +16,10 @@ import java.io.ByteArrayOutputStream;
  * @author 陈雄华
  * @version 1.0
  */
-public class JaxbXmlRopResponseMarshallerTest{
+public class JaxbXmlRopResponseMarshallerTest {
 
     @Test
-    public void buildMarshaller() throws Throwable{
+    public void buildMarshaller() throws Throwable {
         JaxbXmlRopMarshaller marshaller = new JaxbXmlRopMarshaller();
         marshaller.marshaller(new SampleResponse(), new ByteArrayOutputStream(1024));
     }

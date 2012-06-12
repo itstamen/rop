@@ -16,10 +16,10 @@ public enum IgnoreSignType {
 
     YES, NO, INVALID;
 
-    public static boolean isIgnoreSign(IgnoreSignType type){
-        if( NO == type || INVALID == type){
+    public static boolean isIgnoreSign(IgnoreSignType type) {
+        if (NO == type || INVALID == type) {
             return false;
-        }else {
+        } else {
             return true;
         }
     }

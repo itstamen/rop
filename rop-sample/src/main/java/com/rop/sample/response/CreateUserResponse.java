@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.*;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "createUserResponse")
-public class CreateUserResponse implements RopResponse{
+public class CreateUserResponse implements RopResponse {
 
     @XmlAttribute
     private String userId;
@@ -27,7 +27,7 @@ public class CreateUserResponse implements RopResponse{
     private String createTime;
 
     @XmlElement
-    private Foo foo= new Foo();
+    private Foo foo = new Foo();
 
     @XmlElement
     private String feedback;

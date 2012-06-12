@@ -4,8 +4,6 @@
  */
 package com.rop.config;
 
-import com.rop.Interceptor;
-import com.rop.event.RopEventListener;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
@@ -43,7 +41,7 @@ public class ListenersBeanDefinitionParser implements BeanDefinitionParser {
             listenerHolderDef.getConstructorArgumentValues().addIndexedArgumentValue(0, listenerBean);
 
             String beanName = parserContext.getReaderContext().registerWithGeneratedName(listenerHolderDef);
-      		parserContext.registerComponent(new BeanComponentDefinition(listenerHolderDef, beanName));
+            parserContext.registerComponent(new BeanComponentDefinition(listenerHolderDef, beanName));
         }
 
         parserContext.popAndRegisterContainingComponent();

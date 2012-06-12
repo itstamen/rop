@@ -4,7 +4,6 @@
  */
 package com.rop;
 
-import com.rop.event.RopEvent;
 import com.rop.event.RopEventListener;
 import com.rop.validation.RopValidator;
 import org.springframework.context.ApplicationContext;
@@ -57,60 +56,70 @@ public interface ServiceRouter {
 
     /**
      * 获取{@link RopContext}
+     *
      * @return
      */
     RopContext getRopContext();
 
     /**
      * 设置Spring的上下文
+     *
      * @param applicationContext
      */
     void setApplicationContext(ApplicationContext applicationContext);
 
     /**
      * 注册拦截器
+     *
      * @param interceptor
      */
     void addInterceptor(Interceptor interceptor);
 
     /**
      * 注册监听器
+     *
      * @param listener
      */
     void addListener(RopEventListener listener);
 
     /**
      * 设置{@link RopValidator}
+     *
      * @param ropValidator
      */
     void setRopValidator(RopValidator ropValidator);
 
     /**
      * 注册
+     *
      * @param threadPoolExecutor
      */
     void setThreadPoolExecutor(ThreadPoolExecutor threadPoolExecutor);
 
     /**
      * 设置是否需要进行签名校验
+     *
      * @param signEnable
      */
     void setSignEnable(boolean signEnable);
 
     /**
      * 设置所有服务的通用过期时间，单位为秒
+     *
      * @param serviceTimeoutSeconds
      */
     void setServiceTimeoutSeconds(int serviceTimeoutSeconds);
 
     /**
      * 设置扩展错误资源基名
+     *
      * @param extErrorBasename
      */
     void setExtErrorBasename(String extErrorBasename);
 
     /**
      * 设置格式化类型转换器
+     *
      * @param conversionService
      */
     void setFormattingConversionService(FormattingConversionService conversionService);

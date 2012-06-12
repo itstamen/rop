@@ -43,7 +43,7 @@ public class JacksonJsonRopMarshaller implements RopMarshaller {
             AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
             SerializationConfig serializationConfig = objectMapper.getSerializationConfig();
             serializationConfig = serializationConfig.with(SerializationConfig.Feature.WRAP_ROOT_VALUE)
-                                                     .withAnnotationIntrospector(introspector);
+                    .withAnnotationIntrospector(introspector);
             objectMapper.setSerializationConfig(serializationConfig);
             this.objectMapper = objectMapper;
         }

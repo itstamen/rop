@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "createUserResponse")
-public class InterceptorResponse  implements RopResponse {
+public class InterceptorResponse implements RopResponse {
 
     @XmlAttribute
     private String testField;

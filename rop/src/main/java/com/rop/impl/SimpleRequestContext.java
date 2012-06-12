@@ -33,9 +33,9 @@ public class SimpleRequestContext implements RequestContext {
     private String appKey;
 
     private String sessionId;
-    
+
     private Locale locale;
-    
+
     private String format;
 
     public static ThreadLocal<MessageFormat> messageFormat = new ThreadLocal<MessageFormat>();
@@ -55,14 +55,14 @@ public class SimpleRequestContext implements RequestContext {
     private long serviceBeginTime = -1;
 
     private long serviceEndTime = -1;
-    
+
     private String ip;
 
     private HttpAction httpAction;
 
     private Object rawRequestObject;
 
-    private Map<String,String> allParams;
+    private Map<String, String> allParams;
 
     @Override
     public long getServiceBeginTime() {
@@ -259,9 +259,9 @@ public class SimpleRequestContext implements RequestContext {
 
     @Override
     public String getParamValue(String paramName) {
-        if(allParams != null){
+        if (allParams != null) {
             return allParams.get(paramName);
-        }else{
+        } else {
             return null;
         }
     }

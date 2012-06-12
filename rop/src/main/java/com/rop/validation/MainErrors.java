@@ -23,7 +23,7 @@ import java.util.Locale;
 public class MainErrors {
 
     protected static Logger logger = LoggerFactory.getLogger(MainErrors.class);
-    
+
     private static final String ERROR_CODE_PREFIX = "ERROR_";
     private static final String ERROR_SOLUTION_SUBFIX = "_SOLUTION";
     // 错误信息的国际化信息
@@ -44,7 +44,7 @@ public class MainErrors {
             Assert.notNull(errorMessageSourceAccessor, "请先设置错误消息的国际化资源");
             return errorMessageSourceAccessor.getMessage(code, new Object[]{}, locale);
         } catch (NoSuchMessageException e) {
-            logger.error("不存在对应的错误键：{}，请检查是否在i18n/rop/error的错误资源",code);
+            logger.error("不存在对应的错误键：{}，请检查是否在i18n/rop/error的错误资源", code);
             throw e;
         }
     }
@@ -54,7 +54,7 @@ public class MainErrors {
             Assert.notNull(errorMessageSourceAccessor, "请先设置错误解决方案的国际化资源");
             return errorMessageSourceAccessor.getMessage(code, new Object[]{}, locale);
         } catch (NoSuchMessageException e) {
-            logger.error("不存在对应的错误键：{}，请检查是否在i18n/rop/error的错误资源",code);
+            logger.error("不存在对应的错误键：{}，请检查是否在i18n/rop/error的错误资源", code);
             throw e;
         }
     }

@@ -30,12 +30,12 @@ public class TimeoutErrorResponse extends ErrorResponse {
     public TimeoutErrorResponse() {
     }
 
-    public TimeoutErrorResponse( Locale locale) {
+    public TimeoutErrorResponse(Locale locale) {
         MainError mainError = SubErrors.getMainError(SubErrorType.ISP_REMOTE_SERVICE_TIMEOUT, locale);
         String subErrorCode = SubErrors.getSubErrorCode(SubErrorType.ISP_REMOTE_SERVICE_TIMEOUT);
 
 
-        SubError subError = SubErrors.getSubError(subErrorCode, SubErrorType.ISP_REMOTE_SERVICE_TIMEOUT.value(),locale);
+        SubError subError = SubErrors.getSubError(subErrorCode, SubErrorType.ISP_REMOTE_SERVICE_TIMEOUT.value(), locale);
         ArrayList<SubError> subErrors = new ArrayList<SubError>();
         subErrors.add(subError);
 

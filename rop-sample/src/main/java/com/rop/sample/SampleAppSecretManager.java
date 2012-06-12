@@ -16,13 +16,14 @@ import java.util.Map;
  * @author 陈雄华
  * @version 1.0
  */
-public class SampleAppSecretManager implements AppSecretManager{
+public class SampleAppSecretManager implements AppSecretManager {
 
-    private static Map<String,String> appKeySecretMap = new HashMap<String,String>();
+    private static Map<String, String> appKeySecretMap = new HashMap<String, String>();
+
     static {
-        appKeySecretMap.put("00001","abcdeabcdeabcdeabcdeabcde");
+        appKeySecretMap.put("00001", "abcdeabcdeabcdeabcdeabcde");
     }
-    
+
     @Override
     public String getSecret(String appKey) {
         System.out.println("use SampleAppSecretManager!");

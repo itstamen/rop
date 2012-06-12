@@ -13,9 +13,9 @@ package com.rop.sample.request;
  * @version 1.0
  */
 public class Telephone {
-    
+
     private String zoneCode;
-    
+
     private String telephoneCode;
 
     public String getZoneCode() {

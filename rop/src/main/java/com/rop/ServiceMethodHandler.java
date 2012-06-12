@@ -83,7 +83,7 @@ public class ServiceMethodHandler {
     }
 
     public static String methodWithVersion(String methodName, String version) {
-        return methodName+"#"+version;
+        return methodName + "#" + version;
     }
 
     public boolean isRopRequestImplType() {

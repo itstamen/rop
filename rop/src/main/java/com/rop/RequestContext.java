@@ -21,6 +21,7 @@ public interface RequestContext {
 
     /**
      * 获取Rop的上下文
+     *
      * @return
      */
     RopContext getRopContext();
@@ -34,12 +35,14 @@ public interface RequestContext {
 
     /**
      * 获取服务的版本号
+     *
      * @return
      */
     String getVersion();
 
     /**
      * 获取应用的appKey
+     *
      * @return
      */
     String getAppKey();
@@ -53,17 +56,17 @@ public interface RequestContext {
 
     /**
      * 获取报文格式化参数
+     *
      * @return
      */
     String getFormat();
-    
+
     /**
-     *
      * 获取响应的格式
      *
      * @return
      */
-    MessageFormat getMessageFormat();    
+    MessageFormat getMessageFormat();
 
     /**
      * 获取本地化对象
@@ -74,51 +77,61 @@ public interface RequestContext {
 
     /**
      * 获取签名
+     *
      * @return
      */
     String getSign();
 
     /**
      * 获取客户端的IP
+     *
      * @return
      */
     String getIp();
 
-    /**获取请求的方法 如POST*/
+    /**
+     * 获取请求的方法 如POST
+     */
     HttpAction getHttpAction();
 
     /**
      * 获取请求的原对象（如HttpServletRequest）
+     *
      * @return
      */
     Object getRawRequestObject();
 
     /**
      * 设置服务开始时间
+     *
      * @param serviceBeginTime
      */
     void setServiceBeginTime(long serviceBeginTime);
 
     /**
      * 获取服务开始时间，单位为毫秒，为-1表示无意义
+     *
      * @return
      */
     long getServiceBeginTime();
 
     /**
      * 设置服务开始时间
+     *
      * @param serviceBeginTime
      */
     void setServiceEndTime(long serviceEndTime);
 
     /**
      * 获取服务结束时间，单位为毫秒，为-1表示无意义
+     *
      * @return
      */
     long getServiceEndTime();
 
     /**
      * 获取服务方法对应的ApiMethod对象信息
+     *
      * @return
      */
     ServiceMethodDefinition getServiceMethodDefinition();
@@ -145,6 +158,7 @@ public interface RequestContext {
 
     /**
      * 设置{@link RopRequest}
+     *
      * @param ropRequest
      */
     void setRopRequest(RopRequest ropRequest);
@@ -174,18 +188,21 @@ public interface RequestContext {
 
     /**
      * 该方法是否开启签名的功能
+     *
      * @return
      */
     boolean isSignEnable();
 
     /**
      * 获取请求参数列表
+     *
      * @return
      */
-    Map<String,String> getAllParams();
+    Map<String, String> getAllParams();
 
     /**
      * 获取请求参数值
+     *
      * @param paramName
      * @return
      */

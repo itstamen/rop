@@ -18,14 +18,15 @@ import java.util.Map;
  * @author 陈雄华
  * @version 1.0
  */
-public class SampleSecurityManager implements SecurityManager{
-    
-    private static final Map<String,Boolean> aclMap = new HashMap<String,Boolean>();
+public class SampleSecurityManager implements SecurityManager {
+
+    private static final Map<String, Boolean> aclMap = new HashMap<String, Boolean>();
+
     static {
-        aclMap.put("mockSessionId1",true);
-        aclMap.put("mockSessionId2",false);
+        aclMap.put("mockSessionId1", true);
+        aclMap.put("mockSessionId2", false);
     }
-    
+
     @Override
     public boolean isGranted(RequestContext methodContext) {
         return aclMap.get(methodContext.getSessionId());

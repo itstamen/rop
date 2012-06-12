@@ -12,10 +12,11 @@ package com.rop.event;
  * @author 陈雄华
  * @version 1.0
  */
-public interface SmartRopEventListener extends RopEventListener<RopEvent>{
+public interface SmartRopEventListener extends RopEventListener<RopEvent> {
 
     /**
      * 是否支持此事件
+     *
      * @param eventType
      * @return
      */

@@ -24,6 +24,7 @@ public interface AppSecretManager {
 
     /**
      * 是否是合法的appKey
+     *
      * @param appKey
      * @return
      */

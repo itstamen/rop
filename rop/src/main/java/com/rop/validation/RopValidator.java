@@ -27,6 +27,7 @@ public interface RopValidator {
 
     /**
      * 验证其它的事项：包括业务参数，业务安全性，会话安全等
+     *
      * @param methodContext
      * @return
      */
@@ -34,18 +35,21 @@ public interface RopValidator {
 
     /**
      * 获取安全管理器
+     *
      * @return
      */
     void setSecurityManager(SecurityManager securityManager);
 
     /**
      * 获取应用密钥管理器
+     *
      * @return
      */
-    void  setAppSecretManager(AppSecretManager appSecretManager);
+    void setAppSecretManager(AppSecretManager appSecretManager);
 
     /**
      * 获取会话校验器
+     *
      * @return
      */
     void setSessionChecker(SessionChecker sessionChecker);

@@ -119,7 +119,7 @@ public class ServiceMethodDefinition {
     }
 
     public int getTimeout() {
-        return timeout > 0? timeout:Integer.MAX_VALUE;
+        return timeout > 0 ? timeout : Integer.MAX_VALUE;
     }
 
     public void setTimeout(int timeout) {

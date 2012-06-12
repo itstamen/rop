@@ -28,8 +28,8 @@ public class Address {
     private String doorCode;
 
 
-    @XmlElementWrapper(name="streets")
-    @XmlElement(name="street")
+    @XmlElementWrapper(name = "streets")
+    @XmlElement(name = "street")
     private List<Street> streets;
 
     public String getZoneCode() {

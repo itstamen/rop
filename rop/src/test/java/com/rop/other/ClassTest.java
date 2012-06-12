@@ -6,7 +6,6 @@ package com.rop.other;
 
 import com.rop.AbstractRopRequest;
 import com.rop.RopRequest;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertTrue;
@@ -22,13 +21,13 @@ import static org.testng.Assert.assertTrue;
 public class ClassTest {
 
     @Test
-    public void testAssignableFrom(){
+    public void testAssignableFrom() {
         assertTrue(!MyRopRequest.class.isAssignableFrom(RopRequest.class));
         assertTrue(!MyRopRequest.class.isAssignableFrom(AbstractRopRequest.class));
         assertTrue(AbstractRopRequest.class.isAssignableFrom(MyRopRequest.class));
     }
 
-    private class MyRopRequest extends AbstractRopRequest{
+    private class MyRopRequest extends AbstractRopRequest {
 
     }
 

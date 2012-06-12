@@ -18,7 +18,7 @@ public class AfterDoServiceEvent extends RopEvent {
 
     private RequestContext requestContext;
 
-    public AfterDoServiceEvent(Object source,RequestContext requestContext) {
+    public AfterDoServiceEvent(Object source, RequestContext requestContext) {
         super(source, requestContext.getRopContext());
         this.requestContext = requestContext;
     }
@@ -27,7 +27,7 @@ public class AfterDoServiceEvent extends RopEvent {
         return requestContext.getServiceBeginTime();
     }
 
-    public long getServiceEndTime(){
+    public long getServiceEndTime() {
         return requestContext.getServiceEndTime();
     }
 }

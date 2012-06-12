@@ -38,7 +38,7 @@ public class RopUtils {
      * @param secret
      * @return
      */
-    public static String sign(List<String> paramNames, Map<String, String> paramValues, String secret){
+    public static String sign(List<String> paramNames, Map<String, String> paramValues, String secret) {
         try {
             StringBuilder sb = new StringBuilder();
             Collections.sort(paramNames);
@@ -54,9 +54,9 @@ public class RopUtils {
         }
     }
 
-    public static String utf8Encoding(String value,String sourceCharsetName) {
+    public static String utf8Encoding(String value, String sourceCharsetName) {
         try {
-            return new String(value.getBytes(sourceCharsetName),Constants.UTF8);
+            return new String(value.getBytes(sourceCharsetName), Constants.UTF8);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException(e);
         }

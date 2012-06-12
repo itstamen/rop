@@ -56,15 +56,15 @@ public class MessageMarshallerUtils {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
             if (format == MessageFormat.json) {
-                if(request.getRequestContext() != null){
+                if (request.getRequestContext() != null) {
                     jsonObjectMapper.writeValue(bos, request.getRequestContext().getAllParams());
-                }else{
+                } else {
                     return "";
                 }
             } else {
-                if(request.getRequestContext() != null){
-                     xmlObjectMapper.writeValue(bos, request.getRequestContext().getAllParams());
-                }else {
+                if (request.getRequestContext() != null) {
+                    xmlObjectMapper.writeValue(bos, request.getRequestContext().getAllParams());
+                } else {
                     return "";
                 }
             }

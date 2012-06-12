@@ -24,7 +24,7 @@ import java.util.List;
  * @author 陈雄华
  * @version 1.0
  */
-@ServiceMethodBean(value="group1",title = "组1")
+@ServiceMethodBean(value = "group1", title = "组1")
 public class UserRestService {
 
     private static final String USER_NAME_RESERVED = "USER_NAME_RESERVED";
@@ -90,7 +90,7 @@ public class UserRestService {
         //add creaet new user here...
         response.setCreateTime("20120101010102");
         response.setUserId(userId);
-        response.setFeedback(request.getTelephone().getZoneCode()+"#"+request.getTelephone().getTelephoneCode());
+        response.setFeedback(request.getTelephone().getZoneCode() + "#" + request.getTelephone().getTelephoneCode());
         return response;
     }
 

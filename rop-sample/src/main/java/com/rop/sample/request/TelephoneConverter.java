@@ -19,14 +19,14 @@ public class TelephoneConverter implements Converter<String, Telephone> {
 
     @Override
     public Telephone convert(String source) {
-        if(StringUtils.hasText(source)){
-             String zoneCode = source.substring(0,source.indexOf("-"));
-             String telephoneCode = source.substring(source.indexOf("-")+1);
+        if (StringUtils.hasText(source)) {
+            String zoneCode = source.substring(0, source.indexOf("-"));
+            String telephoneCode = source.substring(source.indexOf("-") + 1);
             Telephone telephone = new Telephone();
             telephone.setZoneCode(zoneCode);
             telephone.setTelephoneCode(telephoneCode);
             return telephone;
-        }else{
+        } else {
             return null;
         }
     }

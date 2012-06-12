@@ -1,35 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:rop="http://www.rop.com/schema/rop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-       http://www.rop.com/schema/rop http://www.rop.com/schema/rop/rop-1.0.xsd
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+       http://www.rop.com/schema/rop http://www.rop.com/schema/rop/rop-1.0.xsd">
 
-   <rop:annotation-driven
-           rop-validator="ropValidator"
-           formatting-conversion-service="conversionService"
-           ext-error-base-name="i18n/rop/sampleRopError"
-           core-pool-size="2"
-           max-pool-size="100"
-           keep-alive-seconds="200"
-           queue-capacity="120"
-           service-timeout-seconds="10"
-           sign-enable="false"/>
+    <rop:annotation-driven
+            rop-validator="ropValidator"
+            formatting-conversion-service="conversionService"
+            ext-error-base-name="i18n/rop/sampleRopError"
+            core-pool-size="2"
+            max-pool-size="100"
+            keep-alive-seconds="200"
+            queue-capacity="120"
+            service-timeout-seconds="10"
+            sign-enable="false"/>
 
-   <bean id="ropValidator" class="com.rop.validation.DefaultRopValidator">
-       <property name="appSecretManager">
-           <bean class="com.rop.sample.SampleAppSecretManager"/>
-       </property>
-       <property name="securityManager">
-           <bean class="com.rop.sample.SampleSecurityManager"/>
-       </property>
-       <property name="sessionChecker">
-           <bean class="com.rop.sample.SampleSessionChecker"/>
-       </property>
-   </bean>
-    
+    <bean id="ropValidator" class="com.rop.validation.DefaultRopValidator">
+        <property name="appSecretManager">
+            <bean class="com.rop.sample.SampleAppSecretManager"/>
+        </property>
+        <property name="securityManager">
+            <bean class="com.rop.sample.SampleSecurityManager"/>
+        </property>
+        <property name="sessionChecker">
+            <bean class="com.rop.sample.SampleSessionChecker"/>
+        </property>
+    </bean>
+
     <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
         <property name="converters">
             <set>

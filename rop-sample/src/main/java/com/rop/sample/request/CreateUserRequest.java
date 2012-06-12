@@ -5,7 +5,6 @@
 package com.rop.sample.request;
 
 import com.rop.AbstractRopRequest;
-import com.rop.RopRequest;
 import com.rop.annotation.IgnoreSign;
 import org.springframework.format.annotation.NumberFormat;
 
@@ -38,7 +37,7 @@ public class CreateUserRequest extends AbstractRopRequest {
 
     @Valid
     private Address address;
-    
+
     private String format;
 
     private Telephone telephone;

@@ -6,7 +6,7 @@ package com.rop.impl;
 
 import com.rop.*;
 import com.rop.annotation.HttpAction;
-import com.rop.config.SysParamNames;
+import com.rop.config.SystemParameterNames;
 import com.rop.validation.MainErrorType;
 import com.rop.validation.MainErrors;
 import org.slf4j.Logger;
@@ -21,7 +21,10 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.ServletRequestDataBinder;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * <pre>
@@ -58,14 +61,14 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
         requestContext.setIp(servletRequest.getRemoteAddr());
 
         //设置服务的系统级参数
-        requestContext.setAppKey(servletRequest.getParameter(SysParamNames.getAppKey()));
-        requestContext.setSessionId(servletRequest.getParameter(SysParamNames.getSessionId()));
-        requestContext.setMethod(servletRequest.getParameter(SysParamNames.getMethod()));
-        requestContext.setVersion(servletRequest.getParameter(SysParamNames.getVersion()));
+        requestContext.setAppKey(servletRequest.getParameter(SystemParameterNames.getAppKey()));
+        requestContext.setSessionId(servletRequest.getParameter(SystemParameterNames.getSessionId()));
+        requestContext.setMethod(servletRequest.getParameter(SystemParameterNames.getMethod()));
+        requestContext.setVersion(servletRequest.getParameter(SystemParameterNames.getVersion()));
         requestContext.setLocale(getLocale(servletRequest));
         requestContext.setFormat(getFormat(servletRequest));
         requestContext.setMessageFormat(getResponseFormat(servletRequest));
-        requestContext.setSign(servletRequest.getParameter(SysParamNames.getSign()));
+        requestContext.setSign(servletRequest.getParameter(SystemParameterNames.getSign()));
         requestContext.setHttpAction(HttpAction.fromValue(servletRequest.getMethod()));
 
         //设置服务处理器
@@ -102,7 +105,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
 
 
     private String getFormat(HttpServletRequest servletRequest) {
-        String messageFormat = servletRequest.getParameter(SysParamNames.getFormat());
+        String messageFormat = servletRequest.getParameter(SystemParameterNames.getFormat());
         if (messageFormat == null) {
             return MessageFormat.xml.name();
         } else {
@@ -111,10 +114,10 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
     }
 
     public static Locale getLocale(HttpServletRequest webRequest) {
-        if (webRequest.getParameter(SysParamNames.getLocale()) != null) {
+        if (webRequest.getParameter(SystemParameterNames.getLocale()) != null) {
             try {
                 LocaleEditor localeEditor = new LocaleEditor();
-                localeEditor.setAsText(webRequest.getParameter(SysParamNames.getLocale()));
+                localeEditor.setAsText(webRequest.getParameter(SystemParameterNames.getLocale()));
                 Locale locale = (Locale) localeEditor.getValue();
                 if (isValidLocale(locale)) {
                     return locale;
@@ -141,7 +144,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
 
 
     public static MessageFormat getResponseFormat(HttpServletRequest servletRequest) {
-        String messageFormat = servletRequest.getParameter(SysParamNames.getFormat());
+        String messageFormat = servletRequest.getParameter(SystemParameterNames.getFormat());
         if (MessageFormat.isValidFormat(messageFormat)) {
             return MessageFormat.getFormat(messageFormat);
         } else {

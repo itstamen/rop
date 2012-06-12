@@ -5,7 +5,7 @@
 package com.rop.impl;
 
 import com.rop.*;
-import com.rop.config.SysParamNames;
+import com.rop.config.SystemParameterNames;
 import com.rop.event.*;
 import com.rop.marshaller.JacksonJsonRopMarshaller;
 import com.rop.marshaller.JaxbXmlRopMarshaller;
@@ -25,7 +25,9 @@ import org.springframework.util.Assert;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.*;
 
 public class AnnotationServletServiceRouter implements ServiceRouter {
@@ -77,8 +79,8 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         HttpServletResponse servletResponse = (HttpServletResponse) response;
 
         //获取服务方法最大过期时间
-        String method = servletRequest.getParameter(SysParamNames.getMethod());
-        String version = servletRequest.getParameter(SysParamNames.getVersion());
+        String method = servletRequest.getParameter(SystemParameterNames.getMethod());
+        String version = servletRequest.getParameter(SystemParameterNames.getVersion());
         int serviceMethodTimeout = getServiceMethodTimeout(method, version);
 
         //使用异常方式调用服务方法
@@ -273,7 +275,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                         //服务处理前拦截
                         invokeBeforceServiceOfInterceptors(requestContext);
 
-                        if(requestContext.getRopResponse() == null){ //拦截器未生成response
+                        if (requestContext.getRopResponse() == null) { //拦截器未生成response
                             //如果拦截器没有产生ropResponse时才调用服务方法
                             requestContext.setRopResponse(doService(requestContext));
 

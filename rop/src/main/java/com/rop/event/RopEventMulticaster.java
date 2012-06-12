@@ -15,28 +15,31 @@ package com.rop.event;
 public interface RopEventMulticaster {
 
     /**
-   	 * Add a listener to be notified of all events.
-   	 * @param listener the listener to add
-   	 */
-   	void addRopListener(RopEventListener listener);
+     * Add a listener to be notified of all events.
+     *
+     * @param listener the listener to add
+     */
+    void addRopListener(RopEventListener listener);
 
-   	/**
-   	 * Remove a listener from the notification list.
-   	 * @param listener the listener to remove
-   	 */
-   	void removeRopListener(RopEventListener listener);
+    /**
+     * Remove a listener from the notification list.
+     *
+     * @param listener the listener to remove
+     */
+    void removeRopListener(RopEventListener listener);
 
-   	/**
-   	 * Remove all listeners registered with this multicaster.
-   	 * <p>After a remove call, the multicaster will perform no action
-   	 * on event notification until new listeners are being registered.
-   	 */
-   	void removeAllRopListeners();
+    /**
+     * Remove all listeners registered with this multicaster.
+     * <p>After a remove call, the multicaster will perform no action
+     * on event notification until new listeners are being registered.
+     */
+    void removeAllRopListeners();
 
-   	/**
-   	 * Multicast the given application event to appropriate listeners.
-   	 * @param event the event to multicast
-   	 */
-   	void multicastEvent(RopEvent event);
+    /**
+     * Multicast the given application event to appropriate listeners.
+     *
+     * @param event the event to multicast
+     */
+    void multicastEvent(RopEvent event);
 }
 

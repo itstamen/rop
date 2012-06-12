@@ -4,7 +4,6 @@
  */
 package com.rop.config;
 
-import com.rop.Interceptor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.xml.DomUtils;
-import org.springframework.web.servlet.handler.MappedInterceptor;
 import org.w3c.dom.Element;
 
 import java.util.List;
@@ -43,7 +41,7 @@ public class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 
 
             String beanName = parserContext.getReaderContext().registerWithGeneratedName(interceptorHolderDef);
-      		parserContext.registerComponent(new BeanComponentDefinition(interceptorHolderDef, beanName));
+            parserContext.registerComponent(new BeanComponentDefinition(interceptorHolderDef, beanName));
         }
 
         parserContext.popAndRegisterContainingComponent();

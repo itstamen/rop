@@ -35,19 +35,18 @@ public class SystemParameterNames {
     //签名的默认参数名
     private static final String SIGN = "sign";
 
-    private static  String method = METHOD;
+    private static String method = METHOD;
 
-    private static  String format = FORMAT;
+    private static String format = FORMAT;
 
-    private static  String locale = LOCALE;
+    private static String locale = LOCALE;
 
-    private static  String sessionId = SESSION_ID
-            ;
-    private static  String appKey = APP_KEY;
+    private static String sessionId = SESSION_ID;
+    private static String appKey = APP_KEY;
 
-    private static  String version = VERSION;
+    private static String version = VERSION;
 
-    private static  String sign = SIGN;
+    private static String sign = SIGN;
 
     public static String getMethod() {
         return method;

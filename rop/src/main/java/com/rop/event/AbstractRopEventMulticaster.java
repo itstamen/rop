@@ -49,7 +49,7 @@ public abstract class AbstractRopEventMulticaster implements RopEventMulticaster
                 sortRopEventListener(allListeners);
             }
             ListenerRegistry listenerRegistry = new ListenerRegistry(allListeners);
-            cachedRopEventListeners.put(eventType,listenerRegistry);
+            cachedRopEventListeners.put(eventType, listenerRegistry);
         }
         return cachedRopEventListeners.get(eventType).getRopEventListeners();
     }

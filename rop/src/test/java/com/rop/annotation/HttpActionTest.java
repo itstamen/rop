@@ -7,7 +7,6 @@ package com.rop.annotation;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotSame;
 
 /**
  * <pre>
@@ -20,12 +19,12 @@ import static org.testng.AssertJUnit.assertNotSame;
 public class HttpActionTest {
 
     @Test
-    public void testValueOf(){
-        assertEquals( HttpAction.valueOf("GET"), HttpAction.GET);
+    public void testValueOf() {
+        assertEquals(HttpAction.valueOf("GET"), HttpAction.GET);
     }
 
     @Test(expectedExceptions = {IllegalArgumentException.class})
-    public void invalidValueOf(){
+    public void invalidValueOf() {
         assertEquals(HttpAction.valueOf("get"), HttpAction.GET);
     }
 }

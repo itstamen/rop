@@ -61,7 +61,8 @@ public @interface ServiceMethodBean {
     String version() default "";
 
     /**
-     *请求方法，默认不限制
+     * 请求方法，默认不限制
+     *
      * @return
      */
     HttpAction[] httpAction() default {};

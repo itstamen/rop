@@ -13,9 +13,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 /**
  * <pre>
@@ -35,7 +33,7 @@ public class DefaultRopContextTest {
         when(context.getType("service1")).thenReturn(withoutGroupServiceClass);
 
         RopContext registryMethod = new DefaultRopContext(context);
-        ServiceMethodHandler handler = registryMethod.getServiceMethodHandler("service.method1","1.0");
+        ServiceMethodHandler handler = registryMethod.getServiceMethodHandler("service.method1", "1.0");
         ServiceMethodDefinition definition = handler.getServiceMethodDefinition();
         assertNotNull(definition);
         assertEquals(definition.getMethod(), "service.method1");
@@ -59,7 +57,7 @@ public class DefaultRopContextTest {
         RopContext ropContext = new DefaultRopContext(context);
 
         //method1:都在ServiceMethodGroup中定义，在ServiceMethod中直接采用
-        ServiceMethodHandler handler = ropContext.getServiceMethodHandler("service.method1","1.0");
+        ServiceMethodHandler handler = ropContext.getServiceMethodHandler("service.method1", "1.0");
         ServiceMethodDefinition definition = handler.getServiceMethodDefinition();
         assertNotNull(definition);
         assertEquals(definition.getMethod(), "service.method1");
@@ -73,7 +71,7 @@ public class DefaultRopContextTest {
         assertEquals(definition.getVersion(), "1.0");
 
         //method2:在ServiceMethodGroup中定义，在ServiceMethod显式覆盖之
-        ServiceMethodHandler handler2 = ropContext.getServiceMethodHandler("service.method2","2.0");
+        ServiceMethodHandler handler2 = ropContext.getServiceMethodHandler("service.method2", "2.0");
         ServiceMethodDefinition definition2 = handler2.getServiceMethodDefinition();
         assertNotNull(definition2);
         assertEquals(definition2.getMethod(), "service.method2");
@@ -86,42 +84,42 @@ public class DefaultRopContextTest {
         assertEquals(definition2.getTimeout(), 200);
         assertEquals(definition2.getVersion(), "2.0");
     }
-    
+
     @Test
-    public void testIngoreSignField(){
+    public void testIngoreSignField() {
         ApplicationContext context = mock(ApplicationContext.class);
 
         when(context.getBeanNamesForType(Object.class)).thenReturn(new String[]{"method1"});
         Class serviceClass = IgnoreSignRopRequestService.class;
         when(context.getType("method1")).thenReturn(serviceClass);
         RopContext ropContext = new DefaultRopContext(context);
-        ServiceMethodHandler method1 = ropContext.getServiceMethodHandler("method1","1.0");
+        ServiceMethodHandler method1 = ropContext.getServiceMethodHandler("method1", "1.0");
         List<String> ignoreSignFieldNames = method1.getIgnoreSignFieldNames();
         assertNotNull(ignoreSignFieldNames);
-        assertEquals(ignoreSignFieldNames.size(),3);
+        assertEquals(ignoreSignFieldNames.size(), 3);
         assertTrue(ignoreSignFieldNames.contains("field1"));
         assertTrue(ignoreSignFieldNames.contains("field3"));
         assertTrue(ignoreSignFieldNames.contains("sign"));
     }
 
-    public class IgnoreSignRopRequestService{
+    public class IgnoreSignRopRequestService {
 
-        @ServiceMethod(value = "method1",version = "1.0")
-        public RopResponse method1(FooRopRequest request){
-           return null;
+        @ServiceMethod(value = "method1", version = "1.0")
+        public RopResponse method1(FooRopRequest request) {
+            return null;
         }
     }
-    
+
     public class FooRopRequest extends AbstractRopRequest {
 
         @IgnoreSign
         private String field1;
-        
+
         private String field2;
 
         @IgnoreSign
         private int field3;
-        
+
         private int field4;
 
         public String getField1() {
@@ -173,7 +171,7 @@ public class DefaultRopContextTest {
             needInSession = NeedInSessionType.NO, timeout = 100, version = "1.0")
     public class WithGroupService {
 
-        @ServiceMethod(value = "service.method1",version = "1.0",title = "测试方法1")
+        @ServiceMethod(value = "service.method1", version = "1.0", title = "测试方法1")
         public RopResponse service1() {
             return new RopResponse() {
             };

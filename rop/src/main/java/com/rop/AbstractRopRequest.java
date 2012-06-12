@@ -12,7 +12,7 @@ package com.rop;
  * @author 陈雄华
  * @version 1.0
  */
-public abstract class AbstractRopRequest implements RopRequest{
+public abstract class AbstractRopRequest implements RopRequest {
 
     private RequestContext requestContext;
 

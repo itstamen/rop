@@ -97,7 +97,7 @@ public class AnnotationServletServiceRouterFactoryBean
 
         //注册拦截器
         ArrayList<Interceptor> interceptors = getInterceptors();
-        if(interceptors != null){
+        if (interceptors != null) {
             for (Interceptor interceptor : interceptors) {
                 serviceRouter.addInterceptor(interceptor);
             }
@@ -108,7 +108,7 @@ public class AnnotationServletServiceRouterFactoryBean
 
         //注册监听器
         ArrayList<RopEventListener> listeners = getListeners();
-        if(listeners != null){
+        if (listeners != null) {
             for (RopEventListener listener : listeners) {
                 serviceRouter.addListener(listener);
             }
@@ -147,7 +147,7 @@ public class AnnotationServletServiceRouterFactoryBean
                 }
             });
             return interceptors;
-        }else{
+        } else {
             return null;
         }
     }
@@ -162,7 +162,7 @@ public class AnnotationServletServiceRouterFactoryBean
                 ropEventListeners.add(listenerHolder.getRopEventListener());
             }
             return ropEventListeners;
-        }else {
+        } else {
             return null;
         }
     }

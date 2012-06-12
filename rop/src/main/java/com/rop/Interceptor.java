@@ -30,13 +30,15 @@ public interface Interceptor {
 
     /**
      * 该方法返回true时才实施拦截，否则不拦截。可以通过{@link RequestContext}
+     *
      * @param methodContext
      * @return
      */
     boolean isMatch(RequestContext methodContext);
 
     /**
-     *   执行的顺序，整数值越小的越早执行
+     * 执行的顺序，整数值越小的越早执行
+     *
      * @return
      */
     int getOrder();

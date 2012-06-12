@@ -14,6 +14,6 @@ package com.rop.sample.request;
  */
 public class ReservedNames {
 
-    public static String TOM ="Tom";
+    public static String TOM = "Tom";
 }
 

@@ -18,7 +18,6 @@ import org.unitils.spring.annotation.SpringBeanByType;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Matchers.any;
 import static org.testng.Assert.*;
 
 /**
@@ -35,12 +34,13 @@ public class RopNamespaceHandlerIT extends UnitilsTestNG {
 
     /**
      * 最简单的配置
+     *
      * @param serviceRouter
      */
     @Test
     @SpringBeanByType
     @SpringApplicationContext("com/rop/config/simplestRopConfig.xml")
-    public void testSimplestConfig(AnnotationServletServiceRouter serviceRouter){
+    public void testSimplestConfig(AnnotationServletServiceRouter serviceRouter) {
         assertNotNull(serviceRouter);
         RopContext ropContext = serviceRouter.getRopContext();
         assertNotNull(ropContext);
@@ -57,17 +57,18 @@ public class RopNamespaceHandlerIT extends UnitilsTestNG {
         assertNotNull(serviceRouter.getThreadPoolExecutor());
         assertEquals(serviceRouter.getThreadPoolExecutor().getCorePoolSize(), 1);
         assertEquals(serviceRouter.getThreadPoolExecutor().getMaximumPoolSize(), Integer.MAX_VALUE);
-        assertEquals(serviceRouter.getThreadPoolExecutor().getKeepAliveTime(TimeUnit.SECONDS),120);
+        assertEquals(serviceRouter.getThreadPoolExecutor().getKeepAliveTime(TimeUnit.SECONDS), 120);
     }
 
     /**
      * 最简单的配置
+     *
      * @param serviceRouter
      */
     @Test
     @SpringBeanByType
     @SpringApplicationContext("com/rop/config/fullRopConfig.xml")
-    public void testFullConfig(AnnotationServletServiceRouter serviceRouter){
+    public void testFullConfig(AnnotationServletServiceRouter serviceRouter) {
         assertNotNull(serviceRouter);
         RopContext ropContext = serviceRouter.getRopContext();
         assertNotNull(ropContext);
@@ -77,10 +78,10 @@ public class RopNamespaceHandlerIT extends UnitilsTestNG {
         assertEquals(serviceRouter.getInterceptors().size(), 1);
         assertEquals(serviceRouter.getListeners().size(), 2);
         assertNotNull(serviceRouter.getFormattingConversionService());
-        assertTrue(serviceRouter.getFormattingConversionService().canConvert(String.class,Telephone.class));
+        assertTrue(serviceRouter.getFormattingConversionService().canConvert(String.class, Telephone.class));
 
         assertFalse(serviceRouter.isSignEnable());
-        DefaultRopValidator ropValidator = (DefaultRopValidator)serviceRouter.getRopValidator();
+        DefaultRopValidator ropValidator = (DefaultRopValidator) serviceRouter.getRopValidator();
         assertNotNull(ropValidator);
         assertTrue(ropValidator.getAppSecretManager() instanceof SampleAppSecretManager);
         assertTrue(ropValidator.getSecurityManager() instanceof SampleSecurityManager);
@@ -88,19 +89,19 @@ public class RopNamespaceHandlerIT extends UnitilsTestNG {
 
         assertNotNull(serviceRouter.getRopEventMulticaster());
         assertNotNull(serviceRouter.getThreadPoolExecutor());
-        assertEquals(serviceRouter.getThreadPoolExecutor().getCorePoolSize(),2);
+        assertEquals(serviceRouter.getThreadPoolExecutor().getCorePoolSize(), 2);
         assertEquals(serviceRouter.getThreadPoolExecutor().getMaximumPoolSize(), 100);
-        assertEquals(serviceRouter.getThreadPoolExecutor().getKeepAliveTime(TimeUnit.SECONDS),200);
-        assertEquals(serviceRouter.getThreadPoolExecutor().getQueue().remainingCapacity(),120);
-        assertEquals(serviceRouter.getServiceTimeoutSeconds(),10);
+        assertEquals(serviceRouter.getThreadPoolExecutor().getKeepAliveTime(TimeUnit.SECONDS), 200);
+        assertEquals(serviceRouter.getThreadPoolExecutor().getQueue().remainingCapacity(), 120);
+        assertEquals(serviceRouter.getServiceTimeoutSeconds(), 10);
 
-        assertEquals(SysParamNames.getAppKey(),"a1");
-        assertEquals(SysParamNames.getFormat(),"f1");
-        assertEquals(SysParamNames.getSessionId(),"s1");
-        assertEquals(SysParamNames.getSign(),"s2");
-        assertEquals(SysParamNames.getLocale(),"l1");
-        assertEquals(SysParamNames.getMethod(),"m1");
-        assertEquals(SysParamNames.getVersion(),"v1");
+        assertEquals(SystemParameterNames.getAppKey(), "a1");
+        assertEquals(SystemParameterNames.getFormat(), "f1");
+        assertEquals(SystemParameterNames.getSessionId(), "s1");
+        assertEquals(SystemParameterNames.getSign(), "s2");
+        assertEquals(SystemParameterNames.getLocale(), "l1");
+        assertEquals(SystemParameterNames.getMethod(), "m1");
+        assertEquals(SystemParameterNames.getVersion(), "v1");
     }
 }
 

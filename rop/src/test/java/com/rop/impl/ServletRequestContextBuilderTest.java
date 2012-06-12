@@ -7,7 +7,7 @@ package com.rop.impl;
 import com.rop.MessageFormat;
 import com.rop.RopContext;
 import com.rop.ServiceMethodHandler;
-import com.rop.config.SysParamNames;
+import com.rop.config.SystemParameterNames;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.testng.annotations.Test;
@@ -15,10 +15,8 @@ import org.testng.annotations.Test;
 import java.util.Locale;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
 
 /**
  * <pre>
@@ -32,6 +30,7 @@ public class ServletRequestContextBuilderTest {
 
     /**
      * 正常情况下的系统参数绑定
+     *
      * @throws Exception
      */
     @Test
@@ -41,44 +40,45 @@ public class ServletRequestContextBuilderTest {
 
         RopContext ropContext = mock(RopContext.class);
         ServiceMethodHandler methodHandler = mock(ServiceMethodHandler.class);
-        when(ropContext.getServiceMethodHandler("method1","3.0")).thenReturn(methodHandler);
+        when(ropContext.getServiceMethodHandler("method1", "3.0")).thenReturn(methodHandler);
 
         //构造HttpServletRequest
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
         servletRequest.setRemoteAddr("1.1.1.1");
-        servletRequest.setParameter(SysParamNames.getAppKey(),"appKey1");
-        servletRequest.setParameter(SysParamNames.getSessionId(),"sessionId1");
-        servletRequest.setParameter(SysParamNames.getMethod(),"method1");
-        servletRequest.setParameter(SysParamNames.getVersion(),"3.0");
-        servletRequest.setParameter(SysParamNames.getLocale(),"en_UK");
-        servletRequest.setParameter(SysParamNames.getFormat(),"xml");
-        servletRequest.setParameter(SysParamNames.getSign(),"sign1");
-        servletRequest.setParameter("param1","value1");
-        servletRequest.setParameter("param2","value2");
-        servletRequest.setParameter("param3","value3");
+        servletRequest.setParameter(SystemParameterNames.getAppKey(), "appKey1");
+        servletRequest.setParameter(SystemParameterNames.getSessionId(), "sessionId1");
+        servletRequest.setParameter(SystemParameterNames.getMethod(), "method1");
+        servletRequest.setParameter(SystemParameterNames.getVersion(), "3.0");
+        servletRequest.setParameter(SystemParameterNames.getLocale(), "en_UK");
+        servletRequest.setParameter(SystemParameterNames.getFormat(), "xml");
+        servletRequest.setParameter(SystemParameterNames.getSign(), "sign1");
+        servletRequest.setParameter("param1", "value1");
+        servletRequest.setParameter("param2", "value2");
+        servletRequest.setParameter("param3", "value3");
 
         //创建SimpleRequestContext
         SimpleRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
 
-        assertEquals(requestContext.getIp(),"1.1.1.1");
-        assertEquals(requestContext.getAllParams().size(),10);
-        assertEquals(requestContext.getParamValue("param1"),"value1");
-        assertEquals(requestContext.getRawRequestObject(),servletRequest);
+        assertEquals(requestContext.getIp(), "1.1.1.1");
+        assertEquals(requestContext.getAllParams().size(), 10);
+        assertEquals(requestContext.getParamValue("param1"), "value1");
+        assertEquals(requestContext.getRawRequestObject(), servletRequest);
 
-        assertEquals(requestContext.getAppKey(),"appKey1");
-        assertEquals(requestContext.getSessionId(),"sessionId1");
-        assertEquals(requestContext.getMethod(),"method1");
-        assertEquals(requestContext.getVersion(),"3.0");
-        assertEquals(requestContext.getLocale(), new Locale("zh","CN"));
+        assertEquals(requestContext.getAppKey(), "appKey1");
+        assertEquals(requestContext.getSessionId(), "sessionId1");
+        assertEquals(requestContext.getMethod(), "method1");
+        assertEquals(requestContext.getVersion(), "3.0");
+        assertEquals(requestContext.getLocale(), new Locale("zh", "CN"));
         assertEquals(requestContext.getFormat(), "xml");
-        assertEquals(requestContext.getMessageFormat(),MessageFormat.xml);
+        assertEquals(requestContext.getMessageFormat(), MessageFormat.xml);
         assertEquals(requestContext.getSign(), "sign1");
 
-        assertEquals(requestContext.getServiceMethodHandler(),methodHandler);
+        assertEquals(requestContext.getServiceMethodHandler(), methodHandler);
     }
 
     /**
      * 看错误的参数是否会被自动转为默认的
+     *
      * @throws Exception
      */
     @Test
@@ -90,30 +90,31 @@ public class ServletRequestContextBuilderTest {
 
         //构造HttpServletRequest
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
-        servletRequest.setParameter(SysParamNames.getLocale(),"xxx");
-        servletRequest.setParameter(SysParamNames.getFormat(),"xxx");
+        servletRequest.setParameter(SystemParameterNames.getLocale(), "xxx");
+        servletRequest.setParameter(SystemParameterNames.getFormat(), "xxx");
 
 
         //创建SimpleRequestContext
         SimpleRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
-        assertEquals(requestContext.getLocale(),Locale.SIMPLIFIED_CHINESE);
+        assertEquals(requestContext.getLocale(), Locale.SIMPLIFIED_CHINESE);
         assertEquals(requestContext.getFormat(), "xxx");
-        assertEquals(requestContext.getMessageFormat(),MessageFormat.xml);
+        assertEquals(requestContext.getMessageFormat(), MessageFormat.xml);
 
     }
 
     /**
      * 非{@link javax.servlet.http.HttpServletRequest}
+     *
      * @throws Exception
      */
-    @Test(expectedExceptions ={IllegalArgumentException.class} )
+    @Test(expectedExceptions = {IllegalArgumentException.class})
     public void testBuildBySysParams3() throws Exception {
         FormattingConversionService conversionService = mock(FormattingConversionService.class);
         ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService);
 
         RopContext ropContext = mock(RopContext.class);
         ServiceMethodHandler methodHandler = mock(ServiceMethodHandler.class);
-        when(ropContext.getServiceMethodHandler("method1","3.0")).thenReturn(methodHandler);
+        when(ropContext.getServiceMethodHandler("method1", "3.0")).thenReturn(methodHandler);
 
         //创建SimpleRequestContext
         SimpleRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, new Object());

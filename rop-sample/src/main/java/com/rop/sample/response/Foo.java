@@ -18,10 +18,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Foo {
 
     @XmlAttribute
-    private String field1="1";
+    private String field1 = "1";
 
     @XmlAttribute
-    private String field2="2";
+    private String field2 = "2";
 
     public String getField1() {
         return field1;
