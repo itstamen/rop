@@ -14,6 +14,7 @@ package com.rop.config;
  */
 public class SysparamNames {
 
+
     //方法的默认参数名
     private static final String METHOD = "method";
 
