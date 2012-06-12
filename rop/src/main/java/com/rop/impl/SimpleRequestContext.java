@@ -5,6 +5,7 @@
 package com.rop.impl;
 
 import com.rop.*;
+import com.rop.annotation.HttpAction;
 import com.rop.validation.MainError;
 
 import java.util.HashMap;
@@ -56,6 +57,8 @@ public class SimpleRequestContext implements RequestContext {
     private long serviceEndTime = -1;
     
     private String ip;
+
+    private HttpAction httpAction;
 
     private Object rawRequestObject;
 
@@ -118,6 +121,7 @@ public class SimpleRequestContext implements RequestContext {
         return ropContext;
     }
 
+    @Override
     public String getMethod() {
         return this.method;
     }
@@ -126,10 +130,12 @@ public class SimpleRequestContext implements RequestContext {
         this.method = method;
     }
 
+    @Override
     public String getSessionId() {
         return this.sessionId;
     }
 
+    @Override
     public Locale getLocale() {
         return this.locale;
     }
@@ -138,18 +144,22 @@ public class SimpleRequestContext implements RequestContext {
         return this.serviceMethodHandler;
     }
 
+    @Override
     public MessageFormat getMessageFormat() {
         return messageFormat.get();
     }
 
+    @Override
     public RopResponse getRopResponse() {
         return this.ropResponse;
     }
 
+    @Override
     public RopRequest getRopRequest() {
         return this.ropRequest;
     }
 
+    @Override
     public void setRopRequest(RopRequest ropRequest) {
         this.ropRequest = ropRequest;
     }
@@ -171,6 +181,7 @@ public class SimpleRequestContext implements RequestContext {
         this.messageFormat.set(messageFormat);
     }
 
+    @Override
     public void setRopResponse(RopResponse ropResponse) {
         this.ropResponse = ropResponse;
     }
@@ -183,6 +194,7 @@ public class SimpleRequestContext implements RequestContext {
         this.appKey = appKey;
     }
 
+    @Override
     public String getVersion() {
         return version;
     }
@@ -191,6 +203,7 @@ public class SimpleRequestContext implements RequestContext {
         this.version = version;
     }
 
+    @Override
     public String getSign() {
         return sign;
     }
@@ -207,10 +220,12 @@ public class SimpleRequestContext implements RequestContext {
         return this.mainError;
     }
 
+    @Override
     public Object getAttribute(String name) {
         return this.attributes.get(name);
     }
 
+    @Override
     public void setAttribute(String name, Object value) {
         this.attributes.put(name, value);
     }
@@ -249,6 +264,15 @@ public class SimpleRequestContext implements RequestContext {
         }else{
             return null;
         }
+    }
+
+    public void setHttpAction(HttpAction httpAction) {
+        this.httpAction = httpAction;
+    }
+
+    @Override
+    public HttpAction getHttpAction() {
+        return this.httpAction;
     }
 }
 

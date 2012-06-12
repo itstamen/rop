@@ -6,13 +6,12 @@ package com.rop.impl;
 
 import com.rop.*;
 import com.rop.annotation.*;
-import com.rop.config.SysparamNames;
+import com.rop.config.SysParamNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -97,11 +96,11 @@ public class DefaultRopContext implements RopContext {
                             ReflectionUtils.makeAccessible(method);
 
                             ServiceMethod serviceMethod = method.getAnnotation(ServiceMethod.class);
-                            ServiceMethodGroup serviceMethodGroup = method.getDeclaringClass().getAnnotation(ServiceMethodGroup.class);
+                            ServiceMethodBean serviceMethodBean = method.getDeclaringClass().getAnnotation(ServiceMethodBean.class);
 
                             ServiceMethodDefinition definition = null;
-                            if (serviceMethodGroup != null) {
-                                definition = buildServiceMethodDefinition(serviceMethodGroup, serviceMethod);
+                            if (serviceMethodBean != null) {
+                                definition = buildServiceMethodDefinition(serviceMethodBean, serviceMethod);
                             } else {
                                 definition = buildServiceMethodDefinition(serviceMethod);
                             }
@@ -166,18 +165,20 @@ public class DefaultRopContext implements RopContext {
         definition.setIgnoreSign(IgnoreSignType.isIgnoreSign(serviceMethod.ignoreSign()));
         definition.setVersion(serviceMethod.version());
         definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethod.needInSession()));
+        definition.setHttpAction(serviceMethod.httpAction());
         return definition;
     }
 
-    private ServiceMethodDefinition buildServiceMethodDefinition(ServiceMethodGroup serviceMethodGroup, ServiceMethod serviceMethod) {
+    private ServiceMethodDefinition buildServiceMethodDefinition(ServiceMethodBean serviceMethodBean, ServiceMethod serviceMethod) {
         ServiceMethodDefinition definition = new ServiceMethodDefinition();
-        definition.setMethodGroup(serviceMethodGroup.value());
-        definition.setMethodGroupTitle(serviceMethodGroup.title());
-        definition.setTags(serviceMethodGroup.tags());
-        definition.setTimeout(serviceMethodGroup.timeout());
-        definition.setIgnoreSign(IgnoreSignType.isIgnoreSign(serviceMethodGroup.ignoreSign()));
-        definition.setVersion(serviceMethodGroup.version());
-        definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethodGroup.needInSession()));
+        definition.setMethodGroup(serviceMethodBean.value());
+        definition.setMethodGroupTitle(serviceMethodBean.title());
+        definition.setTags(serviceMethodBean.tags());
+        definition.setTimeout(serviceMethodBean.timeout());
+        definition.setIgnoreSign(IgnoreSignType.isIgnoreSign(serviceMethodBean.ignoreSign()));
+        definition.setVersion(serviceMethodBean.version());
+        definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethodBean.needInSession()));
+        definition.setHttpAction(serviceMethodBean.httpAction());
 
         //如果ServiceMethod所提供的值和ServiceMethodGroup不一样，覆盖之
         definition.setMethod(serviceMethod.value());
@@ -211,12 +212,16 @@ public class DefaultRopContext implements RopContext {
             definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethod.needInSession()));
         }
 
+        if(serviceMethod.httpAction().length > 0){
+            definition.setHttpAction(serviceMethod.httpAction());
+        }
+
         return definition;
     }
 
     private List<String> getIgnoreSignFieldNames(Class<? extends RopRequest> requestType) {
         final ArrayList<String> igoreSignFieldNames = new ArrayList<String>(1);
-        igoreSignFieldNames.add(SysparamNames.getSign());
+        igoreSignFieldNames.add(SysParamNames.getSign());
         if(requestType != null){
             if (logger.isDebugEnabled()) {
                 logger.debug("获取" + requestType.getCanonicalName() + "不需要签名的属性");

@@ -17,11 +17,19 @@ import org.springframework.format.support.FormattingConversionService;
 public interface RequestContextBuilder {
 
     /**
-     * 根据reqeuest请求对象，创建{@link RequestContext}实例
+     * 根据reqeuest请求对象，创建{@link RequestContext}实例。绑定系统参数，请求对象
      * @param ropContext
      * @param request
      * @return
      */
-    RequestContext buildRequestContext(RopContext ropContext, Object request,FormattingConversionService conversionService);
+    RequestContext buildBySysParams(RopContext ropContext, Object request);
+
+    /**
+     * 绑定业务参数
+     * @param requestContext
+     * @param request
+     * @param conversionService
+     */
+    void bindBusinessParams(RequestContext requestContext);
 }
 

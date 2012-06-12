@@ -5,14 +5,15 @@
 package com.rop.impl;
 
 import com.rop.*;
-import com.rop.config.SysparamNames;
+import com.rop.annotation.HttpAction;
+import com.rop.config.SysParamNames;
+import com.rop.validation.MainErrorType;
+import com.rop.validation.MainErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.propertyeditors.LocaleEditor;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.format.support.FormattingConversionService;
-import org.springframework.format.support.FormattingConversionServiceFactoryBean;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
@@ -32,75 +33,48 @@ import java.util.*;
  */
 public class ServletRequestContextBuilder implements RequestContextBuilder {
 
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+
     private FormattingConversionService conversionService;
 
     private Validator validator;
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    public ServletRequestContextBuilder(FormattingConversionService conversionService) {
+        this.conversionService = conversionService;
+    }
 
     @Override
-    public SimpleRequestContext buildRequestContext(RopContext ropContext, Object request,FormattingConversionService conversionService) {
+    public SimpleRequestContext buildBySysParams(RopContext ropContext, Object request) {
         if (!(request instanceof HttpServletRequest)) {
             throw new IllegalArgumentException("请求对象必须是HttpServletRequest的类型");
         }
 
         HttpServletRequest servletRequest = (HttpServletRequest) request;
-        SimpleRequestContext reqeustContext = new SimpleRequestContext(ropContext);
-        this.conversionService = conversionService;
+        SimpleRequestContext requestContext = new SimpleRequestContext(ropContext);
 
         //设置请求对象及参数列表
-        reqeustContext.setRawRequestObject(servletRequest);
-        reqeustContext.setAllParams(getRequestParams(servletRequest));
-        reqeustContext.setIp(servletRequest.getRemoteAddr());
+        requestContext.setRawRequestObject(servletRequest);
+        requestContext.setAllParams(getRequestParams(servletRequest));
+        requestContext.setIp(servletRequest.getRemoteAddr());
 
         //设置服务的系统级参数
-        reqeustContext.setMethod(servletRequest.getParameter(SysparamNames.getMethod()));
-        reqeustContext.setVersion(servletRequest.getParameter(SysparamNames.getVersion()));
-        reqeustContext.setAppKey(servletRequest.getParameter(SysparamNames.getAppKey()));
-        reqeustContext.setSessionId(servletRequest.getParameter(SysparamNames.getSessionId()));
-        reqeustContext.setLocale(getLocale(servletRequest));
-        reqeustContext.setFormat(getFormat(servletRequest));
-        reqeustContext.setMessageFormat(getResponseFormat(servletRequest));
-        reqeustContext.setSign(servletRequest.getParameter(SysparamNames.getSign()));
+        requestContext.setAppKey(servletRequest.getParameter(SysParamNames.getAppKey()));
+        requestContext.setSessionId(servletRequest.getParameter(SysParamNames.getSessionId()));
+        requestContext.setMethod(servletRequest.getParameter(SysParamNames.getMethod()));
+        requestContext.setVersion(servletRequest.getParameter(SysParamNames.getVersion()));
+        requestContext.setLocale(getLocale(servletRequest));
+        requestContext.setFormat(getFormat(servletRequest));
+        requestContext.setMessageFormat(getResponseFormat(servletRequest));
+        requestContext.setSign(servletRequest.getParameter(SysParamNames.getSign()));
+        requestContext.setHttpAction(HttpAction.fromValue(servletRequest.getMethod()));
 
         //设置服务处理器
         ServiceMethodHandler serviceMethodHandler =
-                ropContext.getServiceMethodHandler(reqeustContext.getMethod(), reqeustContext.getVersion());
-        reqeustContext.setServiceMethodHandler(serviceMethodHandler);
+                ropContext.getServiceMethodHandler(requestContext.getMethod(), requestContext.getVersion());
+        requestContext.setServiceMethodHandler(serviceMethodHandler);
 
-        //设置请求对象
-        buildRopRequest(reqeustContext);
-        return reqeustContext;
+        return requestContext;
     }
-
-    private String getFormat(HttpServletRequest servletRequest) {
-        String messageFormat = servletRequest.getParameter(SysparamNames.getFormat());
-        if (messageFormat == null) {
-            return MessageFormat.xml.name();
-        } else {
-            return messageFormat;
-        }
-    }
-
-    public static Locale getLocale(HttpServletRequest webRequest) {
-        if (webRequest.getParameter(SysparamNames.getLocale()) != null) {
-            LocaleEditor localeEditor = new LocaleEditor();
-            localeEditor.setAsText(webRequest.getParameter(SysparamNames.getLocale()));
-            return (Locale) localeEditor.getValue();
-        } else {
-            return Locale.SIMPLIFIED_CHINESE;
-        }
-    }
-
-    public static MessageFormat getResponseFormat(HttpServletRequest servletRequest) {
-        String messageFormat = servletRequest.getParameter(SysparamNames.getFormat());
-        if (MessageFormat.isValidFormat(messageFormat)) {
-            return MessageFormat.getFormat(messageFormat);
-        } else {
-            return MessageFormat.xml;
-        }
-    }
-
 
     /**
      * 将{@link HttpServletRequest}的数据绑定到{@link com.rop.RequestContext}的{@link com.rop.RopRequest}中，同时使用
@@ -108,7 +82,8 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
      *
      * @param requestContext
      */
-    private void buildRopRequest(SimpleRequestContext requestContext) {
+    @Override
+    public void bindBusinessParams(RequestContext requestContext) {
         AbstractRopRequest ropRequest = null;
         if (requestContext.getServiceMethodHandler().isRopRequestImplType()) {
             HttpServletRequest request =
@@ -117,12 +92,61 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
             ropRequest = buildRopRequestFromBindingResult(requestContext, bindingResult);
 
             List<ObjectError> allErrors = bindingResult.getAllErrors();
-                    requestContext.setAttribute(SimpleRequestContext.SPRING_VALIDATE_ERROR_ATTRNAME, allErrors);
-        }else{
+            requestContext.setAttribute(SimpleRequestContext.SPRING_VALIDATE_ERROR_ATTRNAME, allErrors);
+        } else {
             ropRequest = new DefaultRopRequest();
         }
         ropRequest.setRequestContext(requestContext);
         requestContext.setRopRequest(ropRequest);
+    }
+
+
+    private String getFormat(HttpServletRequest servletRequest) {
+        String messageFormat = servletRequest.getParameter(SysParamNames.getFormat());
+        if (messageFormat == null) {
+            return MessageFormat.xml.name();
+        } else {
+            return messageFormat;
+        }
+    }
+
+    public static Locale getLocale(HttpServletRequest webRequest) {
+        if (webRequest.getParameter(SysParamNames.getLocale()) != null) {
+            try {
+                LocaleEditor localeEditor = new LocaleEditor();
+                localeEditor.setAsText(webRequest.getParameter(SysParamNames.getLocale()));
+                Locale locale = (Locale) localeEditor.getValue();
+                if (isValidLocale(locale)) {
+                    return locale;
+                }
+            } catch (Exception e) {
+                return Locale.SIMPLIFIED_CHINESE;
+            }
+        }
+        return Locale.SIMPLIFIED_CHINESE;
+    }
+
+    private static boolean isValidLocale(Locale locale) {
+        if (Locale.SIMPLIFIED_CHINESE.equals(locale) || Locale.ENGLISH.equals(locale)) {
+            return true;
+        } else {
+            try {
+                MainErrors.getError(MainErrorType.INVALID_APP_KEY, locale);
+            } catch (Exception e) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+
+    public static MessageFormat getResponseFormat(HttpServletRequest servletRequest) {
+        String messageFormat = servletRequest.getParameter(SysParamNames.getFormat());
+        if (MessageFormat.isValidFormat(messageFormat)) {
+            return MessageFormat.getFormat(messageFormat);
+        } else {
+            return MessageFormat.xml;
+        }
     }
 
     private AbstractRopRequest buildRopRequestFromBindingResult(RequestContext requestContext, BindingResult bindingResult) {
@@ -155,7 +179,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
     private BindingResult doBind(HttpServletRequest webRequest, Class<? extends RopRequest> requestType) {
         RopRequest bindObject = BeanUtils.instantiateClass(requestType);
         ServletRequestDataBinder dataBinder = new ServletRequestDataBinder(bindObject, "bindObject");
-        dataBinder.setConversionService(getConversionService());
+        dataBinder.setConversionService(getFormattingConversionService());
         dataBinder.setValidator(getValidator());
         dataBinder.bind(webRequest);
         dataBinder.validate();
@@ -171,12 +195,12 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
         return this.validator;
     }
 
-    public FormattingConversionService getConversionService() {
+    public FormattingConversionService getFormattingConversionService() {
         return conversionService;
     }
 
     //默认的{@link RopRequest}实现类
-    private class DefaultRopRequest extends AbstractRopRequest{
+    private class DefaultRopRequest extends AbstractRopRequest {
     }
 }
 

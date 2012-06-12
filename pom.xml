@@ -156,6 +156,13 @@
             <artifactId>unitils-testng</artifactId>
             <version>${unitils.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>junit</artifactId>
+                    <groupId>junit</groupId>
+                </exclusion>
+            </exclusions>
+
         </dependency>
 
         <dependency>
@@ -163,6 +170,12 @@
             <artifactId>unitils-spring</artifactId>
             <version>${unitils.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>unitils-database</artifactId>
+                    <groupId>org.unitils</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

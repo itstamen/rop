@@ -4,6 +4,8 @@
  */
 package com.rop;
 
+import com.rop.annotation.HttpAction;
+
 import java.util.Locale;
 import java.util.Map;
 
@@ -56,6 +58,7 @@ public interface RequestContext {
     String getFormat();
     
     /**
+     *
      * 获取响应的格式
      *
      * @return
@@ -81,6 +84,8 @@ public interface RequestContext {
      */
     String getIp();
 
+    /**获取请求的方法 如POST*/
+    HttpAction getHttpAction();
 
     /**
      * 获取请求的原对象（如HttpServletRequest）
@@ -127,6 +132,11 @@ public interface RequestContext {
 
 
     /**
+     * @param ropResponse
+     */
+    void setRopResponse(RopResponse ropResponse);
+
+    /**
      * 返回响应对象
      *
      * @return
@@ -134,16 +144,17 @@ public interface RequestContext {
     RopResponse getRopResponse();
 
     /**
+     * 设置{@link RopRequest}
+     * @param ropRequest
+     */
+    void setRopRequest(RopRequest ropRequest);
+
+    /**
      * 请求对象
      *
      * @return
      */
     RopRequest getRopRequest();
-
-    /**
-     * @param ropResponse
-     */
-    void setRopResponse(RopResponse ropResponse);
 
     /**
      * 获取特定属性

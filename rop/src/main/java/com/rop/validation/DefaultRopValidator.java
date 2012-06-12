@@ -6,18 +6,19 @@ package com.rop.validation;
 
 import com.rop.*;
 import com.rop.SecurityManager;
+import com.rop.annotation.HttpAction;
 import com.rop.impl.DefaultSecurityManager;
 import com.rop.impl.SimpleRequestContext;
-import com.rop.utils.SignUtils;
+import com.rop.utils.RopUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
- *
  * @author 陈雄华
  * @version 1.0
  */
@@ -52,7 +53,7 @@ public class DefaultRopValidator implements RopValidator {
     }
 
     @Override
-    public MainError validate(RequestContext methodContext) {
+    public MainError validateSysparams(RequestContext methodContext) {
 
         MainError mainError = null;
 
@@ -62,58 +63,95 @@ public class DefaultRopValidator implements RopValidator {
             return mainError;
         }
 
-        //2.检查业务参数合法性
+        //2.检查请求HTTP方法的匹配性
+        mainError = validateHttpAction(methodContext);
+        if (mainError != null) {
+            return mainError;
+        }
+
+        return mainError;
+    }
+
+    @Override
+    public MainError validateOther(RequestContext methodContext) {
+
+        MainError mainError = null;
+
+        //1.检查业务参数合法性
         mainError = validateBusinessParams(methodContext);
         if (mainError != null) {
             return mainError;
         }
 
-        //3.应用业务安全检查
-        return  checkServiceAccessAllow(methodContext);
+        //2.应用业务安全检查
+        return checkServiceAccessAllow(methodContext);
     }
 
-    private MainError validateSysParams(RequestContext smc) {
-        RopContext ropContext = smc.getRopContext();
-        RopRequest ropRequest = smc.getRopRequest();
+    /**
+     * 校验是否是合法的HTTP动作
+     *
+     * @param methodContext
+     */
+    private MainError validateHttpAction(RequestContext methodContext) {
+        MainError mainError = null;
+        HttpAction[] httpActions = methodContext.getServiceMethodDefinition().getHttpAction();
+        if (httpActions.length > 0) {
+            boolean isValid = false;
+            for (HttpAction httpAction : httpActions) {
+                if (httpAction == methodContext.getHttpAction()) {
+                    isValid = true;
+                    break;
+                }
+            }
+            if (!isValid) {
+                mainError = MainErrors.getError(MainErrorType.HTTP_ACTION_NOT_ALLOWED, methodContext.getLocale());
+            }
+        }
+        return mainError;
+    }
 
-        //1.检查method参数
-        if (smc.getMethod() == null) {
-            return MainErrors.getError(MainErrorType.MISSING_METHOD, smc.getLocale());
+    private MainError validateSysParams(RequestContext rc) {
+
+        RopContext ropContext = rc.getRopContext();
+
+        //2.检查method参数
+        if (rc.getMethod() == null) {
+            return MainErrors.getError(MainErrorType.MISSING_METHOD, rc.getLocale());
         } else {
-            if (!ropContext.isValidMethod(smc.getMethod())) {
-                return MainErrors.getError(MainErrorType.INVALID_METHOD, smc.getLocale());
+            if (!ropContext.isValidMethod(rc.getMethod())) {
+                return MainErrors.getError(MainErrorType.INVALID_METHOD, rc.getLocale());
             }
         }
 
-        //2.检查v参数
-        if (smc.getVersion() == null) {
-            return MainErrors.getError(MainErrorType.MISSING_VERSION, smc.getLocale());
+        //3.检查v参数
+        if (rc.getVersion() == null) {
+            return MainErrors.getError(MainErrorType.MISSING_VERSION, rc.getLocale());
         } else {
-            if (!ropContext.isValidMethodVersion(smc.getMethod(), smc.getVersion())) {
-                return MainErrors.getError(MainErrorType.UNSUPPORTED_VERSION, smc.getLocale());
+            if (!ropContext.isValidMethodVersion(rc.getMethod(), rc.getVersion())) {
+                return MainErrors.getError(MainErrorType.UNSUPPORTED_VERSION, rc.getLocale());
             }
         }
 
-        //3.检查appKey
-        if (smc.getAppKey() == null)
-            return MainErrors.getError(MainErrorType.MISSING_APP_KEY, smc.getLocale());
-        if (!appSecretManager.isValidAppKey(smc.getAppKey())) {
-            return MainErrors.getError(MainErrorType.INVALID_APP_KEY, smc.getLocale());
+        //4.检查appKey
+        if (rc.getAppKey() == null)
+            return MainErrors.getError(MainErrorType.MISSING_APP_KEY, rc.getLocale());
+        if (!appSecretManager.isValidAppKey(rc.getAppKey())) {
+            return MainErrors.getError(MainErrorType.INVALID_APP_KEY, rc.getLocale());
         }
 
-        //4.检查sessionId
-        MainError mainError = checkSession(smc);
+        //5.检查sessionId
+        MainError mainError = checkSession(rc);
         if (mainError != null) {
             return mainError;
         }
 
-        //5.检查 format
-        if (!MessageFormat.isValidFormat(smc.getFormat())) {
-            return MainErrors.getError(MainErrorType.INVALID_FORMAT, smc.getLocale());
+        //6.检查 format
+        if (!MessageFormat.isValidFormat(rc.getFormat())) {
+            return MainErrors.getError(MainErrorType.INVALID_FORMAT, rc.getLocale());
         }
 
-        //6.检查sign
-        mainError = checkSign(smc);
+        //7.检查sign
+        mainError = checkSign(rc);
         if (mainError != null) {
             return mainError;
         }
@@ -121,29 +159,30 @@ public class DefaultRopValidator implements RopValidator {
         return null;
     }
 
-    @Override
     public SecurityManager getSecurityManager() {
         return securityManager;
     }
 
-    @Override
     public AppSecretManager getAppSecretManager() {
         return appSecretManager;
     }
 
-    @Override
+
     public SessionChecker getSessionChecker() {
         return sessionChecker;
     }
 
+    @Override
     public void setSecurityManager(SecurityManager securityManager) {
         this.securityManager = securityManager;
     }
 
+    @Override
     public void setAppSecretManager(AppSecretManager appSecretManager) {
         this.appSecretManager = appSecretManager;
     }
 
+    @Override
     public void setSessionChecker(SessionChecker sessionChecker) {
         this.sessionChecker = sessionChecker;
     }
@@ -171,7 +210,7 @@ public class DefaultRopValidator implements RopValidator {
         //将Bean数据绑定时产生的错误转换为Rop的错误
         if (errorList != null && errorList.size() > 0) {
             return toMainErrorOfSpringValidateErrors(errorList, methodContext.getLocale());
-        }else {
+        } else {
             return null;
         }
     }
@@ -204,7 +243,7 @@ public class DefaultRopValidator implements RopValidator {
                         throw new RopException("无法获取" + smc.getAppKey() + "对应的密钥");
                     }
 
-                    String signValue = SignUtils.sign(paramNames, paramSingleValueMap, signSecret);
+                    String signValue = RopUtils.sign(paramNames, paramSingleValueMap, signSecret);
                     if (!signValue.equals(smc.getSign())) {
                         if (logger.isErrorEnabled()) {
                             logger.error(smc.getAppKey() + "的签名不合法，请检查");

@@ -46,7 +46,7 @@ public class RopRequestMessageConverter implements ConditionalGenericConverter {
         AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
         SerializationConfig serializationConfig = objectMapper.getSerializationConfig();
         serializationConfig = serializationConfig.with(SerializationConfig.Feature.WRAP_ROOT_VALUE)
-                .withAnnotationIntrospector(introspector);
+                                                 .withAnnotationIntrospector(introspector);
         objectMapper.setSerializationConfig(serializationConfig);
     }
 

@@ -4,27 +4,21 @@
  */
 package com.rop.config;
 
-import com.rop.Interceptor;
 import com.rop.RopContext;
-import com.rop.event.RopEventListener;
 import com.rop.impl.AnnotationServletServiceRouter;
 import com.rop.sample.SampleAppSecretManager;
 import com.rop.sample.SampleSecurityManager;
 import com.rop.sample.SampleSessionChecker;
 import com.rop.sample.request.Telephone;
-import com.rop.validation.RopValidator;
-import org.springframework.format.support.FormattingConversionService;
+import com.rop.validation.DefaultRopValidator;
 import org.testng.annotations.Test;
 import org.unitils.UnitilsTestNG;
-import org.unitils.database.annotations.Transactional;
-import org.unitils.database.util.TransactionMode;
 import org.unitils.spring.annotation.SpringApplicationContext;
 import org.unitils.spring.annotation.SpringBeanByType;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 /**
@@ -86,7 +80,7 @@ public class RopNamespaceHandlerIT extends UnitilsTestNG {
         assertTrue(serviceRouter.getFormattingConversionService().canConvert(String.class,Telephone.class));
 
         assertFalse(serviceRouter.isSignEnable());
-        RopValidator ropValidator = serviceRouter.getRopValidator();
+        DefaultRopValidator ropValidator = (DefaultRopValidator)serviceRouter.getRopValidator();
         assertNotNull(ropValidator);
         assertTrue(ropValidator.getAppSecretManager() instanceof SampleAppSecretManager);
         assertTrue(ropValidator.getSecurityManager() instanceof SampleSecurityManager);
@@ -100,13 +94,13 @@ public class RopNamespaceHandlerIT extends UnitilsTestNG {
         assertEquals(serviceRouter.getThreadPoolExecutor().getQueue().remainingCapacity(),120);
         assertEquals(serviceRouter.getServiceTimeoutSeconds(),10);
 
-        assertEquals(SysparamNames.getAppKey(),"a1");
-        assertEquals(SysparamNames.getFormat(),"f1");
-        assertEquals(SysparamNames.getSessionId(),"s1");
-        assertEquals(SysparamNames.getSign(),"s2");
-        assertEquals(SysparamNames.getLocale(),"l1");
-        assertEquals(SysparamNames.getMethod(),"m1");
-        assertEquals(SysparamNames.getVersion(),"v1");
+        assertEquals(SysParamNames.getAppKey(),"a1");
+        assertEquals(SysParamNames.getFormat(),"f1");
+        assertEquals(SysParamNames.getSessionId(),"s1");
+        assertEquals(SysParamNames.getSign(),"s2");
+        assertEquals(SysParamNames.getLocale(),"l1");
+        assertEquals(SysParamNames.getMethod(),"m1");
+        assertEquals(SysParamNames.getVersion(),"v1");
     }
 }
 

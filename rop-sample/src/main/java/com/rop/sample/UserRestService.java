@@ -6,12 +6,12 @@ package com.rop.sample;
 
 import com.rop.RopRequest;
 import com.rop.RopResponse;
+import com.rop.annotation.HttpAction;
 import com.rop.annotation.ServiceMethod;
-import com.rop.annotation.ServiceMethodGroup;
+import com.rop.annotation.ServiceMethodBean;
 import com.rop.response.ServiceErrorResponse;
 import com.rop.sample.request.CreateUserRequest;
 import com.rop.sample.response.CreateUserResponse;
-import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.List;
  * @author 陈雄华
  * @version 1.0
  */
-@ServiceMethodGroup(value="group1",title = "组1")
+@ServiceMethodBean(value="group1",title = "组1")
 public class UserRestService {
 
     private static final String USER_NAME_RESERVED = "USER_NAME_RESERVED";
@@ -91,6 +91,17 @@ public class UserRestService {
         response.setCreateTime("20120101010102");
         response.setUserId(userId);
         response.setFeedback(request.getTelephone().getZoneCode()+"#"+request.getTelephone().getTelephoneCode());
+        return response;
+    }
+
+    @ServiceMethod(value = "user.get", version = "1.0", httpAction = HttpAction.GET)
+    public RopResponse getUser(CreateUserRequest request) throws Throwable {
+        String userId = request.getRequestContext().getParamValue("userId");
+        CreateUserResponse response = new CreateUserResponse();
+        //add creaet new user here...
+        response.setCreateTime("20120101010102");
+        response.setUserId(userId);
+        response.setFeedback("user.get");
         return response;
     }
 

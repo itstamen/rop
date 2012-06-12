@@ -23,24 +23,31 @@ public interface RopValidator {
      * @param methodContext
      * @return
      */
-    MainError validate(RequestContext methodContext);
+    MainError validateSysparams(RequestContext methodContext);
+
+    /**
+     * 验证其它的事项：包括业务参数，业务安全性，会话安全等
+     * @param methodContext
+     * @return
+     */
+    MainError validateOther(RequestContext methodContext);
 
     /**
      * 获取安全管理器
      * @return
      */
-    SecurityManager getSecurityManager();
+    void setSecurityManager(SecurityManager securityManager);
 
     /**
      * 获取应用密钥管理器
      * @return
      */
-    AppSecretManager getAppSecretManager();
+    void  setAppSecretManager(AppSecretManager appSecretManager);
 
     /**
      * 获取会话校验器
      * @return
      */
-    SessionChecker getSessionChecker();
+    void setSessionChecker(SessionChecker sessionChecker);
 }
 

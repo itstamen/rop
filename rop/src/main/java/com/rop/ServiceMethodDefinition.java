@@ -5,6 +5,8 @@
 package com.rop;
 
 
+import com.rop.annotation.HttpAction;
+
 /**
  * <pre>
  * 功能说明：
@@ -34,6 +36,11 @@ public class ServiceMethodDefinition {
      * API的方法的标识
      */
     private String methodTitle;
+
+    /**
+     * HTTP请求的方法
+     */
+    private HttpAction[] httpAction;
 
     /**
      * API方法所属组名
@@ -141,6 +148,14 @@ public class ServiceMethodDefinition {
 
     public void setIgnoreSign(boolean ignoreSign) {
         this.ignoreSign = ignoreSign;
+    }
+
+    public HttpAction[] getHttpAction() {
+        return httpAction;
+    }
+
+    public void setHttpAction(HttpAction[] httpAction) {
+        this.httpAction = httpAction;
     }
 }
 

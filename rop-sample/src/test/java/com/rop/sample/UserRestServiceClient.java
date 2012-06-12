@@ -4,8 +4,7 @@
  */
 package com.rop.sample;
 
-import com.rop.utils.SignUtils;
-import com.rop.validation.DefaultRopValidator;
+import com.rop.utils.RopUtils;
 import com.rop.validation.MainErrorType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -13,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
+import java.util.*;
 
 import static org.testng.Assert.assertTrue;
 
@@ -38,11 +38,11 @@ public class UserRestServiceClient {
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
         form.add("locale", "en");
-        form.add("userName", "jhonson");
+        form.add("userName", "tomson");
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
@@ -65,11 +65,11 @@ public class UserRestServiceClient {
         form.add("sessionId", "mockSessionId1");
         form.add("locale", "en");
         form.add("messageFormat", "json");
-        form.add("userName", "jhonson");
+        form.add("userName", "tomson");
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
         String response = restTemplate.postForObject(
@@ -90,20 +90,20 @@ public class UserRestServiceClient {
         form.add("v", "2.0");
         form.add("sessionId", "mockSessionId1");
         form.add("locale", "en");
-        form.add("userName", "jhonson");
+        form.add("userName", "tomson");
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
                 "http://localhost:8088/router", form, String.class);
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010102\" userId=\"2\">") > -1);
+        assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010102\"") > -1);
     }
-    
+
     /**
      * 测试自定义的类型转换器{@link com.rop.sample.request.TelephoneConverter}
      */
@@ -116,12 +116,12 @@ public class UserRestServiceClient {
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
         form.add("locale", "en");
-        form.add("userName", "jhonson");
+        form.add("userName", "tomson");
         form.add("salary", "2,500.00");
         form.add("telephone", "0592-12345678");
 
         //对请求参数列表进行签名
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
@@ -129,7 +129,7 @@ public class UserRestServiceClient {
                 "http://localhost:8088/router", form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("0592#12345678") > -1);
-    }    
+    }
 
     /**
      * 验证内部格式为XML的请求参数会正确绑定到RopRequest的内部属性对象中，参见{@link com.rop.sample.request.CreateUserRequest#address}
@@ -144,7 +144,7 @@ public class UserRestServiceClient {
         form.add("appKey", "00001");
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
-        form.add("userName", "tomsony");
+        form.add("userName", "tomson");
         form.add("salary", "2,500.00");
 
         //address会正确绑定
@@ -157,7 +157,7 @@ public class UserRestServiceClient {
                         "</address>");
 
         //对请求参数列表进行签名
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
@@ -166,7 +166,7 @@ public class UserRestServiceClient {
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
     }
-    
+
     /**
      * 由于{@link com.rop.sample.request.CreateUserRequest#password}标注了{@link com.rop.annotation.IgnoreSign},所以Rop
      * 会忽略对password请求参数进行签名验证。
@@ -181,7 +181,7 @@ public class UserRestServiceClient {
         form.add("sessionId", "mockSessionId1");
         form.add("userName", "tomsony");
         form.add("salary", "2,500.00");
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
 
         form.add("sign", sign);
@@ -208,7 +208,7 @@ public class UserRestServiceClient {
         form.add("sessionId", "mockSessionId1");
         form.add("userName", "tomsony");
         form.add("salary", "100");
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
@@ -225,28 +225,30 @@ public class UserRestServiceClient {
      * 我们使用一个错误的appKey以验证是否会返回正确的错误报文。
      */
     @Test
-    public void testInvalidAppKey() {
+    public void testInvalidSysParams() {
         RestTemplate restTemplate = new RestTemplate();
-        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
-        form.add("method", "user.add");
+        Map<String, String> form = new HashMap<String, String>();
+        form.put("method", "user.get");//<--指定方法名称
+        form.put("appKey", "00001");
+        form.put("v", "1.0");
+        form.put("sessionId", "mockSessionId1");
+        form.put("locale", "en");
+        form.put("userName", "tomson");
+        form.put("salary", "2,500.00");
 
-        //设置一个错误的appKey
-        form.add("appKey", "xxxx");
-        form.add("v", "1.0");
-        form.add("sessionId", "mockSessionId1");
-        form.add("userName", "tomsony");
-        form.add("salary", "2,500.00");
+        //对请求参数列表进行签名
+        String sign = RopUtils.sign(new ArrayList<String>(
+                form.keySet()), form, "abcdeabcdeabcdeabcdeabcde");
+        form.put("sign", sign);
 
 
-        String sign = SignUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
-        form.add("sign", sign);
-
-        String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
-
-        System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("code=\"" + MainErrorType.INVALID_APP_KEY.value() + "\"") > -1);
+        //使用GET获取：正确返回
+        String response = restTemplate.getForObject(
+                "http://localhost:8088/router" +
+                        "?appKey={appKey}&locale={locale}&method={method}&salary={salary}&sessionId={sessionId}" +
+                        "&userName={userName}&v={v}&sign={sign}",
+                String.class, form);
+        System.out.println("response:" + response);
     }
 
     /**
@@ -262,7 +264,7 @@ public class UserRestServiceClient {
         form.add("appKey", "00001");
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
-        form.add("userName", "tomsony");
+        form.add("userName", "tomson");
         form.add("salary", "2,500.00");
 
         //设置一个错误的签名
@@ -291,11 +293,11 @@ public class UserRestServiceClient {
 
         form.add("sessionId", "mockSessionId2"); //<--模拟一个错误的sessionId
 
-        form.add("userName", "tomsony");
+        form.add("userName", "tomson");
         form.add("salary", "2,500.00");
 
         //设置一个错误的签名
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
         ;
@@ -325,7 +327,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //设置一个错误的签名
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
         ;
@@ -352,7 +354,7 @@ public class UserRestServiceClient {
         form.add("userName", "jhon");
         form.add("salary", "2,500.00");
 
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
 
         form.add("sign", sign);
@@ -367,6 +369,32 @@ public class UserRestServiceClient {
     }
 
     /**
+     * 在一切正确的情况下，返回正确的服务报文 (user.add + 1.0）
+     */
+    @Test
+    public void testAddUserWithInterceptorViolidateReservedUserName() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.add");//<--指定方法名称
+        form.add("appKey", "00001");
+        form.add("v", "2.0");
+        form.add("sessionId", "mockSessionId1");
+        form.add("locale", "en");
+        form.add("userName", "jhonson");//这个用户名会被ReservedUserNameInterceptor拦截器驳回
+        form.add("salary", "2,500.00");
+
+        //对请求参数列表进行签名
+        String sign = RopUtils.sign(new ArrayList<String>(
+                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+        String response = restTemplate.postForObject(
+                "http://localhost:8088/router", form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf("the userName can't be jhonson!") > -1);
+    }
+
+    /**
      * user.timeout 服务方法必须在1秒内执行完成，我们在服务端故意让user.timeout过期，看是否会返回正确的错误报文
      */
     @Test
@@ -378,21 +406,52 @@ public class UserRestServiceClient {
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
         form.add("locale", "en");
-        form.add("userName", "jhonson");
+        form.add("userName", "tomson");
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
 
         String response = restTemplate.postForObject(
                 "http://localhost:8088/router", form, String.class);
-        System.out.println("response:"+response);
+        System.out.println("response:" + response);
         assertTrue(response.indexOf("isp.remote-service-timeout") > -1);
-
     }
+
+    /**
+     * user.get 获取用户的信息
+     */
+    @Test
+    public void testGetUser1() {
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String, String> form = new HashMap<String, String>();
+
+        form.put("method", "user.get");//<--指定方法名称
+        form.put("appKey", "00001");
+        form.put("v", "1.0");
+        form.put("sessionId", "mockSessionId1");
+        form.put("locale", "en");
+        form.put("userName", "tomson");
+        form.put("salary", "2,500.00");
+
+        //对请求参数列表进行签名
+        String sign = RopUtils.sign(new ArrayList<String>(
+                form.keySet()), form, "abcdeabcdeabcdeabcdeabcde");
+        form.put("sign", sign);
+
+        //使用GET获取：正确返回
+        String response = restTemplate.getForObject(
+                "http://localhost:8088/router" +
+                        "?method={method}&appKey={appKey}&v={v}&sessionId={sessionId}&locale={locale}" +
+                        "&userName={userName}&salary={salary}&sign={sign}",
+                String.class, form);
+        System.out.println("response:" + response);
+        assertTrue(response.indexOf("user.get") > -1);
+    }
+
 
     /**
      * 测试多次执行的服务性能: 100次调用，在1秒内完成！
@@ -406,11 +465,11 @@ public class UserRestServiceClient {
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
         form.add("locale", "en");
-        form.add("userName", "jhonson");
+        form.add("userName", "tomson");
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = SignUtils.sign(new ArrayList<String>(
+        String sign = RopUtils.sign(new ArrayList<String>(
                 form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 

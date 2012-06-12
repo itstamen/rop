@@ -5,7 +5,7 @@
 package com.rop.impl;
 
 import com.rop.*;
-import com.rop.config.SysparamNames;
+import com.rop.config.SysParamNames;
 import com.rop.event.*;
 import com.rop.marshaller.JacksonJsonRopMarshaller;
 import com.rop.marshaller.JaxbXmlRopMarshaller;
@@ -46,7 +46,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
     private RopMarshaller jsonMarshallerRop = new JacksonJsonRopMarshaller();
 
-    private RequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder();
+    private RequestContextBuilder requestContextBuilder;
 
     private RopValidator ropValidator;
 
@@ -77,8 +77,8 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         HttpServletResponse servletResponse = (HttpServletResponse) response;
 
         //获取服务方法最大过期时间
-        String method = servletRequest.getParameter(SysparamNames.getMethod());
-        String version = servletRequest.getParameter(SysparamNames.getVersion());
+        String method = servletRequest.getParameter(SysParamNames.getMethod());
+        String version = servletRequest.getParameter(SysParamNames.getVersion());
         int serviceMethodTimeout = getServiceMethodTimeout(method, version);
 
         //使用异常方式调用服务方法
@@ -111,6 +111,9 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
             this.formattingConversionService = getDefaultConversionService();
         }
         this.formattingConversionService.addConverter(new RopRequestMessageConverter());//支持JAXB的转换器
+
+        //实例化ServletRequestContextBuilder
+        this.requestContextBuilder = new ServletRequestContextBuilder(this.formattingConversionService);
 
         //设置校验器
         if (this.ropValidator == null) {
@@ -171,6 +174,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
     /**
      * 获取默认的格式化转换器
+     *
      * @return
      */
     private FormattingConversionService getDefaultConversionService() {
@@ -247,30 +251,37 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
             RequestContext requestContext = null;
 
             try {
-                //构造服务方法的上下文
-                requestContext = buildRequestContext(servletRequest);
-                requestContext.setServiceBeginTime(beginTime);
+                //用系统级参数构造一个RequestContext实例（第一阶段绑定）
+                requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
 
-                //发布事件
-                firePreDoServiceEvent(requestContext);
-
-                //进行服务准入检查（包括appKey、签名、会话、服务安全，数据合法性等）
-                MainError mainError = ropValidator.validate(requestContext);
-
+                //验证系统级参数的友好性
+                MainError mainError = ropValidator.validateSysparams(requestContext);
                 if (mainError != null) {
                     requestContext.setRopResponse(new ErrorResponse(mainError));
-                } else {//通过服务准入检查后发起正式的服务调整
+                } else {
 
-                    //服务处理前拦截
-                    invokeBeforceServiceOfInterceptors(requestContext);
+                    //绑定业务数据（第二阶段绑定）
+                    requestContextBuilder.bindBusinessParams(requestContext);
 
-                    //如果拦截器没有产生ropResponse时才调用服务方法
-                    requestContext.setRopResponse(doService(requestContext));
+                    //进行其它检查业务数据合法性，业务安全等
+                    mainError = ropValidator.validateOther(requestContext);
+                    if (mainError != null) {
+                        requestContext.setRopResponse(new ErrorResponse(mainError));
+                    } else {
+                        firePreDoServiceEvent(requestContext);
 
-                    //返回响应后拦截
-                    invokeBeforceResponseOfInterceptors(requestContext);
+                        //服务处理前拦截
+                        invokeBeforceServiceOfInterceptors(requestContext);
+
+                        if(requestContext.getRopResponse() == null){ //拦截器未生成response
+                            //如果拦截器没有产生ropResponse时才调用服务方法
+                            requestContext.setRopResponse(doService(requestContext));
+
+                            //返回响应后拦截
+                            invokeBeforceResponseOfInterceptors(requestContext);
+                        }
+                    }
                 }
-
                 //输出响应
                 writeResponse(requestContext.getRopResponse(), servletResponse, requestContext.getMessageFormat());
             } catch (Throwable e) {
@@ -383,10 +394,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
             context.setRopResponse(new ServiceUnavailableErrorResponse(context.getMethod(), context.getLocale()));
             logger.error("在执行拦截器[" + tempInterceptor.getClass().getName() + "]时发生异常.", e);
         }
-    }
-
-    private RequestContext buildRequestContext(HttpServletRequest request) {
-        return requestContextBuilder.buildRequestContext(this.ropContext, request,this.formattingConversionService);
     }
 
     private void writeResponse(RopResponse ropResponse, HttpServletResponse httpServletResponse, MessageFormat messageFormat) {
