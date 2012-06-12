@@ -21,7 +21,7 @@ public class RopNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("annotation-driven", new AnnotationDrivenBeanDefinitionParser());
         registerBeanDefinitionParser("interceptors", new InterceptorsBeanDefinitionParser());
         registerBeanDefinitionParser("listeners", new ListenersBeanDefinitionParser());
-        registerBeanDefinitionParser("sysparams", new SysparamNamesBeanDefinitionParser());
+        registerBeanDefinitionParser("sysparams", new SysParamNamesBeanDefinitionParser());
     }
 }
 
