@@ -12,8 +12,7 @@ package com.rop.config;
  * @author 陈雄华
  * @version 1.0
  */
-public class SysparamNames {
-
+public class SystemParameterNames {
 
     //方法的默认参数名
     private static final String METHOD = "method";
@@ -55,7 +54,7 @@ public class SysparamNames {
     }
 
     public static void setMethod(String method) {
-        SysparamNames.method = method;
+        SystemParameterNames.method = method;
     }
 
     public static String getFormat() {
@@ -63,7 +62,7 @@ public class SysparamNames {
     }
 
     public static void setFormat(String format) {
-        SysparamNames.format = format;
+        SystemParameterNames.format = format;
     }
 
     public static String getLocale() {
@@ -71,7 +70,7 @@ public class SysparamNames {
     }
 
     public static void setLocale(String locale) {
-        SysparamNames.locale = locale;
+        SystemParameterNames.locale = locale;
     }
 
     public static String getSessionId() {
@@ -79,7 +78,7 @@ public class SysparamNames {
     }
 
     public static void setSessionId(String sessionId) {
-        SysparamNames.sessionId = sessionId;
+        SystemParameterNames.sessionId = sessionId;
     }
 
     public static String getAppKey() {
@@ -87,7 +86,7 @@ public class SysparamNames {
     }
 
     public static void setAppKey(String appKey) {
-        SysparamNames.appKey = appKey;
+        SystemParameterNames.appKey = appKey;
     }
 
     public static String getVersion() {
@@ -95,7 +94,7 @@ public class SysparamNames {
     }
 
     public static void setVersion(String version) {
-        SysparamNames.version = version;
+        SystemParameterNames.version = version;
     }
 
     public static String getSign() {
@@ -103,7 +102,7 @@ public class SysparamNames {
     }
 
     public static void setSign(String sign) {
-        SysparamNames.sign = sign;
+        SystemParameterNames.sign = sign;
     }
 }
 

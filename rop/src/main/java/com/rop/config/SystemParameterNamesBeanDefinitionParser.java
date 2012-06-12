@@ -18,8 +18,7 @@ import org.w3c.dom.Element;
  * @author 陈雄华
  * @version 1.0
  */
-public class SysparamNamesBeanDefinitionParser implements BeanDefinitionParser {
-
+public class SystemParameterNamesBeanDefinitionParser implements BeanDefinitionParser {
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         String appKey = element.getAttribute("appkey-param-name");
@@ -30,26 +29,26 @@ public class SysparamNamesBeanDefinitionParser implements BeanDefinitionParser {
         String locale = element.getAttribute("locale-param-name");
         String sign = element.getAttribute("sign-param-name");
 
-        if(StringUtils.hasText(appKey)){
-            SysparamNames.setAppKey(appKey);
+        if (StringUtils.hasText(appKey)) {
+            SystemParameterNames.setAppKey(appKey);
         }
-        if(StringUtils.hasText(sessionId)){
-            SysparamNames.setSessionId(sessionId);
+        if (StringUtils.hasText(sessionId)) {
+            SystemParameterNames.setSessionId(sessionId);
         }
-        if(StringUtils.hasText(method)){
-            SysparamNames.setMethod(method);
+        if (StringUtils.hasText(method)) {
+            SystemParameterNames.setMethod(method);
         }
-        if(StringUtils.hasText(version)){
-            SysparamNames.setVersion(version);
+        if (StringUtils.hasText(version)) {
+            SystemParameterNames.setVersion(version);
         }
-        if(StringUtils.hasText(format)){
-            SysparamNames.setFormat(format);
+        if (StringUtils.hasText(format)) {
+            SystemParameterNames.setFormat(format);
         }
-        if(StringUtils.hasText(locale)){
-            SysparamNames.setLocale(locale);
+        if (StringUtils.hasText(locale)) {
+            SystemParameterNames.setLocale(locale);
         }
-        if(StringUtils.hasText(sessionId)){
-            SysparamNames.setSign(sign);
+        if (StringUtils.hasText(sessionId)) {
+            SystemParameterNames.setSign(sign);
         }
         return null;
     }
