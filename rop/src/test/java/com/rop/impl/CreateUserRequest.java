@@ -4,6 +4,8 @@
  */
 package com.rop.impl;
 
+import com.rop.annotation.IgnoreSign;
+
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
@@ -23,6 +25,9 @@ public class CreateUserRequest {
     @Valid
     private Addresss address;
 
+    @IgnoreSign
+    private String remark;
+
     public String getUserName() {
         return userName;
     }
@@ -37,6 +42,14 @@ public class CreateUserRequest {
 
     public void setAddress(Addresss address) {
         this.address = address;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }
 

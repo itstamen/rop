@@ -23,6 +23,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ReservedUserNameInterceptor extends AbstractInterceptor {
 
+    /**
+     * 在数据绑定后，服务方法调用前执行该拦截方法
+     * @param methodContext
+     */
     @Override
     public void beforeService(RequestContext methodContext) {
         System.out.println("beforeService ...");
@@ -30,17 +34,30 @@ public class ReservedUserNameInterceptor extends AbstractInterceptor {
         if ("jhonson".equals(methodContext.getParamValue("userName"))) {
             InterceptorResponse response = new InterceptorResponse();
             response.setTestField("the userName can't be jhonson!");
+            //设置了RopResponse后，后续的服务将不执行，直接返回这个RopResponse响应
             methodContext.setRopResponse(response);
         }
     }
 
+    /**
+     * 在服务执行完成后，响应返回前执行该拦截方法
+     * @param methodContext
+     */
     @Override
     public void beforeResponse(RequestContext methodContext) {
         System.out.println("beforeResponse ...");
     }
 
+    /**
+     * 对method为user.add的方法进行拦截，你可以通过methodContext中的信息制定拦截方案
+     * @param methodContext
+     * @return
+     */
     @Override
     public boolean isMatch(RequestContext methodContext) {
+//        if("group1".equals(methodContext.getServiceMethodDefinition().getMethodGroup())){
+//            //do sth
+//        }
         return "user.add".equals(methodContext.getMethod());
     }
 }

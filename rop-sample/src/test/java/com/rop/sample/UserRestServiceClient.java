@@ -106,6 +106,37 @@ public class UserRestServiceClient {
     }
 
     /**
+     * 在一切正确的情况下，返回正确的服务报文 (user.add + 1.0）
+     */
+    @Test
+    public void testQueryUserByUserId() {
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String, String> form = new HashMap<String, String>();
+
+        form.put("method", "user.query");//<--指定方法名称
+        form.put("appKey", "00001");
+        form.put("v", "1.0");
+        form.put("sessionId", "mockSessionId1");
+        form.put("locale", "en");
+        form.put("userId", "userId1");
+
+
+        //对请求参数列表进行签名
+        String sign = RopUtils.sign(new ArrayList<String>(
+                form.keySet()), form, "abcdeabcdeabcdeabcdeabcde");
+        form.put("sign", sign);
+
+        //使用GET获取：正确返回
+        String response = restTemplate.getForObject(
+                "http://localhost:8088/router" +
+                        "?method={method}&appKey={appKey}&v={v}&sessionId={sessionId}&locale={locale}" +
+                        "&userId={userId}&sign={sign}",
+                String.class, form);
+        System.out.println("response:" + response);
+        assertTrue(response.indexOf("user.query") > -1 && response.indexOf("userId1") > -1);
+    }
+
+    /**
      * 测试自定义的类型转换器{@link com.rop.sample.request.TelephoneConverter}
      */
     @Test
@@ -192,6 +223,30 @@ public class UserRestServiceClient {
                 "http://localhost:8088/router", form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
+    }
+
+    /**
+     * 由于{@link com.rop.sample.request.CreateUserRequest#password}标注了{@link com.rop.annotation.IgnoreSign},所以Rop
+     * 会忽略对password请求参数进行签名验证。
+     */
+    @Test
+    public void testIngoreSession() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("appKey", "00001");
+        form.add("method", "user.add");//<--指定方法名称
+        form.add("v", "4.0");
+        form.add("userName", "tomsony");
+        form.add("salary", "2,500.00");
+        String sign = RopUtils.sign(new ArrayList<String>(
+                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+
+        form.add("sign", sign);
+
+        String response = restTemplate.postForObject(
+                "http://localhost:8088/router", form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf("userId=\"4\"") > -1);
     }
 
     /**
@@ -370,7 +425,7 @@ public class UserRestServiceClient {
     }
 
     /**
-     * 在一切正确的情况下，返回正确的服务报文 (user.add + 1.0）
+     * 测试被拦截器阻截服务的情况 (user.add + 1.0）
      */
     @Test
     public void testAddUserWithInterceptorViolidateReservedUserName() {
@@ -426,7 +481,7 @@ public class UserRestServiceClient {
      * user.get 获取用户的信息
      */
     @Test
-    public void testGetUser1() {
+    public void testGetUserWithGET() {
         RestTemplate restTemplate = new RestTemplate();
         Map<String, String> form = new HashMap<String, String>();
 
@@ -451,6 +506,32 @@ public class UserRestServiceClient {
                 String.class, form);
         System.out.println("response:" + response);
         assertTrue(response.indexOf("user.get") > -1);
+    }
+
+    /**
+     * user.get 获取用户的信息
+     */
+    @Test
+    public void testGetUserWithPOST() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.get");//<--指定方法名称
+        form.add("appKey", "00001");
+        form.add("v", "1.0");
+        form.add("sessionId", "mockSessionId1");
+        form.add("locale", "en");
+        form.add("userName", "tomson");
+        form.add("salary", "2,500.00");
+
+        //对请求参数列表进行签名
+        String sign = RopUtils.sign(new ArrayList<String>(
+                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+        String response = restTemplate.postForObject(
+                "http://localhost:8088/router", form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf("code=\"5\"") > -1);
     }
 
 

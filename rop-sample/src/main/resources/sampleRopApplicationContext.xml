@@ -13,12 +13,14 @@
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
 
+    <!-- 配置一个Rop框架 -->
     <rop:annotation-driven
             rop-validator="ropValidator"
             formatting-conversion-service="conversionService"
             ext-error-base-name="i18n/rop/sampleRopError"
             sign-enable="true"/>
 
+    <!--定义自定义的RopValiator，如appKey及密钥的管理器、会话管理器、服务安全访问管理器等-->
     <bean id="ropValidator" class="com.rop.validation.DefaultRopValidator">
         <property name="appSecretManager">
             <bean class="com.rop.sample.SampleAppSecretManager"/>
@@ -31,6 +33,7 @@
         </property>
     </bean>
 
+    <!--设置自定义的类型转换服务，注册自定义的类型转换器-->
     <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
         <property name="converters">
             <set>
@@ -40,15 +43,18 @@
         </property>
     </bean>
 
+    <!--注册拦截器，可配置多个-->
     <rop:interceptors>
         <bean class="com.rop.sample.ReservedUserNameInterceptor"/>
     </rop:interceptors>
 
+    <!--注册监听器，可配置多具-->
     <rop:listeners>
         <bean class="com.rop.sample.SamplePostInitializeEventListener"/>
         <bean class="com.rop.sample.SampleAfterDoServiceEventListener"/>
     </rop:listeners>
 
+    <!--自定义method,appKey等这些系统级参数的参数名-->
     <rop:sysparams format-param-name="messageFormat"/>
 
 </beans>

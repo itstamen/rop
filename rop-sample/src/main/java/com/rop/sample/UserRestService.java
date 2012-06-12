@@ -7,6 +7,7 @@ package com.rop.sample;
 import com.rop.RopRequest;
 import com.rop.RopResponse;
 import com.rop.annotation.HttpAction;
+import com.rop.annotation.NeedInSessionType;
 import com.rop.annotation.ServiceMethod;
 import com.rop.annotation.ServiceMethodBean;
 import com.rop.response.ServiceErrorResponse;
@@ -62,6 +63,16 @@ public class UserRestService {
         }
     }
 
+    //版本为4.0的user.add:不需要会话
+    @ServiceMethod(value = "user.add", version = "4.0",needInSession = NeedInSessionType.NO)
+    public RopResponse addUser4(CreateUserRequest request) {
+            CreateUserResponse response = new CreateUserResponse();
+            //add creaet new user here...
+            response.setCreateTime("20120101010102");
+            response.setUserId("4");
+            return response;
+    }
+
     //模拟一个会过期的服务（过期时间为1秒）
     @ServiceMethod(value = "user.timeout", version = "1.0", timeout = 1)
     public RopResponse timeoutService(CreateUserRequest request) throws Throwable {
@@ -94,6 +105,18 @@ public class UserRestService {
         return response;
     }
 
+    //直接使用RopRequest对象作为入参
+    @ServiceMethod(value = "user.query", version = "1.0", httpAction = HttpAction.GET)
+    public RopResponse queryUsers(RopRequest request) throws Throwable {
+        //直接从参数列表中获取参数值
+        String userId = request.getRequestContext().getParamValue("userId");
+        CreateUserResponse response = new CreateUserResponse();
+        response.setCreateTime("20120101010102");
+        response.setUserId(userId);
+        response.setFeedback("user.query");
+        return response;
+    }
+
     @ServiceMethod(value = "user.get", version = "1.0", httpAction = HttpAction.GET)
     public RopResponse getUser(CreateUserRequest request) throws Throwable {
         String userId = request.getRequestContext().getParamValue("userId");
@@ -104,6 +127,8 @@ public class UserRestService {
         response.setFeedback("user.get");
         return response;
     }
+
+
 
 }
 

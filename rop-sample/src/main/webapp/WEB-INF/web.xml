@@ -37,18 +37,12 @@
         <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
     </listener>
 
-    <!--ROPsalk-->
+    <!--Rop框架请求捕获-->
     <servlet>
         <servlet-name>rop</servlet-name>
         <servlet-class>
             com.rop.RopServlet
         </servlet-class>
-
-        <!-- 如果不配置，默认为/WEB-INF/rop.properties -->
-        <init-param>
-            <param-name>ropConfigLocation</param-name>
-            <param-value>classpath:classPathRop.properties</param-value>
-        </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>
 

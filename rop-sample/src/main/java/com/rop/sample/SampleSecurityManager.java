@@ -29,7 +29,12 @@ public class SampleSecurityManager implements SecurityManager {
 
     @Override
     public boolean isGranted(RequestContext methodContext) {
-        return aclMap.get(methodContext.getSessionId());
+        if(methodContext.getSessionId() != null){
+            return aclMap.get(methodContext.getSessionId());
+        }else{
+            return true;
+        }
+
     }
 }
 

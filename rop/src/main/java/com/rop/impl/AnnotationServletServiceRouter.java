@@ -96,7 +96,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
             writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
         } catch (Throwable throwable) {
             ServiceUnavailableErrorResponse ropResponse =
-                    new ServiceUnavailableErrorResponse(method, ServletRequestContextBuilder.getLocale(servletRequest));
+                    new ServiceUnavailableErrorResponse(method, ServletRequestContextBuilder.getLocale(servletRequest),throwable);
             writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
         }
     }
@@ -249,7 +249,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
         @Override
         public void run() {
-            long beginTime = System.currentTimeMillis();
             RequestContext requestContext = null;
 
             try {
@@ -289,7 +288,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
             } catch (Throwable e) {
                 String method = requestContext.getMethod();
                 Locale locale = requestContext.getLocale();
-                ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale);
+                ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale,e);
                 writeResponse(ropResponse, servletResponse, requestContext.getMessageFormat());
             } finally {
                 if (requestContext != null) {
@@ -374,7 +373,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                 }
             }
         } catch (Throwable e) {
-            context.setRopResponse(new ServiceUnavailableErrorResponse(context.getMethod(), context.getLocale()));
+            context.setRopResponse(new ServiceUnavailableErrorResponse(context.getMethod(), context.getLocale(),e));
             logger.error("在执行拦截器[" + tempInterceptor.getClass().getName() + "]时发生异常.", e);
         }
     }
@@ -393,7 +392,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                 }
             }
         } catch (Throwable e) {
-            context.setRopResponse(new ServiceUnavailableErrorResponse(context.getMethod(), context.getLocale()));
+            context.setRopResponse(new ServiceUnavailableErrorResponse(context.getMethod(), context.getLocale(),e));
             logger.error("在执行拦截器[" + tempInterceptor.getClass().getName() + "]时发生异常.", e);
         }
     }
@@ -426,7 +425,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                 if (logger.isInfoEnabled()) {
                     logger.info("调用" + methodContext.getMethod() + "时发生异常，异常信息为：" + e.getMessage());
                 }
-                ropResponse = new ServiceUnavailableErrorResponse(methodContext.getMethod(), methodContext.getLocale());
+                ropResponse = new ServiceUnavailableErrorResponse(methodContext.getMethod(), methodContext.getLocale(),e);
             }
         }
         return ropResponse;

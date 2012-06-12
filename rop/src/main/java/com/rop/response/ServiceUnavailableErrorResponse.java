@@ -45,5 +45,18 @@ public class ServiceUnavailableErrorResponse extends ErrorResponse {
         setMainError(mainError);
         setSubErrors(subErrors);
     }
+
+    public ServiceUnavailableErrorResponse(String method, Locale locale,Throwable throwable) {
+        MainError mainError = SubErrors.getMainError(SubErrorType.ISP_SERVICE_UNAVAILABLE, locale);
+        String errorCodeKey = ISV + transform(method) + SERVICE_UNAVAILABLE;
+        SubError subError = SubErrors.getSubError(errorCodeKey, SubErrorType.ISP_SERVICE_UNAVAILABLE.value(), locale, method);
+        SubError throwableSubError = new SubError(throwable.getClass().getName(), throwable.getMessage());
+        ArrayList<SubError> subErrors = new ArrayList<SubError>();
+        subErrors.add(subError);
+        subErrors.add(throwableSubError);
+
+        setMainError(mainError);
+        setSubErrors(subErrors);
+    }
 }
 
