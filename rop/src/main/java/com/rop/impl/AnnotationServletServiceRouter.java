@@ -32,8 +32,6 @@ import java.util.concurrent.*;
 
 public class AnnotationServletServiceRouter implements ServiceRouter {
 
-    public static final String UTF_8 = "UTF-8";
-
     public static final String APPLICATION_XML = "application/xml";
 
     public static final String APPLICATION_JSON = "application/json";
@@ -399,7 +397,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
     private void writeResponse(RopResponse ropResponse, HttpServletResponse httpServletResponse, MessageFormat messageFormat) {
         try {
-            httpServletResponse.setCharacterEncoding(UTF_8);
+            httpServletResponse.setCharacterEncoding(Constants.UTF8);
             if (messageFormat == MessageFormat.xml) {
                 httpServletResponse.setContentType(APPLICATION_XML);
                 xmlMarshallerRop.marshaller(ropResponse, httpServletResponse.getOutputStream());

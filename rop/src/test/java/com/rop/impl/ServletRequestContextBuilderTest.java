@@ -28,6 +28,31 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class ServletRequestContextBuilderTest {
 
+    @Test
+    public void testIpParsed() {
+        FormattingConversionService conversionService = mock(FormattingConversionService.class);
+        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService);
+        RopContext ropContext = mock(RopContext.class);
+
+        //构造HttpServletRequest
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+        servletRequest.setRemoteAddr("1.1.1.1");
+
+        //创建SimpleRequestContext
+        SimpleRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
+        assertEquals(requestContext.getIp(), "1.1.1.1");
+
+        servletRequest.setRemoteAddr("1.1.1.1");
+        servletRequest.addHeader(ServletRequestContextBuilder.X_FORWARDED_FOR, "null,2.2.2.2,3.3.3.3");
+        requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
+        assertEquals(requestContext.getIp(), "2.2.2.2");
+
+        servletRequest.addHeader(ServletRequestContextBuilder.X_REAL_IP, "5.5.5.5");
+        requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
+        assertEquals(requestContext.getIp(), "5.5.5.5");
+
+    }
+
     /**
      * 正常情况下的系统参数绑定
      *
@@ -44,7 +69,7 @@ public class ServletRequestContextBuilderTest {
 
         //构造HttpServletRequest
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
-        servletRequest.setRemoteAddr("1.1.1.1");
+
         servletRequest.setParameter(SystemParameterNames.getAppKey(), "appKey1");
         servletRequest.setParameter(SystemParameterNames.getSessionId(), "sessionId1");
         servletRequest.setParameter(SystemParameterNames.getMethod(), "method1");
@@ -59,7 +84,6 @@ public class ServletRequestContextBuilderTest {
         //创建SimpleRequestContext
         SimpleRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
 
-        assertEquals(requestContext.getIp(), "1.1.1.1");
         assertEquals(requestContext.getAllParams().size(), 10);
         assertEquals(requestContext.getParamValue("param1"), "value1");
         assertEquals(requestContext.getRawRequestObject(), servletRequest);

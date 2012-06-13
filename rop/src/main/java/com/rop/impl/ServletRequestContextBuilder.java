@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.propertyeditors.LocaleEditor;
 import org.springframework.format.support.FormattingConversionService;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
@@ -35,6 +36,10 @@ import java.util.Map;
  * @version 1.0
  */
 public class ServletRequestContextBuilder implements RequestContextBuilder {
+
+    public static final String X_REAL_IP = "X-Real-IP";
+
+    public static final String X_FORWARDED_FOR = "X-Forwarded-For";
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -58,7 +63,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
         //设置请求对象及参数列表
         requestContext.setRawRequestObject(servletRequest);
         requestContext.setAllParams(getRequestParams(servletRequest));
-        requestContext.setIp(servletRequest.getRemoteAddr());
+        requestContext.setIp(getRemoteAddr(servletRequest)); //感谢melin所指出的BUG
 
         //设置服务的系统级参数
         requestContext.setAppKey(servletRequest.getParameter(SystemParameterNames.getAppKey()));
@@ -77,6 +82,24 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
         requestContext.setServiceMethodHandler(serviceMethodHandler);
 
         return requestContext;
+    }
+
+    private String getRemoteAddr(HttpServletRequest request) {
+        String remoteIp = request.getHeader(X_REAL_IP); //nginx反向代理
+        if (StringUtils.hasText(remoteIp)) {
+            return remoteIp;
+        } else {
+            remoteIp = request.getHeader(X_FORWARDED_FOR);//apache反射代理
+            if (StringUtils.hasText(remoteIp)) {
+                String[] ips = remoteIp.split(",");
+                for (String ip : ips) {
+                    if (!"null".equalsIgnoreCase(ip)) {
+                        return ip;
+                    }
+                }
+            }
+            return request.getRemoteAddr();
+        }
     }
 
     /**

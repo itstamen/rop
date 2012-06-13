@@ -15,7 +15,8 @@ package com.rop;
 public interface Interceptor {
 
     /**
-     * 在进行服务之前调用
+     *     在进行服务之前调用,如果在方法中往{@link RequestContext}设置了{@link RopResponse}（相当于已经产生了响应了）,
+     * 所以服务将直接返回，不往下继续执行，反之服务会继续往下执行直到返回响应
      *
      * @param methodContext
      */
