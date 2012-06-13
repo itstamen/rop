@@ -172,9 +172,9 @@
             <scope>test</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>unitils-database</artifactId>
-                    <groupId>org.unitils</groupId>
-                </exclusion>
+                      <artifactId>junit</artifactId>
+                      <groupId>junit</groupId>
+                  </exclusion>
             </exclusions>
         </dependency>
     </dependencies>

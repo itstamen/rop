@@ -38,8 +38,8 @@ public class RopNamespaceHandlerIT extends UnitilsTestNG {
      * @param serviceRouter
      */
     @Test
-    @SpringBeanByType
     @SpringApplicationContext("com/rop/config/simplestRopConfig.xml")
+    @SpringBeanByType
     public void testSimplestConfig(AnnotationServletServiceRouter serviceRouter) {
         assertNotNull(serviceRouter);
         RopContext ropContext = serviceRouter.getRopContext();
@@ -59,6 +59,8 @@ public class RopNamespaceHandlerIT extends UnitilsTestNG {
         assertEquals(serviceRouter.getThreadPoolExecutor().getMaximumPoolSize(), Integer.MAX_VALUE);
         assertEquals(serviceRouter.getThreadPoolExecutor().getKeepAliveTime(TimeUnit.SECONDS), 120);
     }
+//
+//    AnnotationServletServiceRouter serviceRouter;
 
     /**
      * 最简单的配置
