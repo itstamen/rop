@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * <pre>
- * 将参数中的XML或JSON转换为对象的属性对象
+ *     将参数中的XML或JSON转换为对象的属性对象
  * </pre>
  *
  * @author 陈雄华

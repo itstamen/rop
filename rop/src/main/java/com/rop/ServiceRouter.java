@@ -5,6 +5,7 @@
 package com.rop;
 
 import com.rop.event.RopEventListener;
+import com.rop.session.SessionManager;
 import com.rop.validation.RopValidator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.format.support.FormattingConversionService;
@@ -123,5 +124,11 @@ public interface ServiceRouter {
      * @param conversionService
      */
     void setFormattingConversionService(FormattingConversionService conversionService);
+
+    /**
+     * 添加会话管理器
+     * @param sessionManager
+     */
+    void setSessionManager(SessionManager sessionManager);
 }
 

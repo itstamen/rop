@@ -6,6 +6,7 @@ package com.rop.validation;
 
 import com.rop.RequestContext;
 import com.rop.SecurityManager;
+import com.rop.session.SessionManager;
 
 /**
  * <pre>
@@ -48,10 +49,10 @@ public interface RopValidator {
     void setAppSecretManager(AppSecretManager appSecretManager);
 
     /**
-     * 获取会话校验器
+     * 设置会话管理器，以验证会话的合法性
      *
      * @return
      */
-    void setSessionChecker(SessionChecker sessionChecker);
+    void setSessionManager(SessionManager sessionManager);
 }
 

@@ -30,7 +30,6 @@
             <version>${hibernateValidator.version}</version>
         </dependency>
 
-
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>

@@ -30,6 +30,11 @@
 12.新增com.rop.RopContext它代表Rop框架的上下文，服务处理器(ServiceMethodHandler)在RopContext中通过 method+version的方式
   注册。
 
+1.0-SNAPSHOP-2 (2012-06-21)
+
+1.新增com.rop.session包，管理会话，感谢iteye的melin的贡献；
+2.删除com.rop.validation.SessionChecker，采用com.rop.session新的会话管理体系，相应调整RopValidator的接口；
+
 
 
 

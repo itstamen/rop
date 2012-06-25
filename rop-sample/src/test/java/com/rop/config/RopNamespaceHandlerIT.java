@@ -8,7 +8,6 @@ import com.rop.RopContext;
 import com.rop.impl.AnnotationServletServiceRouter;
 import com.rop.sample.SampleAppSecretManager;
 import com.rop.sample.SampleSecurityManager;
-import com.rop.sample.SampleSessionChecker;
 import com.rop.sample.request.Telephone;
 import com.rop.validation.DefaultRopValidator;
 import org.testng.annotations.Test;
@@ -87,7 +86,6 @@ public class RopNamespaceHandlerIT extends UnitilsTestNG {
         assertNotNull(ropValidator);
         assertTrue(ropValidator.getAppSecretManager() instanceof SampleAppSecretManager);
         assertTrue(ropValidator.getSecurityManager() instanceof SampleSecurityManager);
-        assertTrue(ropValidator.getSessionChecker() instanceof SampleSessionChecker);
 
         assertNotNull(serviceRouter.getRopEventMulticaster());
         assertNotNull(serviceRouter.getThreadPoolExecutor());

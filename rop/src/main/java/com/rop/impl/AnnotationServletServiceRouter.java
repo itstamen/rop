@@ -12,6 +12,7 @@ import com.rop.marshaller.JaxbXmlRopMarshaller;
 import com.rop.response.ErrorResponse;
 import com.rop.response.ServiceUnavailableErrorResponse;
 import com.rop.response.TimeoutErrorResponse;
+import com.rop.session.SessionManager;
 import com.rop.validation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,8 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
     //所有服务方法的最大过期时间，单位为秒(0或负数代表不限制)
     private int serviceTimeoutSeconds = Integer.MAX_VALUE;
 
+    private SessionManager sessionManager;
+
     private String extErrorBasename = "i18n/rop/ropError";
 
     @Override
@@ -110,10 +113,10 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         if (this.formattingConversionService == null) {
             this.formattingConversionService = getDefaultConversionService();
         }
-        this.formattingConversionService.addConverter(new RopRequestMessageConverter());//支持JAXB的转换器
+        this.formattingConversionService.addConverter(new RopRequestMessageConverter());//支持JAXB的转换器的XML及JSON转换
 
         //实例化ServletRequestContextBuilder
-        this.requestContextBuilder = new ServletRequestContextBuilder(this.formattingConversionService);
+        this.requestContextBuilder = new ServletRequestContextBuilder(this.formattingConversionService,this.sessionManager);
 
         //设置校验器
         if (this.ropValidator == null) {
@@ -170,6 +173,11 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
     @Override
     public void setFormattingConversionService(FormattingConversionService formatConversionService) {
         this.formattingConversionService = formatConversionService;
+    }
+
+    @Override
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
     }
 
     /**
@@ -422,6 +430,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
             } catch (Exception e) { //出错则招聘服务不可用的异常
                 if (logger.isInfoEnabled()) {
                     logger.info("调用" + methodContext.getMethod() + "时发生异常，异常信息为：" + e.getMessage());
+                    e.printStackTrace();
                 }
                 ropResponse = new ServiceUnavailableErrorResponse(methodContext.getMethod(), methodContext.getLocale(),e);
             }

@@ -13,6 +13,8 @@ import com.rop.annotation.ServiceMethodBean;
 import com.rop.response.ServiceErrorResponse;
 import com.rop.sample.request.CreateUserRequest;
 import com.rop.sample.response.CreateUserResponse;
+import com.rop.sample.response.LogonResponse;
+import com.rop.session.SimpleSession;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,10 +33,24 @@ public class UserRestService {
     private static final String USER_NAME_RESERVED = "USER_NAME_RESERVED";
     private List reservesUserNames = Arrays.asList(new String[]{"tom", "jhon"});
 
+    @ServiceMethod(value = "user.getSession", version = "1.0",needInSession = NeedInSessionType.NO)
+    public RopResponse getSession(RopRequest request){
+
+        //创建一个会话
+        SimpleSession session = new SimpleSession("mockSessionId1");
+        session.setAttribute("key1","value1");
+        request.getRequestContext().addSession(session);
+
+        LogonResponse logonResponse = new LogonResponse();
+        logonResponse.setSessionId(session.getId());
+        return logonResponse;
+
+    }
+
     @ServiceMethod(value = "user.add", version = "1.0")//② Let this method service the sample.user.add method
     public RopResponse addUser(CreateUserRequest request) {
         if (reservesUserNames.contains(request.getUserName())) { //如果注册的用户是预留的帐号，则返回错误的报文
-
+            //这个业务错误将引用扩展国际化错误资源中的消息（i18n/rop/sampleRopError）
             return new ServiceErrorResponse(
                     request.getRequestContext().getMethod(), USER_NAME_RESERVED,
                     request.getRequestContext().getLocale(), request.getUserName());

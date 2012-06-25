@@ -9,6 +9,8 @@ import com.rop.SecurityManager;
 import com.rop.annotation.HttpAction;
 import com.rop.impl.DefaultSecurityManager;
 import com.rop.impl.SimpleRequestContext;
+import com.rop.session.DefaultSessionManager;
+import com.rop.session.SessionManager;
 import com.rop.utils.RopUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,14 +25,13 @@ import java.util.*;
  */
 public class DefaultRopValidator implements RopValidator {
 
-
     protected Logger logger = LoggerFactory.getLogger(getClass());
 
     protected SecurityManager securityManager = new DefaultSecurityManager();
 
     protected AppSecretManager appSecretManager = new FileBaseAppSecretManager();
 
-    protected SessionChecker sessionChecker = new DefaultSessionChecker();
+    protected SessionManager sessionManager;
 
     private static final Map<String, SubErrorType> INVALIDE_CONSTRAINT_SUBERROR_MAPPINGS = new LinkedHashMap<String, SubErrorType>();
 
@@ -167,10 +168,6 @@ public class DefaultRopValidator implements RopValidator {
     }
 
 
-    public SessionChecker getSessionChecker() {
-        return sessionChecker;
-    }
-
     @Override
     public void setSecurityManager(SecurityManager securityManager) {
         this.securityManager = securityManager;
@@ -182,8 +179,8 @@ public class DefaultRopValidator implements RopValidator {
     }
 
     @Override
-    public void setSessionChecker(SessionChecker sessionChecker) {
-        this.sessionChecker = sessionChecker;
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
     }
 
     private MainError checkServiceAccessAllow(RequestContext smc) {
@@ -280,10 +277,7 @@ public class DefaultRopValidator implements RopValidator {
             if (smc.getSessionId() == null) {
                 return MainErrors.getError(MainErrorType.MISSING_SESSION, null);
             } else {
-                if (!getSessionChecker().isValid(smc.getSessionId())) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(smc.getSessionId() + "会话不存在，请检查。");
-                    }
+                if (isValidSession(smc)) {
                     return MainErrors.getError(MainErrorType.INVALID_SESSION, null);
                 } else {
                     return null;
@@ -291,6 +285,17 @@ public class DefaultRopValidator implements RopValidator {
             }
         } else {
             return null;
+        }
+    }
+
+    private boolean isValidSession(RequestContext smc) {
+        if(sessionManager.getSession(smc.getSessionId())!= null){
+            if (logger.isDebugEnabled()) {
+                logger.debug(smc.getSessionId() + "会话不存在，请检查。");
+            }
+            return false;
+        }else{
+            return true;
         }
     }
 

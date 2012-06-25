@@ -7,6 +7,7 @@ package com.rop.impl;
 import com.rop.*;
 import com.rop.annotation.HttpAction;
 import com.rop.config.SystemParameterNames;
+import com.rop.session.SessionManager;
 import com.rop.validation.MainErrorType;
 import com.rop.validation.MainErrors;
 import org.slf4j.Logger;
@@ -47,8 +48,11 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
 
     private Validator validator;
 
-    public ServletRequestContextBuilder(FormattingConversionService conversionService) {
+    private SessionManager sessionManager;
+
+    public ServletRequestContextBuilder(FormattingConversionService conversionService,SessionManager sessionManager) {
         this.conversionService = conversionService;
+        this.sessionManager = sessionManager;
     }
 
     @Override
@@ -59,6 +63,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
 
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         SimpleRequestContext requestContext = new SimpleRequestContext(ropContext);
+        requestContext.setSessionManager(sessionManager);
 
         //设置请求对象及参数列表
         requestContext.setRawRequestObject(servletRequest);
@@ -178,7 +183,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
     private AbstractRopRequest buildRopRequestFromBindingResult(RequestContext requestContext, BindingResult bindingResult) {
         AbstractRopRequest ropRequest = (AbstractRopRequest) bindingResult.getTarget();
         if (ropRequest instanceof AbstractRopRequest) {
-            AbstractRopRequest abstractRopRequest = (AbstractRopRequest) ropRequest;
+            AbstractRopRequest abstractRopRequest = ropRequest;
             abstractRopRequest.setRequestContext(requestContext);
         } else {
             logger.warn(ropRequest.getClass().getName() + "不是扩展于" + AbstractRopRequest.class.getName() +

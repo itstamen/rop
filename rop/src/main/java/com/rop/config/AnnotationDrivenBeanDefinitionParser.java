@@ -5,6 +5,7 @@
 package com.rop.config;
 
 import com.rop.impl.AnnotationServletServiceRouterFactoryBean;
+import com.rop.session.DefaultSessionManager;
 import com.rop.validation.DefaultRopValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,10 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         RuntimeBeanReference ropValidator = getRopValidator(element, source, parserContext);
         serviceRouterDef.getPropertyValues().add("ropValidator", ropValidator);
 
+        //会话管理器
+        RuntimeBeanReference sessionManager = getSessionManager(element, source, parserContext);
+        serviceRouterDef.getPropertyValues().add("sessionManager", sessionManager);
+
         //设置TaskExecutor
         RuntimeBeanReference taskExecutorBeanReference = getExecutor(element, source, parserContext);
         serviceRouterDef.getPropertyValues().add("threadPoolExecutor", taskExecutorBeanReference);
@@ -76,6 +81,27 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         return null;
     }
 
+    private RuntimeBeanReference getSessionManager(Element element, Object source, ParserContext parserContext) {
+        RuntimeBeanReference sessionManagerRef;
+        if (element.hasAttribute("session-manager")) {
+            sessionManagerRef = new RuntimeBeanReference(element.getAttribute("session-manager"));
+            if (logger.isInfoEnabled()) {
+                logger.info("Rop装配一个自定义的SessionManager:" + sessionManagerRef.getBeanName());
+            }
+        } else {
+            RootBeanDefinition sessionManagerDef = new RootBeanDefinition(DefaultSessionManager.class);
+            sessionManagerDef.setSource(source);
+            sessionManagerDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            String sessionManagerName = parserContext.getReaderContext().registerWithGeneratedName(sessionManagerDef);
+            parserContext.registerComponent(new BeanComponentDefinition(sessionManagerDef, sessionManagerName));
+            sessionManagerRef = new RuntimeBeanReference(sessionManagerName);
+            if (logger.isInfoEnabled()) {
+                logger.info("使用默认的会话管理器:" + DefaultSessionManager.class.getName());
+            }
+        }
+        return sessionManagerRef;
+    }
+
     private RuntimeBeanReference getConversionService(Element element, Object source, ParserContext parserContext) {
         RuntimeBeanReference conversionServiceRbf;
         if (element.hasAttribute("formatting-conversion-service")) {
@@ -90,6 +116,10 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             String conversionName = parserContext.getReaderContext().registerWithGeneratedName(conversionDef);
             parserContext.registerComponent(new BeanComponentDefinition(conversionDef, conversionName));
             conversionServiceRbf = new RuntimeBeanReference(conversionName);
+            if (logger.isInfoEnabled()) {
+                logger.info("使用默认的FormattingConversionService:" +
+                        FormattingConversionServiceFactoryBean.class.getName());
+            }
         }
         return conversionServiceRbf;
     }
@@ -108,6 +138,9 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             String conversionName = parserContext.getReaderContext().registerWithGeneratedName(conversionDef);
             parserContext.registerComponent(new BeanComponentDefinition(conversionDef, conversionName));
             ropValidatorRbf = new RuntimeBeanReference(conversionName);
+            if (logger.isInfoEnabled()) {
+                logger.info("使用默认的RopValidator:" +DefaultRopValidator.class.getName());
+            }
         }
         return ropValidatorRbf;
     }

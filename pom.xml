@@ -41,6 +41,7 @@
     <modules>
         <module>rop</module>
         <module>rop-sample</module>
+        <module>rop-client</module>
     </modules>
 
     <distributionManagement>

@@ -8,6 +8,7 @@ import com.rop.MessageFormat;
 import com.rop.RopContext;
 import com.rop.ServiceMethodHandler;
 import com.rop.config.SystemParameterNames;
+import com.rop.session.SessionManager;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.testng.annotations.Test;
@@ -31,7 +32,8 @@ public class ServletRequestContextBuilderTest {
     @Test
     public void testIpParsed() {
         FormattingConversionService conversionService = mock(FormattingConversionService.class);
-        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService);
+        SessionManager sessionManager = mock(SessionManager.class);
+        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService,sessionManager);
         RopContext ropContext = mock(RopContext.class);
 
         //构造HttpServletRequest
@@ -61,7 +63,8 @@ public class ServletRequestContextBuilderTest {
     @Test
     public void testBuildBySysParams1() throws Exception {
         FormattingConversionService conversionService = mock(FormattingConversionService.class);
-        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService);
+        SessionManager sessionManager = mock(SessionManager.class);
+        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService,sessionManager);
 
         RopContext ropContext = mock(RopContext.class);
         ServiceMethodHandler methodHandler = mock(ServiceMethodHandler.class);
@@ -108,7 +111,8 @@ public class ServletRequestContextBuilderTest {
     @Test
     public void testBuildBySysParams2() throws Exception {
         FormattingConversionService conversionService = mock(FormattingConversionService.class);
-        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService);
+        SessionManager sessionManager = mock(SessionManager.class);
+        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService,sessionManager);
         RopContext ropContext = mock(RopContext.class);
 
 
@@ -134,7 +138,8 @@ public class ServletRequestContextBuilderTest {
     @Test(expectedExceptions = {IllegalArgumentException.class})
     public void testBuildBySysParams3() throws Exception {
         FormattingConversionService conversionService = mock(FormattingConversionService.class);
-        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService);
+        SessionManager sessionManager = mock(SessionManager.class);
+        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService,sessionManager);
 
         RopContext ropContext = mock(RopContext.class);
         ServiceMethodHandler methodHandler = mock(ServiceMethodHandler.class);

@@ -6,6 +6,8 @@ package com.rop.impl;
 
 import com.rop.*;
 import com.rop.annotation.HttpAction;
+import com.rop.session.Session;
+import com.rop.session.SessionManager;
 import com.rop.validation.MainError;
 
 import java.util.HashMap;
@@ -13,9 +15,6 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * <pre>
- * 功能说明：
- * </pre>
  *
  * @author 陈雄华
  * @version 1.0
@@ -64,6 +63,8 @@ public class SimpleRequestContext implements RequestContext {
 
     private Map<String, String> allParams;
 
+    private SessionManager sessionManager;
+
     @Override
     public long getServiceBeginTime() {
         return this.serviceBeginTime;
@@ -89,6 +90,16 @@ public class SimpleRequestContext implements RequestContext {
         return this.format;
     }
 
+    @Override
+    public Session getSession() {
+        return sessionManager.getSession(getSessionId());
+    }
+
+    @Override
+    public void addSession(Session session) {
+        sessionManager.addSession(session);
+    }
+
     public void setFormat(String format) {
         this.format = format;
     }
@@ -105,6 +116,10 @@ public class SimpleRequestContext implements RequestContext {
     public SimpleRequestContext(RopContext ropContext) {
         this.ropContext = ropContext;
         this.serviceBeginTime = System.currentTimeMillis();
+    }
+
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
     }
 
     @Override

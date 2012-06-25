@@ -8,6 +8,7 @@ import com.rop.Interceptor;
 import com.rop.config.InterceptorHolder;
 import com.rop.config.RopEventListenerHodler;
 import com.rop.event.RopEventListener;
+import com.rop.session.SessionManager;
 import com.rop.validation.RopValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,8 @@ public class AnnotationServletServiceRouterFactoryBean
     private RopValidator ropValidator;
 
     private ThreadPoolExecutor threadPoolExecutor;
+
+    private SessionManager sessionManager;
 
     private boolean signEnable = true;
 
@@ -83,17 +86,19 @@ public class AnnotationServletServiceRouterFactoryBean
     @Override
     public void afterPropertiesSet() throws Exception {
         //实例化一个AnnotationServletServiceRouter
-        this.serviceRouter = new AnnotationServletServiceRouter();
+        serviceRouter = new AnnotationServletServiceRouter();
 
         //设置属性
-        if (this.extErrorBasename != null) {
-            serviceRouter.setExtErrorBasename(this.extErrorBasename);
+        if (extErrorBasename != null) {
+            serviceRouter.setExtErrorBasename(extErrorBasename);
         }
-        serviceRouter.setRopValidator(this.ropValidator);
-        serviceRouter.setThreadPoolExecutor(this.threadPoolExecutor);
-        serviceRouter.setSignEnable(this.signEnable);
-        serviceRouter.setServiceTimeoutSeconds(this.serviceTimeoutSeconds);
+        ropValidator.setSessionManager(sessionManager);
+        serviceRouter.setRopValidator(ropValidator);
+        serviceRouter.setThreadPoolExecutor(threadPoolExecutor);
+        serviceRouter.setSignEnable(signEnable);
+        serviceRouter.setServiceTimeoutSeconds(serviceTimeoutSeconds);
         serviceRouter.setFormattingConversionService(formattingConversionService);
+        serviceRouter.setSessionManager(sessionManager);
 
         //注册拦截器
         ArrayList<Interceptor> interceptors = getInterceptors();
@@ -189,6 +194,10 @@ public class AnnotationServletServiceRouterFactoryBean
 
     public void setServiceTimeoutSeconds(int serviceTimeoutSeconds) {
         this.serviceTimeoutSeconds = serviceTimeoutSeconds;
+    }
+
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
     }
 }
 

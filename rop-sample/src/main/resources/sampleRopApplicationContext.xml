@@ -28,9 +28,6 @@
         <property name="securityManager">
             <bean class="com.rop.sample.SampleSecurityManager"/>
         </property>
-        <property name="sessionChecker">
-            <bean class="com.rop.sample.SampleSessionChecker"/>
-        </property>
     </bean>
 
     <!--设置自定义的类型转换服务，注册自定义的类型转换器-->
