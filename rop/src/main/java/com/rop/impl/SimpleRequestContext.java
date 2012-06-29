@@ -90,16 +90,6 @@ public class SimpleRequestContext implements RequestContext {
         return this.format;
     }
 
-    @Override
-    public Session getSession() {
-        return sessionManager.getSession(getSessionId());
-    }
-
-    @Override
-    public void addSession(Session session) {
-        sessionManager.addSession(session);
-    }
-
     public void setFormat(String format) {
         this.format = format;
     }
@@ -151,6 +141,21 @@ public class SimpleRequestContext implements RequestContext {
     }
 
     @Override
+    public Session getSession() {
+        return sessionManager.getSession(getSessionId());
+    }
+
+    @Override
+    public void addSession(String sessionId,Session session) {
+        sessionManager.addSession(sessionId,session);
+    }
+
+    @Override
+    public void removeSession() {
+        sessionManager.removeSession(getSessionId());
+    }
+
+    @Override
     public Locale getLocale() {
         return this.locale;
     }
@@ -182,7 +187,6 @@ public class SimpleRequestContext implements RequestContext {
     public String getAppKey() {
         return this.appKey;
     }
-
 
     public void setLocale(Locale locale) {
         this.locale = locale;

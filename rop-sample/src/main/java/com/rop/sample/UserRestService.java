@@ -37,12 +37,12 @@ public class UserRestService {
     public RopResponse getSession(RopRequest request){
 
         //创建一个会话
-        SimpleSession session = new SimpleSession("mockSessionId1");
+        SimpleSession session = new SimpleSession();
         session.setAttribute("key1","value1");
-        request.getRequestContext().addSession(session);
+        request.getRequestContext().addSession("mockSessionId1",session);
 
         LogonResponse logonResponse = new LogonResponse();
-        logonResponse.setSessionId(session.getId());
+        logonResponse.setSessionId("mockSessionId1");
         return logonResponse;
 
     }

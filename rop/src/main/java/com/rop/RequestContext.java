@@ -63,10 +63,16 @@ public interface RequestContext {
     Session getSession();
 
     /**
-     * 添加会话
+     * 绑定一个会话
      * @param session
      */
-    void addSession(Session session);
+    void addSession(String sessionId,Session session);
+
+    /**
+     * 删除会话，删除{@link #getSessionId()}对应的Session
+     */
+    void removeSession();
+
 
     /**
      * 获取报文格式化参数
