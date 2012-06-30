@@ -16,11 +16,11 @@ import java.util.Map;
  * @version 1.0
  */
 public class SimpleSession implements Session {
-    
-    private Map<String,Object> attributes = new HashMap<String,Object>();
+
+    private Map<String, Object> attributes = new HashMap<String, Object>();
 
     public void setAttribute(String name, Object obj) {
-        attributes.put(name,obj);
+        attributes.put(name, obj);
     }
 
     public Object getAttribute(String name) {

@@ -25,6 +25,7 @@ public class ReservedUserNameInterceptor extends AbstractInterceptor {
 
     /**
      * 在数据绑定后，服务方法调用前执行该拦截方法
+     *
      * @param methodContext
      */
     @Override
@@ -41,6 +42,7 @@ public class ReservedUserNameInterceptor extends AbstractInterceptor {
 
     /**
      * 在服务执行完成后，响应返回前执行该拦截方法
+     *
      * @param methodContext
      */
     @Override
@@ -50,6 +52,7 @@ public class ReservedUserNameInterceptor extends AbstractInterceptor {
 
     /**
      * 对method为user.add的方法进行拦截，你可以通过methodContext中的信息制定拦截方案
+     *
      * @param methodContext
      * @return
      */

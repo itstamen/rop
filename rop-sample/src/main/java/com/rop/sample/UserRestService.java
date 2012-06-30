@@ -33,13 +33,13 @@ public class UserRestService {
     private static final String USER_NAME_RESERVED = "USER_NAME_RESERVED";
     private List reservesUserNames = Arrays.asList(new String[]{"tom", "jhon"});
 
-    @ServiceMethod(value = "user.getSession", version = "1.0",needInSession = NeedInSessionType.NO)
-    public RopResponse getSession(RopRequest request){
+    @ServiceMethod(value = "user.getSession", version = "1.0", needInSession = NeedInSessionType.NO)
+    public RopResponse getSession(RopRequest request) {
 
         //创建一个会话
         SimpleSession session = new SimpleSession();
-        session.setAttribute("key1","value1");
-        request.getRequestContext().addSession("mockSessionId1",session);
+        session.setAttribute("key1", "value1");
+        request.getRequestContext().addSession("mockSessionId1", session);
 
         LogonResponse logonResponse = new LogonResponse();
         logonResponse.setSessionId("mockSessionId1");
@@ -80,13 +80,13 @@ public class UserRestService {
     }
 
     //版本为4.0的user.add:不需要会话
-    @ServiceMethod(value = "user.add", version = "4.0",needInSession = NeedInSessionType.NO)
+    @ServiceMethod(value = "user.add", version = "4.0", needInSession = NeedInSessionType.NO)
     public RopResponse addUser4(CreateUserRequest request) {
-            CreateUserResponse response = new CreateUserResponse();
-            //add creaet new user here...
-            response.setCreateTime("20120101010102");
-            response.setUserId("4");
-            return response;
+        CreateUserResponse response = new CreateUserResponse();
+        //add creaet new user here...
+        response.setCreateTime("20120101010102");
+        response.setUserId("4");
+        return response;
     }
 
     //模拟一个会过期的服务（过期时间为1秒）
@@ -143,7 +143,6 @@ public class UserRestService {
         response.setFeedback("user.get");
         return response;
     }
-
 
 
 }

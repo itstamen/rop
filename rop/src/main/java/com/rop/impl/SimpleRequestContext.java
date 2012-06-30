@@ -15,7 +15,6 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- *
  * @author 陈雄华
  * @version 1.0
  */
@@ -146,8 +145,8 @@ public class SimpleRequestContext implements RequestContext {
     }
 
     @Override
-    public void addSession(String sessionId,Session session) {
-        sessionManager.addSession(sessionId,session);
+    public void addSession(String sessionId, Session session) {
+        sessionManager.addSession(sessionId, session);
     }
 
     @Override

@@ -6,8 +6,6 @@ package com.rop.client.unmarshaller;
 
 import com.rop.RopException;
 import com.rop.client.RopUnmarshaller;
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;

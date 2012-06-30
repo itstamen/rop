@@ -17,15 +17,17 @@ import com.rop.response.ErrorResponse;
  * @version 1.0
  */
 public interface CompositeResponse<T extends RopResponse> {
-    
+
     /**
      * 获取错误的响应对象
+     *
      * @return
      */
     ErrorResponse getErrorResponse();
 
     /**
      * 获取正确的响应对象
+     *
      * @param responseClass
      * @param <T>
      * @return
@@ -34,6 +36,7 @@ public interface CompositeResponse<T extends RopResponse> {
 
     /**
      * 响应是否是正确的
+     *
      * @return
      */
     boolean isSuccessful();

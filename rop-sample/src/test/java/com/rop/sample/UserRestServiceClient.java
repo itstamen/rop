@@ -9,10 +9,8 @@ import com.rop.validation.MainErrorType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,12 +27,13 @@ import static org.testng.Assert.assertTrue;
 public class UserRestServiceClient {
 
     private String sessionId;
+
     /**
      * 创建一个服务端的会话
      */
 //    @BeforeMethod
     @Test
-    public void createSession(){
+    public void createSession() {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
         form.add("method", "user.getSession");
@@ -51,7 +50,7 @@ public class UserRestServiceClient {
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<logonResponse sessionId=\"mockSessionId1\"/>") > -1);
     }
-    
+
     /**
      * 在一切正确的情况下，返回正确的服务报文 (user.add + 1.0）
      */
@@ -76,8 +75,8 @@ public class UserRestServiceClient {
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
     }
-    
-    
+
+
     /**
      * 显式指定返回的报文类型，在配置文件中已经显式指定了 报文格式参数的名称为messageFormat
      */

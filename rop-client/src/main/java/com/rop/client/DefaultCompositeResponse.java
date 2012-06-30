@@ -15,12 +15,12 @@ import com.rop.response.ErrorResponse;
  * @author 陈雄华
  * @version 1.0
  */
-public class DefaultCompositeResponse<T extends RopResponse> implements CompositeResponse{
+public class DefaultCompositeResponse<T extends RopResponse> implements CompositeResponse {
 
     private boolean successful;
-    
+
     private ErrorResponse errorResponse;
-    
+
     private T successRopResponse;
 
     public DefaultCompositeResponse(boolean successful) {

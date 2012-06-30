@@ -50,7 +50,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
 
     private SessionManager sessionManager;
 
-    public ServletRequestContextBuilder(FormattingConversionService conversionService,SessionManager sessionManager) {
+    public ServletRequestContextBuilder(FormattingConversionService conversionService, SessionManager sessionManager) {
         this.conversionService = conversionService;
         this.sessionManager = sessionManager;
     }

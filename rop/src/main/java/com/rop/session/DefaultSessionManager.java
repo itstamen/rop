@@ -10,15 +10,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author libinsong@gmail.com
  * @author 陈雄华 itstamen@qq.com
  */
-public final class DefaultSessionManager implements SessionManager{
+public final class DefaultSessionManager implements SessionManager {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Map<String,Session> sessionCache = new ConcurrentHashMap<String, Session>(128,0.75f,32);
+    private final Map<String, Session> sessionCache = new ConcurrentHashMap<String, Session>(128, 0.75f, 32);
 
     @Override
     public void addSession(String sessionId, Session session) {
-        sessionCache.put(sessionId,session);
+        sessionCache.put(sessionId, session);
     }
 
     @Override

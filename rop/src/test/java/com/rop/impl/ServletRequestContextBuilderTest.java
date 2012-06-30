@@ -33,7 +33,7 @@ public class ServletRequestContextBuilderTest {
     public void testIpParsed() {
         FormattingConversionService conversionService = mock(FormattingConversionService.class);
         SessionManager sessionManager = mock(SessionManager.class);
-        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService,sessionManager);
+        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService, sessionManager);
         RopContext ropContext = mock(RopContext.class);
 
         //构造HttpServletRequest
@@ -64,7 +64,7 @@ public class ServletRequestContextBuilderTest {
     public void testBuildBySysParams1() throws Exception {
         FormattingConversionService conversionService = mock(FormattingConversionService.class);
         SessionManager sessionManager = mock(SessionManager.class);
-        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService,sessionManager);
+        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService, sessionManager);
 
         RopContext ropContext = mock(RopContext.class);
         ServiceMethodHandler methodHandler = mock(ServiceMethodHandler.class);
@@ -112,7 +112,7 @@ public class ServletRequestContextBuilderTest {
     public void testBuildBySysParams2() throws Exception {
         FormattingConversionService conversionService = mock(FormattingConversionService.class);
         SessionManager sessionManager = mock(SessionManager.class);
-        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService,sessionManager);
+        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService, sessionManager);
         RopContext ropContext = mock(RopContext.class);
 
 
@@ -139,7 +139,7 @@ public class ServletRequestContextBuilderTest {
     public void testBuildBySysParams3() throws Exception {
         FormattingConversionService conversionService = mock(FormattingConversionService.class);
         SessionManager sessionManager = mock(SessionManager.class);
-        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService,sessionManager);
+        ServletRequestContextBuilder requestContextBuilder = new ServletRequestContextBuilder(conversionService, sessionManager);
 
         RopContext ropContext = mock(RopContext.class);
         ServiceMethodHandler methodHandler = mock(ServiceMethodHandler.class);

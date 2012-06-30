@@ -6,7 +6,6 @@ package com.rop;
 
 import com.rop.annotation.HttpAction;
 import com.rop.session.Session;
-import com.rop.session.SessionManager;
 
 import java.util.Locale;
 import java.util.Map;
@@ -58,15 +57,17 @@ public interface RequestContext {
 
     /**
      * 获取请求所对应的会话
+     *
      * @return
      */
     Session getSession();
 
     /**
      * 绑定一个会话
+     *
      * @param session
      */
-    void addSession(String sessionId,Session session);
+    void addSession(String sessionId, Session session);
 
     /**
      * 删除会话，删除{@link #getSessionId()}对应的Session

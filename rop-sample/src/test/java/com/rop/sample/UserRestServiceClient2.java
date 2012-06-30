@@ -14,12 +14,7 @@ import com.rop.response.ErrorResponse;
 import com.rop.sample.request.CreateUserRequest;
 import com.rop.sample.response.CreateUserResponse;
 import com.rop.sample.response.LogonResponse;
-import com.rop.utils.RopUtils;
 import com.rop.validation.MainErrorType;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
@@ -34,10 +29,10 @@ import static org.testng.Assert.*;
  */
 public class UserRestServiceClient2 {
 
-    private RopClient ropClient = new DefaultRopClient("http://localhost:8080/router","00001","abcdeabcdeabcdeabcdeabcde");
+    private RopClient ropClient = new DefaultRopClient("http://localhost:8080/router", "00001", "abcdeabcdeabcdeabcdeabcde");
 
     @Test
-    public void createSession(){
+    public void createSession() {
         RopRequest ropRequest = new AbstractRopRequest() {
             @Override
             public RequestContext getRequestContext() {
@@ -50,7 +45,7 @@ public class UserRestServiceClient2 {
         assertTrue(response.isSuccessful());
         assertNotNull(response.getSuccessResponse());
         assertTrue(response.getSuccessResponse() instanceof LogonResponse);
-        assertEquals(((LogonResponse) response.getSuccessResponse()).getSessionId(),"mockSessionId1");
+        assertEquals(((LogonResponse) response.getSuccessResponse()).getSessionId(), "mockSessionId1");
     }
 
     /**

@@ -9,7 +9,6 @@ import com.rop.SecurityManager;
 import com.rop.annotation.HttpAction;
 import com.rop.impl.DefaultSecurityManager;
 import com.rop.impl.SimpleRequestContext;
-import com.rop.session.DefaultSessionManager;
 import com.rop.session.SessionManager;
 import com.rop.utils.RopUtils;
 import org.slf4j.Logger;
@@ -230,8 +229,8 @@ public class DefaultRopValidator implements RopValidator {
                     List<String> ignoreSignFieldNames = ctx.getServiceMethodHandler().getIgnoreSignFieldNames();
                     HashMap<String, String> needSignParams = new HashMap<String, String>();
                     for (Map.Entry<String, String> entry : ctx.getAllParams().entrySet()) {
-                        if(!ignoreSignFieldNames.contains(entry.getKey())){
-                            needSignParams.put(entry.getKey(),entry.getValue());
+                        if (!ignoreSignFieldNames.contains(entry.getKey())) {
+                            needSignParams.put(entry.getKey(), entry.getValue());
                         }
                     }
 
@@ -291,12 +290,12 @@ public class DefaultRopValidator implements RopValidator {
     }
 
     private boolean isValidSession(RequestContext smc) {
-        if(sessionManager.getSession(smc.getSessionId())!= null){
+        if (sessionManager.getSession(smc.getSessionId()) != null) {
             if (logger.isDebugEnabled()) {
                 logger.debug(smc.getSessionId() + "会话不存在，请检查。");
             }
             return false;
-        }else{
+        } else {
             return true;
         }
     }

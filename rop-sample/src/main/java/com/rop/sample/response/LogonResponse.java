@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "logonResponse")
-public class LogonResponse  implements RopResponse {
+public class LogonResponse implements RopResponse {
 
     @XmlAttribute
     private String sessionId;

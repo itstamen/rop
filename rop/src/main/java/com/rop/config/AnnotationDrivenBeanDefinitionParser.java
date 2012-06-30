@@ -139,7 +139,7 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             parserContext.registerComponent(new BeanComponentDefinition(conversionDef, conversionName));
             ropValidatorRbf = new RuntimeBeanReference(conversionName);
             if (logger.isInfoEnabled()) {
-                logger.info("使用默认的RopValidator:" +DefaultRopValidator.class.getName());
+                logger.info("使用默认的RopValidator:" + DefaultRopValidator.class.getName());
             }
         }
         return ropValidatorRbf;
