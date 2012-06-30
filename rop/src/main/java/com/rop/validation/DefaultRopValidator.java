@@ -214,44 +214,46 @@ public class DefaultRopValidator implements RopValidator {
     /**
      * 检查签名的有效性
      *
-     * @param smc
+     * @param ctx
      * @return
      */
-    private MainError checkSign(RequestContext smc) {
+    private MainError checkSign(RequestContext ctx) {
 
         //系统级签名开启,且服务方法需求签名
-        if (smc.isSignEnable()) {
-            if (!smc.getServiceMethodDefinition().isIgnoreSign()) {
-                if (smc.getSign() == null) {
-                    return MainErrors.getError(MainErrorType.MISSING_SIGNATURE, smc.getLocale());
+        if (ctx.isSignEnable()) {
+            if (!ctx.getServiceMethodDefinition().isIgnoreSign()) {
+                if (ctx.getSign() == null) {
+                    return MainErrors.getError(MainErrorType.MISSING_SIGNATURE, ctx.getLocale());
                 } else {
-                    ArrayList<String> paramNames = new ArrayList<String>(smc.getAllParams().keySet());
-                    paramNames.removeAll(smc.getServiceMethodHandler().getIgnoreSignFieldNames());
 
-                    HashMap<String, String> paramSingleValueMap = new HashMap<String, String>();
-                    for (String paramName : paramNames) {
-                        paramSingleValueMap.put(paramName, smc.getParamValue(paramName));
+                    //获取需要签名的参数
+                    List<String> ignoreSignFieldNames = ctx.getServiceMethodHandler().getIgnoreSignFieldNames();
+                    HashMap<String, String> needSignParams = new HashMap<String, String>();
+                    for (Map.Entry<String, String> entry : ctx.getAllParams().entrySet()) {
+                        if(!ignoreSignFieldNames.contains(entry.getKey())){
+                            needSignParams.put(entry.getKey(),entry.getValue());
+                        }
                     }
 
                     //查看密钥是否存在，不存在则说明appKey是非法的
-                    String signSecret = getAppSecretManager().getSecret(smc.getAppKey());
+                    String signSecret = getAppSecretManager().getSecret(ctx.getAppKey());
                     if (signSecret == null) {
-                        throw new RopException("无法获取" + smc.getAppKey() + "对应的密钥");
+                        throw new RopException("无法获取" + ctx.getAppKey() + "对应的密钥");
                     }
 
-                    String signValue = RopUtils.sign(paramNames, paramSingleValueMap, signSecret);
-                    if (!signValue.equals(smc.getSign())) {
+                    String signValue = RopUtils.sign(needSignParams, signSecret);
+                    if (!signValue.equals(ctx.getSign())) {
                         if (logger.isErrorEnabled()) {
-                            logger.error(smc.getAppKey() + "的签名不合法，请检查");
+                            logger.error(ctx.getAppKey() + "的签名不合法，请检查");
                         }
-                        return MainErrors.getError(MainErrorType.INVALID_SIGNATURE, smc.getLocale());
+                        return MainErrors.getError(MainErrorType.INVALID_SIGNATURE, ctx.getLocale());
                     } else {
                         return null;
                     }
                 }
             } else {
                 if (logger.isWarnEnabled()) {
-                    logger.warn(smc.getMethod() + "忽略了签名");
+                    logger.warn(ctx.getMethod() + "忽略了签名");
                 }
                 return null;
             }

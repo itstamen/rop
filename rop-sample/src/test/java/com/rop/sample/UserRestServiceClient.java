@@ -32,8 +32,8 @@ public class UserRestServiceClient {
     /**
      * 创建一个服务端的会话
      */
-    @BeforeMethod
-//    @Test
+//    @BeforeMethod
+    @Test
     public void createSession(){
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
@@ -43,12 +43,11 @@ public class UserRestServiceClient {
         form.add("locale", "en");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                "http://localhost:8080/router", form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<logonResponse sessionId=\"mockSessionId1\"/>") > -1);
     }
@@ -69,8 +68,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
@@ -97,8 +95,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
         String response = restTemplate.postForObject(
                 "http://localhost:8088/router", form, String.class);
@@ -122,8 +119,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
@@ -149,8 +145,7 @@ public class UserRestServiceClient {
 
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form, "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form, "abcdeabcdeabcdeabcdeabcde");
         form.put("sign", sign);
 
         //使用GET获取：正确返回
@@ -180,8 +175,7 @@ public class UserRestServiceClient {
         form.add("telephone", "0592-12345678");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
@@ -216,8 +210,7 @@ public class UserRestServiceClient {
                         "</address>");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
@@ -240,8 +233,7 @@ public class UserRestServiceClient {
         form.add("sessionId", "mockSessionId1");
         form.add("userName", "tomsony");
         form.add("salary", "2,500.00");
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
 
         form.add("sign", sign);
         form.add("password", "123456"); //password无需签名，所以放在最后
@@ -265,8 +257,7 @@ public class UserRestServiceClient {
         form.add("v", "4.0");
         form.add("userName", "tomsony");
         form.add("salary", "2,500.00");
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
 
         form.add("sign", sign);
 
@@ -291,8 +282,7 @@ public class UserRestServiceClient {
         form.add("sessionId", "mockSessionId1");
         form.add("userName", "tomsony");
         form.add("salary", "100");
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
@@ -320,8 +310,7 @@ public class UserRestServiceClient {
         form.put("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form, "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form, "abcdeabcdeabcdeabcdeabcde");
         form.put("sign", sign);
 
 
@@ -380,8 +369,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //设置一个错误的签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
         ;
 
@@ -410,8 +398,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //设置一个错误的签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
         ;
 
@@ -437,8 +424,7 @@ public class UserRestServiceClient {
         form.add("userName", "jhon");
         form.add("salary", "2,500.00");
 
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
 
         form.add("sign", sign);
         form.add("password", "123456"); //password无需签名，所以放在最后
@@ -467,8 +453,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
@@ -493,8 +478,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
 
@@ -521,8 +505,7 @@ public class UserRestServiceClient {
         form.put("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form, "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form, "abcdeabcdeabcdeabcdeabcde");
         form.put("sign", sign);
 
         //使用GET获取：正确返回
@@ -551,8 +534,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
@@ -578,8 +560,7 @@ public class UserRestServiceClient {
         form.add("salary", "2,500.00");
 
         //对请求参数列表进行签名
-        String sign = RopUtils.sign(new ArrayList<String>(
-                form.keySet()), form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
         long begin = System.currentTimeMillis();

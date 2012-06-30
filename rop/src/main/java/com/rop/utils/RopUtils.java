@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,15 +34,18 @@ public class RopUtils {
      * 使用<code>secret</code>对paramValues按以下算法进行签名： <br/>
      * uppercase(hex(sha1(secretkey1value1key2value2...secret))
      *
-     * @param paramNames
-     * @param paramValues
+     * @param paramNames  需要签名的参数名
+     * @param paramValues 参数列表
      * @param secret
      * @return
      */
-    public static String sign(List<String> paramNames, Map<String, String> paramValues, String secret) {
+    public static String sign(Map<String, String> paramValues, String secret) {
         try {
             StringBuilder sb = new StringBuilder();
+            List<String> paramNames = new ArrayList<String>(paramValues.size());
+            paramNames.addAll(paramValues.keySet());
             Collections.sort(paramNames);
+
             sb.append(secret);
             for (String paramName : paramNames) {
                 sb.append(paramName).append(paramValues.get(paramName));

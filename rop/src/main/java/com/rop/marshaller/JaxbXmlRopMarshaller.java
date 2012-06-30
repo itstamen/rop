@@ -28,7 +28,7 @@ public class JaxbXmlRopMarshaller implements RopMarshaller {
 
     public void marshaller(Object object, OutputStream outputStream) {
         try {
-            Marshaller m = buildMarshaller(object);
+            Marshaller m = buildMarshaller(object.getClass());
             m.marshal(object, outputStream);
         } catch (JAXBException e) {
             throw new RopException(e);
@@ -36,12 +36,12 @@ public class JaxbXmlRopMarshaller implements RopMarshaller {
     }
 
 
-    public Marshaller buildMarshaller(Object object) throws JAXBException {
-        if (!jaxbContextHashMap.containsKey(object.getClass())) {
-            JAXBContext context = JAXBContext.newInstance(object.getClass());
-            jaxbContextHashMap.put(object.getClass(), context);
+    private Marshaller buildMarshaller(Class<?> objectType) throws JAXBException {
+        if (!jaxbContextHashMap.containsKey(objectType)) {
+            JAXBContext context = JAXBContext.newInstance(objectType);
+            jaxbContextHashMap.put(objectType, context);
         }
-        JAXBContext context = jaxbContextHashMap.get(object.getClass());
+        JAXBContext context = jaxbContextHashMap.get(objectType);
         Marshaller marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
