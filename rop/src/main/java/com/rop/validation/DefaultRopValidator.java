@@ -294,9 +294,9 @@ public class DefaultRopValidator implements RopValidator {
             if (logger.isDebugEnabled()) {
                 logger.debug(smc.getSessionId() + "会话不存在，请检查。");
             }
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
     }
 
