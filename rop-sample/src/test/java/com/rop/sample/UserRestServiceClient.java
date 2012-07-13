@@ -9,6 +9,7 @@ import com.rop.validation.MainErrorType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -26,13 +27,14 @@ import static org.testng.Assert.assertTrue;
  */
 public class UserRestServiceClient {
 
+    public static final String SERVER_URL = "http://localhost:8088/router";
     private String sessionId;
 
     /**
      * 创建一个服务端的会话
      */
-//    @BeforeMethod
-    @Test
+    @BeforeMethod
+//    @Test
     public void createSession() {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
@@ -46,7 +48,7 @@ public class UserRestServiceClient {
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
-                "http://localhost:8080/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<logonResponse sessionId=\"mockSessionId1\"/>") > -1);
     }
@@ -71,7 +73,7 @@ public class UserRestServiceClient {
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
     }
@@ -97,7 +99,7 @@ public class UserRestServiceClient {
         String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("{\"createUserResponse\":{\"userId\":\"1\",") > -1);
     }
@@ -122,7 +124,7 @@ public class UserRestServiceClient {
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010102\"") > -1);
     }
@@ -149,7 +151,7 @@ public class UserRestServiceClient {
 
         //使用GET获取：正确返回
         String response = restTemplate.getForObject(
-                "http://localhost:8088/router" +
+                SERVER_URL +
                         "?method={method}&appKey={appKey}&v={v}&sessionId={sessionId}&locale={locale}" +
                         "&userId={userId}&sign={sign}",
                 String.class, form);
@@ -178,7 +180,7 @@ public class UserRestServiceClient {
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("0592#12345678") > -1);
     }
@@ -213,7 +215,7 @@ public class UserRestServiceClient {
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
     }
@@ -238,7 +240,7 @@ public class UserRestServiceClient {
         form.add("password", "123456"); //password无需签名，所以放在最后
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
     }
@@ -261,7 +263,7 @@ public class UserRestServiceClient {
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("userId=\"4\"") > -1);
     }
@@ -285,7 +287,7 @@ public class UserRestServiceClient {
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("isv.invalid-paramete:salary") > -1);
     }
@@ -315,7 +317,7 @@ public class UserRestServiceClient {
 
         //使用GET获取：正确返回
         String response = restTemplate.getForObject(
-                "http://localhost:8088/router" +
+                SERVER_URL +
                         "?appKey={appKey}&locale={locale}&method={method}&salary={salary}&sessionId={sessionId}" +
                         "&userName={userName}&v={v}&sign={sign}",
                 String.class, form);
@@ -343,7 +345,7 @@ public class UserRestServiceClient {
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
 
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("code=\"" + MainErrorType.INVALID_SIGNATURE.value() + "\"") > -1);
@@ -373,7 +375,7 @@ public class UserRestServiceClient {
         ;
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
 
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("code=\"" + MainErrorType.INSUFFICIENT_USER_PERMISSIONS.value() + "\"") > -1);
@@ -402,7 +404,7 @@ public class UserRestServiceClient {
         ;
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
 
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("code=\"" + MainErrorType.INVALID_SESSION.value() + "\"") > -1);
@@ -429,7 +431,7 @@ public class UserRestServiceClient {
         form.add("password", "123456"); //password无需签名，所以放在最后
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
 
         //返回业务的错误报文
@@ -456,7 +458,7 @@ public class UserRestServiceClient {
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("the userName can't be jhonson!") > -1);
     }
@@ -482,7 +484,7 @@ public class UserRestServiceClient {
 
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:" + response);
         assertTrue(response.indexOf("isp.remote-service-timeout") > -1);
     }
@@ -509,7 +511,7 @@ public class UserRestServiceClient {
 
         //使用GET获取：正确返回
         String response = restTemplate.getForObject(
-                "http://localhost:8088/router" +
+                SERVER_URL +
                         "?method={method}&appKey={appKey}&v={v}&sessionId={sessionId}&locale={locale}" +
                         "&userName={userName}&salary={salary}&sign={sign}",
                 String.class, form);
@@ -537,7 +539,7 @@ public class UserRestServiceClient {
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
-                "http://localhost:8088/router", form, String.class);
+                SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("code=\"5\"") > -1);
     }
@@ -565,7 +567,7 @@ public class UserRestServiceClient {
         long begin = System.currentTimeMillis();
         for (int i = 0; i < 100; i++) {
             String response = restTemplate.postForObject(
-                    "http://localhost:8088/router", form, String.class);
+                    SERVER_URL, form, String.class);
             assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
         }
         System.out.println("time elapsed:" + (System.currentTimeMillis() - begin));

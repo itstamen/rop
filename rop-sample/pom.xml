@@ -3,37 +3,73 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <artifactId>rop-parent</artifactId>
-        <groupId>com.rop</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
     </parent>
 
+    <groupId>com.bookegou</groupId>
     <artifactId>rop-sample</artifactId>
-    <packaging>war</packaging>
     <name>ropSample</name>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <description>rest open platform</description>
+
+    <url>http://www.github.com</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:itstamen/rop.git</connection>
+        <developerConnection>scm:git:git@github.com:itstamen/rop.git</developerConnection>
+        <url>git@github.com:itstamen/rop.git</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>stamen</id>
+            <name>stamen</name>
+            <email>itstamen@qq.com</email>
+        </developer>
+    </developers>
 
     <properties>
         <file.encoding>UTF-8</file.encoding>
         <org.springframework.version>3.1.1.RELEASE</org.springframework.version>
         <java.version>1.5</java.version>
         <org.codehaus.jackson.version>1.9.5</org.codehaus.jackson.version>
+        <testng.version>6.3</testng.version>
+        <mockito.version>1.8.5</mockito.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.bookegou</groupId>
             <artifactId>rop</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>rop-client</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
         </dependency>
 
-        <!-- Test -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

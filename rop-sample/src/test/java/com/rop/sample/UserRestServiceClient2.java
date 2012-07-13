@@ -29,7 +29,7 @@ import static org.testng.Assert.*;
  */
 public class UserRestServiceClient2 {
 
-    private RopClient ropClient = new DefaultRopClient("http://localhost:8080/router", "00001", "abcdeabcdeabcdeabcdeabcde");
+    private RopClient ropClient = new DefaultRopClient("http://localhost:8088/router", "00001", "abcdeabcdeabcdeabcdeabcde");
 
     @Test
     public void createSession() {
