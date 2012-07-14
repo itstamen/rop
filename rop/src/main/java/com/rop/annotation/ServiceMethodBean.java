@@ -6,6 +6,7 @@ package com.rop.annotation;
 
 import com.rop.ServiceMethodDefinition;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.lang.annotation.*;
 
@@ -21,7 +22,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Component
+@Service
 public @interface ServiceMethodBean {
 
     /**

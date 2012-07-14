@@ -278,25 +278,22 @@ public class DefaultRopValidator implements RopValidator {
             if (smc.getSessionId() == null) {
                 return MainErrors.getError(MainErrorType.MISSING_SESSION, null);
             } else {
-                if (isValidSession(smc)) {
+                if (!isValidSession(smc)) {
                     return MainErrors.getError(MainErrorType.INVALID_SESSION, null);
-                } else {
-                    return null;
                 }
             }
-        } else {
-            return null;
         }
+        return null;
     }
 
     private boolean isValidSession(RequestContext smc) {
-        if (sessionManager.getSession(smc.getSessionId()) != null) {
+        if (sessionManager.getSession(smc.getSessionId()) == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug(smc.getSessionId() + "会话不存在，请检查。");
             }
-            return true;
-        } else {
             return false;
+        } else {
+           return true;
         }
     }
 

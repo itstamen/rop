@@ -16,6 +16,7 @@ import com.rop.response.ErrorResponse;
 import com.rop.utils.RopUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
@@ -166,7 +167,7 @@ public class DefaultRopClient implements RopClient {
         form.putAll(getParamFields(ropRequest));
 
         //对请求进行签名
-        String signValue = sign(RopRequest.class, appSecret, form);
+        String signValue = sign(ropRequest.getClass(), appSecret, form);
         form.put("sign", signValue);
         return form;
 
@@ -176,10 +177,13 @@ public class DefaultRopClient implements RopClient {
         StringBuilder requestUrl = new StringBuilder();
         requestUrl.append(serverUrl);
         requestUrl.append("?");
+        String joinChar = "";
         for (Map.Entry<String, String> entry : form.entrySet()) {
+            requestUrl.append(joinChar);
             requestUrl.append(entry.getKey());
             requestUrl.append("=");
             requestUrl.append(entry.getValue());
+            joinChar ="&";
         }
         return requestUrl.toString();
     }
@@ -217,9 +221,9 @@ public class DefaultRopClient implements RopClient {
                     ReflectionUtils.makeAccessible(field);
                     if (!isTemporaryField(field)) {
                         allFields.add(field);
-                    }
-                    if (isIgoreSignField(field)) {
-                        ignoreSignFieldNames.add(field.getName());
+                        if (isIgoreSignField(field)) {
+                            ignoreSignFieldNames.add(field.getName());
+                        }
                     }
                 }
 
@@ -239,7 +243,7 @@ public class DefaultRopClient implements RopClient {
                     Annotation[] declaredAnnotations = field.getDeclaredAnnotations();
                     if (declaredAnnotations != null) {
                         for (Annotation declaredAnnotation : declaredAnnotations) {
-                            if (declaredAnnotation.equals(IgnoreSign.class)) {
+                            if(ClassUtils.isAssignableValue(IgnoreSign.class,declaredAnnotation)){
                                 return true;
                             }
                         }

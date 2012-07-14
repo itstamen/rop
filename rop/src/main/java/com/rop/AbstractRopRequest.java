@@ -4,6 +4,8 @@
  */
 package com.rop;
 
+import com.rop.annotation.Temporary;
+
 /**
  * <pre>
  *   所有请求对象应该通过扩展此抽象类实现
@@ -14,6 +16,7 @@ package com.rop;
  */
 public abstract class AbstractRopRequest implements RopRequest {
 
+    @Temporary
     private RequestContext requestContext;
 
     @Override
