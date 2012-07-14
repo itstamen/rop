@@ -12,6 +12,7 @@ import com.rop.client.DefaultRopClient;
 import com.rop.client.RopClient;
 import com.rop.response.ErrorResponse;
 import com.rop.sample.request.CreateUserRequest;
+import com.rop.sample.request.LogonRequest;
 import com.rop.sample.response.CreateUserResponse;
 import com.rop.sample.response.LogonResponse;
 import com.rop.validation.MainErrorType;
@@ -27,20 +28,16 @@ import static org.testng.Assert.*;
  * @author 陈雄华
  * @version 1.0
  */
-public class UserRestServiceClient2 {
+public class UserServiceClient {
 
-    private RopClient ropClient = new DefaultRopClient("http://localhost:8088/router", "00001", "abcdeabcdeabcdeabcdeabcde");
+    private RopClient ropClient = new DefaultRopClient("http://localhost:8080/router", "00001", "abcdeabcdeabcdeabcdeabcde");
 
     @Test
     public void createSession() {
-        RopRequest ropRequest = new AbstractRopRequest() {
-            @Override
-            public RequestContext getRequestContext() {
-                return null;
-            }
-        };
-        CompositeResponse response = ropClient.post(ropRequest, LogonResponse.class,
-                "user.getSession", "1.0");
+        LogonRequest ropRequest = new LogonRequest();
+        ropRequest.setUserName("tomson");
+        ropRequest.setPassword("123456");
+        CompositeResponse response = ropClient.get(ropRequest, LogonResponse.class,"user.getSession", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertNotNull(response.getSuccessResponse());

@@ -25,7 +25,7 @@ import static org.testng.Assert.assertTrue;
  * @author 陈雄华
  * @version 1.0
  */
-public class UserRestServiceClient {
+public class UserServiceRawClient {
 
     public static final String SERVER_URL = "http://localhost:8088/router";
     private String sessionId;
@@ -353,7 +353,7 @@ public class UserRestServiceClient {
 
     /**
      * 在{@link SampleAppSecretManager}中，我们模拟让sessionId为mockSessionId1拥有访问
-     * {@link UserRestService#addUser(com.rop.sample.request.CreateUserRequest)}的权限，而sessionId为mockSessionId2时则没有这个权限。
+     * {@link UserService#addUser(com.rop.sample.request.CreateUserRequest)}的权限，而sessionId为mockSessionId2时则没有这个权限。
      * 将返回会话错误的响应报文。
      */
     @Test
@@ -411,7 +411,7 @@ public class UserRestServiceClient {
     }
 
     /**
-     * “jhon”是{@link UserRestService#addUser(com.rop.sample.request.CreateUserRequest)} 服务方法预留的用户名，
+     * “jhon”是{@link UserService#addUser(com.rop.sample.request.CreateUserRequest)} 服务方法预留的用户名，
      * 验证其会返回正确的业务错误码。
      */
     @Test

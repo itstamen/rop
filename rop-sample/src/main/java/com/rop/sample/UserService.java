@@ -12,6 +12,7 @@ import com.rop.annotation.ServiceMethod;
 import com.rop.annotation.ServiceMethodBean;
 import com.rop.response.ServiceErrorResponse;
 import com.rop.sample.request.CreateUserRequest;
+import com.rop.sample.request.LogonRequest;
 import com.rop.sample.response.CreateUserResponse;
 import com.rop.sample.response.LogonResponse;
 import com.rop.session.SimpleSession;
@@ -27,24 +28,23 @@ import java.util.List;
  * @author 陈雄华
  * @version 1.0
  */
-@ServiceMethodBean(value = "group1", title = "组1")
-public class UserRestService {
+@ServiceMethodBean
+public class UserService {
 
     private static final String USER_NAME_RESERVED = "USER_NAME_RESERVED";
     private List reservesUserNames = Arrays.asList(new String[]{"tom", "jhon"});
 
     @ServiceMethod(value = "user.getSession", version = "1.0", needInSession = NeedInSessionType.NO)
-    public RopResponse getSession(RopRequest request) {
-
+    public RopResponse getSession(LogonRequest request) {
         //创建一个会话
         SimpleSession session = new SimpleSession();
-        session.setAttribute("key1", "value1");
+        session.setAttribute("userName",request.getUserName());
         request.getRequestContext().addSession("mockSessionId1", session);
 
+        //返回响应
         LogonResponse logonResponse = new LogonResponse();
         logonResponse.setSessionId("mockSessionId1");
         return logonResponse;
-
     }
 
     @ServiceMethod(value = "user.add", version = "1.0")//② Let this method service the sample.user.add method
