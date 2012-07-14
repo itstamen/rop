@@ -348,11 +348,11 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
     }
 
     private void fireAfterDoServiceEvent(RequestContext requestContext) {
-        this.ropEventMulticaster.multicastEvent(new PreDoServiceEvent(this, requestContext));
+        this.ropEventMulticaster.multicastEvent(new AfterDoServiceEvent(this, requestContext));
     }
 
     private void firePreDoServiceEvent(RequestContext requestContext) {
-        this.ropEventMulticaster.multicastEvent(new AfterDoServiceEvent(this, requestContext));
+        this.ropEventMulticaster.multicastEvent(new PreDoServiceEvent(this, requestContext));
     }
 
     /**
