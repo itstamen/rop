@@ -4,9 +4,6 @@
  */
 package com.rop.sample;
 
-import com.rop.AbstractRopRequest;
-import com.rop.RequestContext;
-import com.rop.RopRequest;
 import com.rop.client.CompositeResponse;
 import com.rop.client.DefaultRopClient;
 import com.rop.client.RopClient;
@@ -30,14 +27,17 @@ import static org.testng.Assert.*;
  */
 public class UserServiceClient {
 
-    private RopClient ropClient = new DefaultRopClient("http://localhost:8080/router", "00001", "abcdeabcdeabcdeabcdeabcde");
+    public static final String SERVER_URL = "http://localhost:8080/router";
+    public static final String APP_KEY = "00001";
+    public static final String APP_SECRET = "abcdeabcdeabcdeabcdeabcde";
+    private RopClient ropClient = new DefaultRopClient(SERVER_URL, APP_KEY, APP_SECRET);
 
     @Test
     public void createSession() {
         LogonRequest ropRequest = new LogonRequest();
         ropRequest.setUserName("tomson");
         ropRequest.setPassword("123456");
-        CompositeResponse response = ropClient.get(ropRequest, LogonResponse.class,"user.getSession", "1.0");
+        CompositeResponse response = ropClient.get(ropRequest, LogonResponse.class, "user.getSession", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertNotNull(response.getSuccessResponse());
