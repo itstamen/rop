@@ -11,15 +11,6 @@
         <xsd:complexType>
             <xsd:complexContent>
                 <xsd:extension base="beans:identifiedType">
-                    <xsd:attribute name="rop-validator" type="xsd:string">
-                        <xsd:annotation>
-                            <xsd:appinfo>
-                                <tool:annotation kind="ref">
-                                    <tool:expected-type type="java:com.rop.validation.RopValidator"/>
-                                </tool:annotation>
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:attribute>
                     <xsd:attribute name="formatting-conversion-service" type="xsd:string">
                         <xsd:annotation>
                             <xsd:appinfo>
@@ -34,6 +25,24 @@
                             <xsd:appinfo>
                                 <tool:annotation kind="ref">
                                     <tool:expected-type type="java:com.rop.session.SessionManager"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="app-secret-manager" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="java:com.rop.validation.AppSecretManager"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="security-manager" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="java:com.rop.SecurityManager"/>
                                 </tool:annotation>
                             </xsd:appinfo>
                         </xsd:annotation>

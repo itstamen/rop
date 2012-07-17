@@ -25,19 +25,20 @@ import java.lang.annotation.*;
 @Service
 public @interface ServiceMethodBean {
 
+
     /**
      * 所属的服务分组，默认为"DEFAULT"
      *
      * @return
      */
-    String value() default ServiceMethodDefinition.DEFAULT_GROUP;
+    String group() default ServiceMethodDefinition.DEFAULT_GROUP;
 
     /**
      * 组中文名
      *
      * @return
      */
-    String title() default ServiceMethodDefinition.DEFAULT_GROUP_TITLE;
+    String groupTitle() default ServiceMethodDefinition.DEFAULT_GROUP_TITLE;
 
     /**
      * 标签，可以打上多个标签

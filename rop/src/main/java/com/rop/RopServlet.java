@@ -68,7 +68,5 @@ public class RopServlet extends HttpServlet {
         return (ApplicationContext) servletConfig.getServletContext().getAttribute(
                 WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     }
-
-
 }
 

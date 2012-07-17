@@ -9,9 +9,12 @@ import com.rop.config.InterceptorHolder;
 import com.rop.config.RopEventListenerHodler;
 import com.rop.event.RopEventListener;
 import com.rop.session.SessionManager;
-import com.rop.validation.RopValidator;
+import com.rop.validation.AppSecretManager;
+import com.rop.SecurityManager;
+import com.rop.validation.DefaultRopValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -41,11 +44,13 @@ public class AnnotationServletServiceRouterFactoryBean
 
     private ApplicationContext applicationContext;
 
-    private RopValidator ropValidator;
-
     private ThreadPoolExecutor threadPoolExecutor;
 
     private SessionManager sessionManager;
+
+    private AppSecretManager appSecretManager;
+
+    private SecurityManager securityManager;
 
     private boolean signEnable = true;
 
@@ -92,7 +97,12 @@ public class AnnotationServletServiceRouterFactoryBean
         if (extErrorBasename != null) {
             serviceRouter.setExtErrorBasename(extErrorBasename);
         }
+        DefaultRopValidator ropValidator = BeanUtils.instantiate(DefaultRopValidator.class);
+
         ropValidator.setSessionManager(sessionManager);
+        ropValidator.setAppSecretManager(appSecretManager);
+        ropValidator.setSecurityManager(securityManager);
+
         serviceRouter.setRopValidator(ropValidator);
         serviceRouter.setThreadPoolExecutor(threadPoolExecutor);
         serviceRouter.setSignEnable(signEnable);
@@ -176,10 +186,6 @@ public class AnnotationServletServiceRouterFactoryBean
         this.formattingConversionService = formattingConversionService;
     }
 
-    public void setRopValidator(RopValidator ropValidator) {
-        this.ropValidator = ropValidator;
-    }
-
     public void setThreadPoolExecutor(ThreadPoolExecutor threadPoolExecutor) {
         this.threadPoolExecutor = threadPoolExecutor;
     }
@@ -198,6 +204,14 @@ public class AnnotationServletServiceRouterFactoryBean
 
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
+    }
+
+    public void setAppSecretManager(AppSecretManager appSecretManager) {
+        this.appSecretManager = appSecretManager;
+    }
+
+    public void setSecurityManager(SecurityManager securityManager) {
+        this.securityManager = securityManager;
     }
 }
 

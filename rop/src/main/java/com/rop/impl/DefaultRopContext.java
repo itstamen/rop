@@ -131,7 +131,7 @@ public class DefaultRopContext implements RopContext {
                             //2.set sign fieldNames
                             serviceMethodHandler.setIgnoreSignFieldNames(getIgnoreSignFieldNames(serviceMethodHandler.getRequestType()));
 
-                            addServiceMethod(serviceMethod.value(), serviceMethod.version(), serviceMethodHandler);
+                            addServiceMethod(definition.getMethod(), definition.getVersion(), serviceMethodHandler);
 
                             if (logger.isDebugEnabled()) {
                                 logger.debug("注册服务方法：" + method.getDeclaringClass().getCanonicalName() +
@@ -171,8 +171,8 @@ public class DefaultRopContext implements RopContext {
 
     private ServiceMethodDefinition buildServiceMethodDefinition(ServiceMethodBean serviceMethodBean, ServiceMethod serviceMethod) {
         ServiceMethodDefinition definition = new ServiceMethodDefinition();
-        definition.setMethodGroup(serviceMethodBean.value());
-        definition.setMethodGroupTitle(serviceMethodBean.title());
+        definition.setMethodGroup(serviceMethodBean.group());
+        definition.setMethodGroupTitle(serviceMethodBean.groupTitle());
         definition.setTags(serviceMethodBean.tags());
         definition.setTimeout(serviceMethodBean.timeout());
         definition.setIgnoreSign(IgnoreSignType.isIgnoreSign(serviceMethodBean.ignoreSign()));

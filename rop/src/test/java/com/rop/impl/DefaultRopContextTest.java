@@ -166,7 +166,7 @@ public class DefaultRopContextTest {
         }
     }
 
-    @ServiceMethodBean(value = "GROUP1", title = "分组1",
+    @ServiceMethodBean(group = "GROUP1", groupTitle = "分组1",
             tags = {"TAG1", "TAG2"}, ignoreSign = IgnoreSignType.YES,
             needInSession = NeedInSessionType.NO, timeout = 100, version = "1.0")
     public class WithGroupService {

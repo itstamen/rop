@@ -5,8 +5,10 @@
 package com.rop.config;
 
 import com.rop.impl.AnnotationServletServiceRouterFactoryBean;
+import com.rop.impl.DefaultSecurityManager;
 import com.rop.session.DefaultSessionManager;
 import com.rop.validation.DefaultRopValidator;
+import com.rop.validation.FileBaseAppSecretManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -48,13 +50,17 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         RuntimeBeanReference conversionServiceRbf = getConversionService(element, source, parserContext);
         serviceRouterDef.getPropertyValues().add("formattingConversionService", conversionServiceRbf);
 
-        //设置RopValidator
-        RuntimeBeanReference ropValidator = getRopValidator(element, source, parserContext);
-        serviceRouterDef.getPropertyValues().add("ropValidator", ropValidator);
-
         //会话管理器
         RuntimeBeanReference sessionManager = getSessionManager(element, source, parserContext);
         serviceRouterDef.getPropertyValues().add("sessionManager", sessionManager);
+
+        //密钥管理器
+        RuntimeBeanReference appSecretManager = getAppSecretManager(element, source, parserContext);
+        serviceRouterDef.getPropertyValues().add("appSecretManager", appSecretManager);
+
+        //密钥管理器
+        RuntimeBeanReference securityManager = getSecurityManager(element, source, parserContext);
+        serviceRouterDef.getPropertyValues().add("securityManager", securityManager);
 
         //设置TaskExecutor
         RuntimeBeanReference taskExecutorBeanReference = getExecutor(element, source, parserContext);
@@ -79,6 +85,48 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
 
         parserContext.popAndRegisterContainingComponent();
         return null;
+    }
+
+    private RuntimeBeanReference getSecurityManager(Element element, Object source, ParserContext parserContext) {
+        RuntimeBeanReference securityManagerRef;
+        if (element.hasAttribute("security-manager")) {
+            securityManagerRef = new RuntimeBeanReference(element.getAttribute("security-manager"));
+            if (logger.isInfoEnabled()) {
+                logger.info("Rop装配一个自定义的服务安全管理器:" + securityManagerRef.getBeanName());
+            }
+        } else {
+            RootBeanDefinition securityManagerDef = new RootBeanDefinition(DefaultSecurityManager.class);
+            securityManagerDef.setSource(source);
+            securityManagerDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            String securityManagerName = parserContext.getReaderContext().registerWithGeneratedName(securityManagerDef);
+            parserContext.registerComponent(new BeanComponentDefinition(securityManagerDef, securityManagerName));
+            securityManagerRef = new RuntimeBeanReference(securityManagerName);
+            if (logger.isInfoEnabled()) {
+                logger.info("使用默认的服务安全管理器:" + DefaultSecurityManager.class.getName());
+            }
+        }
+        return securityManagerRef;
+    }
+
+    private RuntimeBeanReference getAppSecretManager(Element element, Object source, ParserContext parserContext) {
+        RuntimeBeanReference appSecretManagerRef;
+        if (element.hasAttribute("app-secret-manager")) {
+            appSecretManagerRef = new RuntimeBeanReference(element.getAttribute("app-secret-manager"));
+            if (logger.isInfoEnabled()) {
+                logger.info("Rop装配一个自定义的密钥管理器:" + appSecretManagerRef.getBeanName());
+            }
+        } else {
+            RootBeanDefinition appSecretManagerDef = new RootBeanDefinition(FileBaseAppSecretManager.class);
+            appSecretManagerDef.setSource(source);
+            appSecretManagerDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            String appSecretManagerName = parserContext.getReaderContext().registerWithGeneratedName(appSecretManagerDef);
+            parserContext.registerComponent(new BeanComponentDefinition(appSecretManagerDef, appSecretManagerName));
+            appSecretManagerRef = new RuntimeBeanReference(appSecretManagerName);
+            if (logger.isInfoEnabled()) {
+                logger.info("使用默认的密钥管理器:" + FileBaseAppSecretManager.class.getName());
+            }
+        }
+        return appSecretManagerRef;
     }
 
     private RuntimeBeanReference getSessionManager(Element element, Object source, ParserContext parserContext) {

@@ -8,9 +8,14 @@ import com.rop.RopException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -34,8 +39,9 @@ public class FileBaseAppSecretManager implements AppSecretManager {
     public String getSecret(String appKey) {
         if (properties == null) {
             try {
-                ClassPathResource resource = new ClassPathResource(appSecretFile, FileBaseAppSecretManager.class);
-                properties = PropertiesLoaderUtils.loadProperties(resource);
+                DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
+                Resource resource = resourceLoader.getResource(appSecretFile);
+                properties =   PropertiesLoaderUtils.loadProperties(resource);
             } catch (IOException e) {
                 throw new RopException("在类路径下找不到rop.appSecret.properties的应用密钥的属性文件", e);
             }
