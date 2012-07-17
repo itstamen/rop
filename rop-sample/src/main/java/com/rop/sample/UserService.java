@@ -28,13 +28,13 @@ import java.util.List;
  * @author 陈雄华
  * @version 1.0
  */
-@ServiceMethodBean
+@ServiceMethodBean(version = "1.0")
 public class UserService {
 
     private static final String USER_NAME_RESERVED = "USER_NAME_RESERVED";
     private List reservesUserNames = Arrays.asList(new String[]{"tom", "jhon"});
 
-    @ServiceMethod(value = "user.getSession", version = "1.0", needInSession = NeedInSessionType.NO)
+    @ServiceMethod(value = "user.getSession",needInSession = NeedInSessionType.NO)
     public RopResponse getSession(LogonRequest request) {
         //创建一个会话
         SimpleSession session = new SimpleSession();

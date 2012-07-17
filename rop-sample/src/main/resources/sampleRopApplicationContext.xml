@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:rop="http://www.bookegou.com/schema/rop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
@@ -14,20 +15,20 @@
 
     <!-- 启动Rop框架 -->
     <rop:annotation-driven
-            rop-validator="ropValidator"
+            session-manager="sampleSessionManager"
+            app-secret-manager="appSecretManager"
+            security-manager="securityManager"
             formatting-conversion-service="conversionService"
             ext-error-base-name="i18n/rop/sampleRopError"
             sign-enable="true"/>
 
-    <!--定义自定义的RopValiator，如appKey及密钥的管理器、会话管理器、服务安全访问管理器等-->
-    <bean id="ropValidator" class="com.rop.validation.DefaultRopValidator">
-        <property name="appSecretManager">
-            <bean class="com.rop.sample.SampleAppSecretManager"/>
-        </property>
-        <property name="securityManager">
-            <bean class="com.rop.sample.SampleSecurityManager"/>
-        </property>
-    </bean>
+    <bean id="sampleSessionManager" class="com.rop.sample.SampleSessionManager" />
+
+    <bean id="appSecretManager"
+          class="com.rop.validation.FileBaseAppSecretManager"
+          p:appSecretFile="classpath:rop.appSecret.properties"/>
+
+    <bean id="securityManager" class="com.rop.sample.SampleSecurityManager"/>
 
     <!--设置自定义的类型转换服务，注册自定义的类型转换器-->
     <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">

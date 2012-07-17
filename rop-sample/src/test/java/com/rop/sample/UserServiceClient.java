@@ -27,7 +27,7 @@ import static org.testng.Assert.*;
  */
 public class UserServiceClient {
 
-    public static final String SERVER_URL = "http://localhost:8080/router";
+    public static final String SERVER_URL = "http://localhost:8088/router";
     public static final String APP_KEY = "00001";
     public static final String APP_SECRET = "abcdeabcdeabcdeabcdeabcde";
     private RopClient ropClient = new DefaultRopClient(SERVER_URL, APP_KEY, APP_SECRET);
@@ -46,10 +46,26 @@ public class UserServiceClient {
     }
 
     /**
-     * 在一切正确的情况下，返回正确的服务报文 (user.add + 1.0）
+     * 在一切正确的情况下，返回正确的服务报文 (user.add + 3.0）
      */
     @Test
     public void testAddUserByVersion1() {
+        CreateUserRequest ropRequest = new CreateUserRequest();
+        ropRequest.setUserName("tomson");
+        ropRequest.setSalary(2500L);
+        CompositeResponse response = ropClient.post(ropRequest, CreateUserResponse.class,
+                "user.add", "1.0", "mockSessionId1");
+        assertNotNull(response);
+        assertTrue(response.isSuccessful());
+        assertNotNull(response.getSuccessResponse());
+        assertTrue(response.getSuccessResponse() instanceof CreateUserResponse);
+    }
+
+    /**
+     * 在一切正确的情况下，返回正确的服务报文 (user.add + 3.0）
+     */
+    @Test
+    public void testAddUserByVersion3() {
         CreateUserRequest ropRequest = new CreateUserRequest();
         ropRequest.setUserName("tomson");
         ropRequest.setSalary(2500L);
