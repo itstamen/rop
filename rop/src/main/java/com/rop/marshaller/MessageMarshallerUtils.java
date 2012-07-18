@@ -3,7 +3,9 @@
  */
 package com.rop.marshaller;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.rop.*;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 /**
  * <pre>
@@ -35,14 +38,16 @@ public class MessageMarshallerUtils {
 
     static {
         SerializationConfig serializationConfig = jsonObjectMapper.getSerializationConfig();
-        serializationConfig = serializationConfig.with(SerializationConfig.Feature.INDENT_OUTPUT);
+        serializationConfig = serializationConfig.with(SerializationConfig.Feature.INDENT_OUTPUT).
+                without(SerializationConfig.Feature.WRAP_ROOT_VALUE);
         jsonObjectMapper.setSerializationConfig(serializationConfig);
     }
 
     private static XmlMapper xmlObjectMapper = new XmlMapper();
 
     static {
-//        xmlObjectMapper.configure(SerializationFeature.INDENT_OUTPUT,true);
+        xmlObjectMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, false);
+        xmlObjectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
     }
 
     /**
@@ -72,6 +77,29 @@ public class MessageMarshallerUtils {
         } catch (Exception e) {
             throw new RopException(e);
         }
+    }
+
+    /**
+     * 将请求对象转换为String
+     *
+     * @param request
+     * @param format
+     * @return
+     */
+    public static String asUrlString(RopRequest request) {
+        Map<String, String> allParams = request.getRequestContext().getAllParams();
+        StringBuilder sb = new StringBuilder(256);
+        boolean first = true;
+        for (Map.Entry<String, String> entry : allParams.entrySet()) {
+            if (!first) {
+                sb.append("&");
+            }
+            first = false;
+            sb.append(entry.getKey());
+            sb.append("=");
+            sb.append(entry.getValue());
+        }
+        return sb.toString();
     }
 
 

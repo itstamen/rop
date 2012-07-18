@@ -229,5 +229,10 @@ public interface RequestContext {
      */
     String getParamValue(String paramName);
 
+    /**
+     * 获取请求ID，是一个唯一的UUID，每次请求对应一个唯一的ID
+     * @return
+     */
+    String getRequestId();
 }
 

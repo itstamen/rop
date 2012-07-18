@@ -30,5 +30,9 @@ public class AfterDoServiceEvent extends RopEvent {
     public long getServiceEndTime() {
         return requestContext.getServiceEndTime();
     }
+
+    public RequestContext getRequestContext() {
+        return requestContext;
+    }
 }
 

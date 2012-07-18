@@ -8,6 +8,7 @@ import com.rop.*;
 import com.rop.annotation.HttpAction;
 import com.rop.session.Session;
 import com.rop.session.SessionManager;
+import com.rop.utils.RopUtils;
 import com.rop.validation.MainError;
 
 import java.util.HashMap;
@@ -63,6 +64,8 @@ public class SimpleRequestContext implements RequestContext {
     private Map<String, String> allParams;
 
     private SessionManager sessionManager;
+    
+    private String requestId = RopUtils.getUUID();
 
     @Override
     public long getServiceBeginTime() {
@@ -291,6 +294,11 @@ public class SimpleRequestContext implements RequestContext {
     @Override
     public HttpAction getHttpAction() {
         return this.httpAction;
+    }
+
+    @Override
+    public String getRequestId() {
+        return this.requestId;
     }
 }
 

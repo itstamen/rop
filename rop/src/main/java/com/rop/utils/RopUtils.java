@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <pre>
@@ -104,6 +101,11 @@ public class RopUtils {
             sign.append(hex.toUpperCase());
         }
         return sign.toString();
+    }
+
+    public static String getUUID() {
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString().toUpperCase();
     }
 }
 
