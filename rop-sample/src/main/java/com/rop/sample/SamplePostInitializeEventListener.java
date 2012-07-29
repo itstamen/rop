@@ -24,7 +24,7 @@ public class SamplePostInitializeEventListener implements RopEventListener<After
 
     @Override
     public int getOrder() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return 0;
     }
 }
 

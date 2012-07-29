@@ -12,7 +12,9 @@ import org.springframework.web.client.RestTemplate;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.testng.Assert.assertTrue;
@@ -220,6 +222,36 @@ public class UserServiceRawClient {
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
     }
 
+
+    @Test
+    public void testServiceJsonRequestAttr() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.add");//<--指定方法名称
+        form.add("appKey", "00001");
+        form.add("v", "1.0");
+        form.add("sessionId", "mockSessionId1");
+        form.add("userName", "tomson");
+        form.add("salary", "2,500.00");
+        form.add("messageFormat", "json");
+
+        //address会正确绑定
+        form.add("address",
+                "{\"zoneCode\":\"0001\",\n" +
+                " \"doorCode\":\"002\",\n" +
+                " \"streets\":[{\"no\":\"001\",\"name\":\"street1\"},\n" +
+                "            {\"no\":\"002\",\"name\":\"street2\"}]}");
+
+        //对请求参数列表进行签名
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+        String response = restTemplate.postForObject(
+                SERVER_URL, form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
+    }
+
     /**
      * 由于{@link com.rop.sample.request.CreateUserRequest#password}标注了{@link com.rop.annotation.IgnoreSign},所以Rop
      * 会忽略对password请求参数进行签名验证。
@@ -390,24 +422,23 @@ public class UserServiceRawClient {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
         form.add("method", "user.add");
-        form.add("appKey", "00001");
+        form.add("appKey", "00002");
         form.add("v", "1.0");
 
-        form.add("sessionId", "xxxx"); //<--模拟一个错误的sessionId
+        form.add("sessionId", "mockSessionId1");
 
         form.add("userName", "tomsony");
         form.add("salary", "2,500.00");
 
         //设置一个错误的签名
-        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeaaaaa");
         form.add("sign", sign);
-        ;
 
         String response = restTemplate.postForObject(
                 SERVER_URL, form, String.class);
 
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("code=\"" + MainErrorType.INVALID_SESSION.value() + "\"") > -1);
+        assertTrue(response.indexOf("code=\"" + MainErrorType.INSUFFICIENT_ISV_PERMISSIONS.value() + "\"") > -1);
     }
 
     /**
@@ -571,6 +602,21 @@ public class UserServiceRawClient {
             assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
         }
         System.out.println("time elapsed:" + (System.currentTimeMillis() - begin));
+    }
+
+    @Test
+    public void testMe(){
+        Map<String, String> map = new LinkedHashMap<String, String>();
+        map.put("appKey","000001");
+        map.put("sessionId","AAAA");
+        map.put("method","user.create");
+        map.put("v","1.0");
+        map.put("format","xml");
+        map.put("locale","zh_CN");
+        map.put("userName","tomson");
+        map.put("age","24");
+        map.put("sex","1");
+        String sign = RopUtils.sign(map, "abcdef");
     }
 
 

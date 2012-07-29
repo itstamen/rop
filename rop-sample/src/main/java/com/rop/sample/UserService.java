@@ -15,6 +15,7 @@ import com.rop.sample.request.CreateUserRequest;
 import com.rop.sample.request.LogonRequest;
 import com.rop.sample.response.CreateUserResponse;
 import com.rop.sample.response.LogonResponse;
+import com.rop.sample.response.LogoutResponse;
 import com.rop.session.SimpleSession;
 
 import java.util.Arrays;
@@ -34,12 +35,17 @@ public class UserService {
     private static final String USER_NAME_RESERVED = "USER_NAME_RESERVED";
     private List reservesUserNames = Arrays.asList(new String[]{"tom", "jhon"});
 
-    @ServiceMethod(value = "user.getSession",needInSession = NeedInSessionType.NO)
+    @ServiceMethod(value = "user.getSession",version = "1.0",needInSession = NeedInSessionType.NO)
     public RopResponse getSession(LogonRequest request) {
+//        String appKey = request.getRequestContext().getAppKey();
+//        String userName1 = request.getUserName();
+//        String userName2 = request.getRequestContext().getParamValue("userName");
+//        String ip = request.getRequestContext().getIp();
+
         //创建一个会话
         SimpleSession session = new SimpleSession();
         session.setAttribute("userName",request.getUserName());
-        request.getRequestContext().addSession("mockSessionId1", session);
+        request.getRopRequestContext().addSession("mockSessionId1", session);
 
         //返回响应
         LogonResponse logonResponse = new LogonResponse();
@@ -47,13 +53,36 @@ public class UserService {
         return logonResponse;
     }
 
+    @ServiceMethod(value = "user.logon",version = "1.0",needInSession = NeedInSessionType.NO)
+    public RopResponse logon(LogonRequest request) {
+        //创建一个会话
+        SimpleSession session = new SimpleSession();
+        session.setAttribute("userName",request.getUserName());
+        request.getRopRequestContext().addSession("mockSessionId1", session);
+
+        //返回响应
+        LogonResponse logonResponse = new LogonResponse();
+        logonResponse.setSessionId("mockSessionId1");
+        return logonResponse;
+    }
+
+    @ServiceMethod(value = "user.logout",version = "1.0")
+    public RopResponse logout(RopRequest request) {
+        request.getRopRequestContext().removeSession();
+        LogoutResponse response = new LogoutResponse();
+        response.setSuccessful(true);
+        return response;
+    }
+
+
+
     @ServiceMethod(value = "user.add", version = "1.0")//② Let this method service the sample.user.add method
     public RopResponse addUser(CreateUserRequest request) {
         if (reservesUserNames.contains(request.getUserName())) { //如果注册的用户是预留的帐号，则返回错误的报文
             //这个业务错误将引用扩展国际化错误资源中的消息（i18n/rop/sampleRopError）
             return new ServiceErrorResponse(
-                    request.getRequestContext().getMethod(), USER_NAME_RESERVED,
-                    request.getRequestContext().getLocale(), request.getUserName());
+                    request.getRopRequestContext().getMethod(), USER_NAME_RESERVED,
+                    request.getRopRequestContext().getLocale(), request.getUserName());
         } else {
             CreateUserResponse response = new CreateUserResponse();
             //add creaet new user here...
@@ -68,8 +97,8 @@ public class UserService {
     public RopResponse addUser2(CreateUserRequest request) {
         if (reservesUserNames.contains(request.getUserName())) { //如果注册的用户是预留的帐号，则返回错误的报文
             return new ServiceErrorResponse(
-                    request.getRequestContext().getMethod(), USER_NAME_RESERVED,
-                    request.getRequestContext().getLocale(), request.getUserName());
+                    request.getRopRequestContext().getMethod(), USER_NAME_RESERVED,
+                    request.getRopRequestContext().getLocale(), request.getUserName());
         } else {
             CreateUserResponse response = new CreateUserResponse();
             //add creaet new user here...
@@ -102,7 +131,7 @@ public class UserService {
 
     @ServiceMethod(value = "user.rawRopRequest", version = "1.0")
     public RopResponse useRawRopRequest(RopRequest request) throws Throwable {
-        String userId = request.getRequestContext().getParamValue("userId");
+        String userId = request.getRopRequestContext().getParamValue("userId");
         CreateUserResponse response = new CreateUserResponse();
         //add creaet new user here...
         response.setCreateTime("20120101010102");
@@ -112,7 +141,7 @@ public class UserService {
 
     @ServiceMethod(value = "user.customConverter", version = "1.0")
     public RopResponse customConverter(CreateUserRequest request) throws Throwable {
-        String userId = request.getRequestContext().getParamValue("userId");
+        String userId = request.getRopRequestContext().getParamValue("userId");
         CreateUserResponse response = new CreateUserResponse();
         //add creaet new user here...
         response.setCreateTime("20120101010102");
@@ -125,7 +154,7 @@ public class UserService {
     @ServiceMethod(value = "user.query", version = "1.0", httpAction = HttpAction.GET)
     public RopResponse queryUsers(RopRequest request) throws Throwable {
         //直接从参数列表中获取参数值
-        String userId = request.getRequestContext().getParamValue("userId");
+        String userId = request.getRopRequestContext().getParamValue("userId");
         CreateUserResponse response = new CreateUserResponse();
         response.setCreateTime("20120101010102");
         response.setUserId(userId);
@@ -135,7 +164,7 @@ public class UserService {
 
     @ServiceMethod(value = "user.get", version = "1.0", httpAction = HttpAction.GET)
     public RopResponse getUser(CreateUserRequest request) throws Throwable {
-        String userId = request.getRequestContext().getParamValue("userId");
+        String userId = request.getRopRequestContext().getParamValue("userId");
         CreateUserResponse response = new CreateUserResponse();
         //add creaet new user here...
         response.setCreateTime("20120101010102");

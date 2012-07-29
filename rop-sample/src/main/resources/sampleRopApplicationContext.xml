@@ -20,6 +20,7 @@
             security-manager="securityManager"
             formatting-conversion-service="conversionService"
             ext-error-base-name="i18n/rop/sampleRopError"
+            thread-ferry-class="com.rop.sample.SampleThreadFerry"
             sign-enable="true"/>
 
     <bean id="sampleSessionManager" class="com.rop.sample.SampleSessionManager" />
@@ -48,6 +49,7 @@
     <!--注册监听器，可配置多具-->
     <rop:listeners>
         <bean class="com.rop.sample.SamplePostInitializeEventListener"/>
+        <bean class="com.rop.sample.SamplePreDoServiceEventListener"/>
         <bean class="com.rop.sample.SampleAfterDoServiceEventListener"/>
     </rop:listeners>
 

@@ -48,6 +48,7 @@
         <org.codehaus.jackson.version>1.9.5</org.codehaus.jackson.version>
         <testng.version>6.3</testng.version>
         <mockito.version>1.8.5</mockito.version>
+        <unitils.version>3.3</unitils.version>
     </properties>
 
     <dependencies>
@@ -55,6 +56,27 @@
             <groupId>com.bookegou</groupId>
             <artifactId>rop</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-core</artifactId>
+            <version>${unitils.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-testng</artifactId>
+            <version>${unitils.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-spring</artifactId>
+            <version>${unitils.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -69,6 +91,12 @@
             <artifactId>mockito-all</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-beans</artifactId>
+          <version>3.1.0.RELEASE</version>
         </dependency>
     </dependencies>
 

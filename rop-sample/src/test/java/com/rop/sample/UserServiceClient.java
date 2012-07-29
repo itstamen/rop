@@ -45,21 +45,21 @@ public class UserServiceClient {
         assertEquals(((LogonResponse) response.getSuccessResponse()).getSessionId(), "mockSessionId1");
     }
 
-    /**
-     * 在一切正确的情况下，返回正确的服务报文 (user.add + 3.0）
-     */
-    @Test
-    public void testAddUserByVersion1() {
-        CreateUserRequest ropRequest = new CreateUserRequest();
-        ropRequest.setUserName("tomson");
-        ropRequest.setSalary(2500L);
-        CompositeResponse response = ropClient.post(ropRequest, CreateUserResponse.class,
-                "user.add", "1.0", "mockSessionId1");
-        assertNotNull(response);
-        assertTrue(response.isSuccessful());
-        assertNotNull(response.getSuccessResponse());
-        assertTrue(response.getSuccessResponse() instanceof CreateUserResponse);
-    }
+//    /**
+//     * 在一切正确的情况下，返回正确的服务报文 (user.add + 3.0）
+//     */
+//    @Test(invocationCount = 10000,threadPoolSize = 20)
+//    public void testAddUserByVersion1() {
+//        CreateUserRequest ropRequest = new CreateUserRequest();
+//        ropRequest.setUserName("tomson");
+//        ropRequest.setSalary(2500L);
+//        CompositeResponse response = ropClient.post(ropRequest, CreateUserResponse.class,
+//                "user.add", "1.0", "mockSessionId1");
+//        assertNotNull(response);
+//        assertTrue(response.isSuccessful());
+//        assertNotNull(response.getSuccessResponse());
+//        assertTrue(response.getSuccessResponse() instanceof CreateUserResponse);
+//    }
 
     /**
      * 在一切正确的情况下，返回正确的服务报文 (user.add + 3.0）

@@ -4,10 +4,11 @@
  */
 package com.rop.sample;
 
-import com.rop.RequestContext;
-import com.rop.SecurityManager;
+import com.rop.AbstractSecurityManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,23 +19,26 @@ import java.util.Map;
  * @author 陈雄华
  * @version 1.0
  */
-public class SampleSecurityManager implements SecurityManager {
+public class SampleSecurityManager extends AbstractSecurityManager {
 
-    private static final Map<String, Boolean> aclMap = new HashMap<String, Boolean>();
+    private static final Map<String, List<String>> aclMap = new HashMap<String, List<String>>();
 
     static {
-        aclMap.put("mockSessionId1", true);
-        aclMap.put("mockSessionId2", false);
+        ArrayList<String> serviceMethods = new ArrayList<String>();
+        serviceMethods.add("user.logon");
+        serviceMethods.add("user.logout");
+        serviceMethods.add("user.getSession");
+        aclMap.put("00002", serviceMethods);
     }
 
     @Override
-    public boolean isGranted(RequestContext methodContext) {
-        if (methodContext.getSessionId() != null) {
-            return aclMap.get(methodContext.getSessionId());
-        } else {
+    public boolean isIsvGranted(String appKey,String method,String version) {
+        if(aclMap.containsKey(appKey)){
+            List<String> serviceMethods = aclMap.get(appKey);
+            return serviceMethods.contains(method);
+        }else{
             return true;
         }
-
     }
 }
 
