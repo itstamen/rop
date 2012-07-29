@@ -4,7 +4,7 @@
  */
 package com.rop.event;
 
-import com.rop.RequestContext;
+import com.rop.RopRequestContext;
 
 /**
  * <pre>
@@ -16,23 +16,23 @@ import com.rop.RequestContext;
  */
 public class AfterDoServiceEvent extends RopEvent {
 
-    private RequestContext requestContext;
+    private RopRequestContext ropRequestContext;
 
-    public AfterDoServiceEvent(Object source, RequestContext requestContext) {
-        super(source, requestContext.getRopContext());
-        this.requestContext = requestContext;
+    public AfterDoServiceEvent(Object source, RopRequestContext ropRequestContext) {
+        super(source, ropRequestContext.getRopContext());
+        this.ropRequestContext = ropRequestContext;
     }
 
     public long getServiceBeginTime() {
-        return requestContext.getServiceBeginTime();
+        return ropRequestContext.getServiceBeginTime();
     }
 
     public long getServiceEndTime() {
-        return requestContext.getServiceEndTime();
+        return ropRequestContext.getServiceEndTime();
     }
 
-    public RequestContext getRequestContext() {
-        return requestContext;
+    public RopRequestContext getRopRequestContext() {
+        return ropRequestContext;
     }
 }
 

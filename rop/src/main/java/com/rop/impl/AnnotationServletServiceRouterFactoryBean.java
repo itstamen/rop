@@ -5,6 +5,7 @@
 package com.rop.impl;
 
 import com.rop.Interceptor;
+import com.rop.ThreadFerry;
 import com.rop.config.InterceptorHolder;
 import com.rop.config.RopEventListenerHodler;
 import com.rop.event.RopEventListener;
@@ -57,6 +58,8 @@ public class AnnotationServletServiceRouterFactoryBean
     private String extErrorBasename;
 
     private int serviceTimeoutSeconds = -1;
+    
+    private  Class<? extends ThreadFerry> threadFerryClass;
 
     private FormattingConversionService formattingConversionService;
 
@@ -88,6 +91,10 @@ public class AnnotationServletServiceRouterFactoryBean
         return true;
     }
 
+    public void setThreadFerryClass(Class<? extends ThreadFerry> threadFerryClass) {
+        this.threadFerryClass = threadFerryClass;
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         //实例化一个AnnotationServletServiceRouter
@@ -109,6 +116,7 @@ public class AnnotationServletServiceRouterFactoryBean
         serviceRouter.setServiceTimeoutSeconds(serviceTimeoutSeconds);
         serviceRouter.setFormattingConversionService(formattingConversionService);
         serviceRouter.setSessionManager(sessionManager);
+        serviceRouter.setThreadFerryClass(threadFerryClass);
 
         //注册拦截器
         ArrayList<Interceptor> interceptors = getInterceptors();

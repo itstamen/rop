@@ -4,7 +4,7 @@
  */
 package com.rop.impl;
 
-import com.rop.RequestContext;
+import com.rop.AbstractSecurityManager;
 
 /**
  * <pre>
@@ -14,11 +14,7 @@ import com.rop.RequestContext;
  * @author 陈雄华
  * @version 1.0
  */
-public class DefaultSecurityManager implements com.rop.SecurityManager {
-
-    public boolean isGranted(RequestContext methodContext) {
-        return true;
-    }
+public class DefaultSecurityManager extends AbstractSecurityManager {
 
 }
 

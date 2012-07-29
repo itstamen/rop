@@ -24,8 +24,7 @@ import java.lang.annotation.*;
 @Documented
 @Service
 public @interface ServiceMethodBean {
-
-
+    String value() default "";
     /**
      * 所属的服务分组，默认为"DEFAULT"
      *
@@ -82,10 +81,5 @@ public @interface ServiceMethodBean {
      * @return
      */
     IgnoreSignType ignoreSign() default IgnoreSignType.INVALID;
-
-    /**
-     * 默认的组
-     */
-    public static final String DEFAULT_GROUP = "DEFAULT";
 }
 

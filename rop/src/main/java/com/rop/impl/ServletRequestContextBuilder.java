@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * <pre>
- *    构建{@link com.rop.RequestContext}实例
+ *    构建{@link com.rop.RopRequestContext}实例
  * </pre>
  *
  * @author 陈雄华
@@ -56,14 +56,13 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
     }
 
     @Override
-    public SimpleRequestContext buildBySysParams(RopContext ropContext, Object request) {
+    public SimpleRopRequestContext buildBySysParams(RopContext ropContext, Object request) {
         if (!(request instanceof HttpServletRequest)) {
             throw new IllegalArgumentException("请求对象必须是HttpServletRequest的类型");
         }
 
         HttpServletRequest servletRequest = (HttpServletRequest) request;
-        SimpleRequestContext requestContext = new SimpleRequestContext(ropContext);
-        requestContext.setSessionManager(sessionManager);
+        SimpleRopRequestContext requestContext = new SimpleRopRequestContext(ropContext);
 
         //设置请求对象及参数列表
         requestContext.setRawRequestObject(servletRequest);
@@ -108,27 +107,27 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
     }
 
     /**
-     * 将{@link HttpServletRequest}的数据绑定到{@link com.rop.RequestContext}的{@link com.rop.RopRequest}中，同时使用
-     * JSR 303对请求数据进行校验，将错误信息设置到{@link com.rop.RequestContext}的属性列表中。
+     * 将{@link HttpServletRequest}的数据绑定到{@link com.rop.RopRequestContext}的{@link com.rop.RopRequest}中，同时使用
+     * JSR 303对请求数据进行校验，将错误信息设置到{@link com.rop.RopRequestContext}的属性列表中。
      *
-     * @param requestContext
+     * @param ropRequestContext
      */
     @Override
-    public void bindBusinessParams(RequestContext requestContext) {
+    public void bindBusinessParams(RopRequestContext ropRequestContext) {
         AbstractRopRequest ropRequest = null;
-        if (requestContext.getServiceMethodHandler().isRopRequestImplType()) {
+        if (ropRequestContext.getServiceMethodHandler().isRopRequestImplType()) {
             HttpServletRequest request =
-                    (HttpServletRequest) requestContext.getRawRequestObject();
-            BindingResult bindingResult = doBind(request, requestContext.getServiceMethodHandler().getRequestType());
-            ropRequest = buildRopRequestFromBindingResult(requestContext, bindingResult);
+                    (HttpServletRequest) ropRequestContext.getRawRequestObject();
+            BindingResult bindingResult = doBind(request, ropRequestContext.getServiceMethodHandler().getRequestType());
+            ropRequest = buildRopRequestFromBindingResult(ropRequestContext, bindingResult);
 
             List<ObjectError> allErrors = bindingResult.getAllErrors();
-            requestContext.setAttribute(SimpleRequestContext.SPRING_VALIDATE_ERROR_ATTRNAME, allErrors);
+            ropRequestContext.setAttribute(SimpleRopRequestContext.SPRING_VALIDATE_ERROR_ATTRNAME, allErrors);
         } else {
             ropRequest = new DefaultRopRequest();
         }
-        ropRequest.setRequestContext(requestContext);
-        requestContext.setRopRequest(ropRequest);
+        ropRequest.setRopRequestContext(ropRequestContext);
+        ropRequestContext.setRopRequest(ropRequest);
     }
 
 
@@ -180,14 +179,14 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
         }
     }
 
-    private AbstractRopRequest buildRopRequestFromBindingResult(RequestContext requestContext, BindingResult bindingResult) {
+    private AbstractRopRequest buildRopRequestFromBindingResult(RopRequestContext ropRequestContext, BindingResult bindingResult) {
         AbstractRopRequest ropRequest = (AbstractRopRequest) bindingResult.getTarget();
         if (ropRequest instanceof AbstractRopRequest) {
             AbstractRopRequest abstractRopRequest = ropRequest;
-            abstractRopRequest.setRequestContext(requestContext);
+            abstractRopRequest.setRopRequestContext(ropRequestContext);
         } else {
             logger.warn(ropRequest.getClass().getName() + "不是扩展于" + AbstractRopRequest.class.getName() +
-                    ",无法设置" + RequestContext.class.getName());
+                    ",无法设置" + RopRequestContext.class.getName());
         }
         return ropRequest;
     }

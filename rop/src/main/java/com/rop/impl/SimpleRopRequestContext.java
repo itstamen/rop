@@ -7,7 +7,6 @@ package com.rop.impl;
 import com.rop.*;
 import com.rop.annotation.HttpAction;
 import com.rop.session.Session;
-import com.rop.session.SessionManager;
 import com.rop.utils.RopUtils;
 import com.rop.validation.MainError;
 
@@ -19,7 +18,7 @@ import java.util.Map;
  * @author 陈雄华
  * @version 1.0
  */
-public class SimpleRequestContext implements RequestContext {
+public class SimpleRopRequestContext implements RopRequestContext {
 
     public static final String SPRING_VALIDATE_ERROR_ATTRNAME = "$SPRING_VALIDATE_ERROR_ATTRNAME";
 
@@ -63,8 +62,6 @@ public class SimpleRequestContext implements RequestContext {
 
     private Map<String, String> allParams;
 
-    private SessionManager sessionManager;
-    
     private String requestId = RopUtils.getUUID();
 
     @Override
@@ -105,14 +102,11 @@ public class SimpleRequestContext implements RequestContext {
         this.rawRequestObject = rawRequestObject;
     }
 
-    public SimpleRequestContext(RopContext ropContext) {
+    public SimpleRopRequestContext(RopContext ropContext) {
         this.ropContext = ropContext;
         this.serviceBeginTime = System.currentTimeMillis();
     }
 
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
 
     @Override
     public String getIp() {
@@ -144,17 +138,25 @@ public class SimpleRequestContext implements RequestContext {
 
     @Override
     public Session getSession() {
-        return sessionManager.getSession(getSessionId());
+        if (ropContext != null && ropContext.getSessionManager() != null && getSessionId() != null) {
+            return ropContext.getSessionManager().getSession(getSessionId());
+        } else {
+            return null;
+        }
     }
 
     @Override
     public void addSession(String sessionId, Session session) {
-        sessionManager.addSession(sessionId, session);
+        if (ropContext != null && ropContext.getSessionManager() != null) {
+            ropContext.getSessionManager().addSession(sessionId, session);
+        }
     }
 
     @Override
     public void removeSession() {
-        sessionManager.removeSession(getSessionId());
+        if (ropContext != null && ropContext.getSessionManager() != null) {
+            ropContext.getSessionManager().removeSession(getSessionId());
+        }
     }
 
     @Override

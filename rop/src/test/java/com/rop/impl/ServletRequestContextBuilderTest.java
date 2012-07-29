@@ -41,7 +41,7 @@ public class ServletRequestContextBuilderTest {
         servletRequest.setRemoteAddr("1.1.1.1");
 
         //创建SimpleRequestContext
-        SimpleRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
+        SimpleRopRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
         assertEquals(requestContext.getIp(), "1.1.1.1");
 
         servletRequest.setRemoteAddr("1.1.1.1");
@@ -85,7 +85,7 @@ public class ServletRequestContextBuilderTest {
         servletRequest.setParameter("param3", "value3");
 
         //创建SimpleRequestContext
-        SimpleRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
+        SimpleRopRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
 
         assertEquals(requestContext.getAllParams().size(), 10);
         assertEquals(requestContext.getParamValue("param1"), "value1");
@@ -123,7 +123,7 @@ public class ServletRequestContextBuilderTest {
 
 
         //创建SimpleRequestContext
-        SimpleRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
+        SimpleRopRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
         assertEquals(requestContext.getLocale(), Locale.SIMPLIFIED_CHINESE);
         assertEquals(requestContext.getFormat(), "xxx");
         assertEquals(requestContext.getMessageFormat(), MessageFormat.xml);
@@ -146,7 +146,7 @@ public class ServletRequestContextBuilderTest {
         when(ropContext.getServiceMethodHandler("method1", "3.0")).thenReturn(methodHandler);
 
         //创建SimpleRequestContext
-        SimpleRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, new Object());
+        SimpleRopRequestContext requestContext = requestContextBuilder.buildBySysParams(ropContext, new Object());
     }
 
     @Test

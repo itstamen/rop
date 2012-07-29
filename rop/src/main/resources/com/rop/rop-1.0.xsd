@@ -47,6 +47,7 @@
                             </xsd:appinfo>
                         </xsd:annotation>
                     </xsd:attribute>
+                    <xsd:attribute name="thread-ferry-class" type="xsd:string"/>
                     <xsd:attribute name="sign-enable" type="xsd:boolean"/>
                     <xsd:attribute name="ext-error-base-name" type="xsd:string"/>
                     <xsd:attribute name="core-pool-size" type="xsd:integer"/>

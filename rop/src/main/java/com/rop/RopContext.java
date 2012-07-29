@@ -4,6 +4,8 @@
  */
 package com.rop;
 
+import com.rop.session.SessionManager;
+
 import java.util.Map;
 
 /**
@@ -63,6 +65,12 @@ public interface RopContext {
      * @return
      */
     boolean isSignEnable();
+
+    /**
+     * 获取会话管理器
+     * @return
+     */
+    SessionManager getSessionManager();
 
 }
 

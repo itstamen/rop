@@ -4,7 +4,7 @@
  */
 package com.rop.validation;
 
-import com.rop.RequestContext;
+import com.rop.RopRequestContext;
 import com.rop.SecurityManager;
 import com.rop.session.SessionManager;
 
@@ -21,18 +21,18 @@ public interface RopValidator {
     /**
      * 对请求服务的上下文进行检查校验
      *
-     * @param methodContext
+     * @param ropRequestContext
      * @return
      */
-    MainError validateSysparams(RequestContext methodContext);
+    MainError validateSysparams(RopRequestContext ropRequestContext);
 
     /**
      * 验证其它的事项：包括业务参数，业务安全性，会话安全等
      *
-     * @param methodContext
+     * @param ropRequestContext
      * @return
      */
-    MainError validateOther(RequestContext methodContext);
+    MainError validateOther(RopRequestContext ropRequestContext);
 
     /**
      * 获取安全管理器

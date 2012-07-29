@@ -5,7 +5,7 @@
 package com.rop.marshaller;
 
 import com.rop.MessageFormat;
-import com.rop.RequestContext;
+import com.rop.RopRequestContext;
 import com.rop.RopRequest;
 import org.testng.annotations.Test;
 
@@ -30,8 +30,8 @@ public class MessageMarshallerUtilsTest {
     @Test
     public void testMarshallerRopRequest() throws Exception {
         RopRequest ropRequest = mock(RopRequest.class);
-        RequestContext msc = mock(RequestContext.class);
-        when(ropRequest.getRequestContext()).thenReturn(msc);
+        RopRequestContext msc = mock(RopRequestContext.class);
+        when(ropRequest.getRopRequestContext()).thenReturn(msc);
         HashMap<String, String> map = new HashMap<String, String>();
         map.put("key1", "key1Value");
         map.put("key2", "key2Value");

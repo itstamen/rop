@@ -12,13 +12,13 @@ import java.util.Map;
 
 /**
  * <pre>
- *    接到服务请求后，将产生一个{@link RequestContext}上下文对象，它被本次请求直到返回响应的这个线程共享。
+ *    接到服务请求后，将产生一个{@link RopRequestContext}上下文对象，它被本次请求直到返回响应的这个线程共享。
  * </pre>
  *
  * @author 陈雄华
  * @version 1.0
  */
-public interface RequestContext {
+public interface RopRequestContext {
 
     /**
      * 获取Rop的上下文
@@ -73,7 +73,6 @@ public interface RequestContext {
      * 删除会话，删除{@link #getSessionId()}对应的Session
      */
     void removeSession();
-
 
     /**
      * 获取报文格式化参数

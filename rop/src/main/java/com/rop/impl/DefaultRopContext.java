@@ -7,6 +7,7 @@ package com.rop.impl;
 import com.rop.*;
 import com.rop.annotation.*;
 import com.rop.config.SystemParameterNames;
+import com.rop.session.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -37,6 +38,8 @@ public class DefaultRopContext implements RopContext {
     private final Set<String> serviceMethods = new HashSet<String>();
 
     private boolean signEnable;
+
+    private SessionManager sessionManager;
 
     public DefaultRopContext(ApplicationContext context) {
         registerFromContext(context);
@@ -72,6 +75,15 @@ public class DefaultRopContext implements RopContext {
     @Override
     public boolean isSignEnable() {
         return signEnable;
+    }
+
+    @Override
+    public SessionManager getSessionManager() {
+        return this.sessionManager;
+    }
+
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
     }
 
     public void setSignEnable(boolean signEnable) {

@@ -61,14 +61,14 @@ public class MessageMarshallerUtils {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
             if (format == MessageFormat.json) {
-                if (request.getRequestContext() != null) {
-                    jsonObjectMapper.writeValue(bos, request.getRequestContext().getAllParams());
+                if (request.getRopRequestContext() != null) {
+                    jsonObjectMapper.writeValue(bos, request.getRopRequestContext().getAllParams());
                 } else {
                     return "";
                 }
             } else {
-                if (request.getRequestContext() != null) {
-                    xmlObjectMapper.writeValue(bos, request.getRequestContext().getAllParams());
+                if (request.getRopRequestContext() != null) {
+                    xmlObjectMapper.writeValue(bos, request.getRopRequestContext().getAllParams());
                 } else {
                     return "";
                 }
@@ -87,7 +87,7 @@ public class MessageMarshallerUtils {
      * @return
      */
     public static String asUrlString(RopRequest request) {
-        Map<String, String> allParams = request.getRequestContext().getAllParams();
+        Map<String, String> allParams = request.getRopRequestContext().getAllParams();
         StringBuilder sb = new StringBuilder(256);
         boolean first = true;
         for (Map.Entry<String, String> entry : allParams.entrySet()) {

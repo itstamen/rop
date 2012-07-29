@@ -15,27 +15,27 @@ package com.rop;
 public interface Interceptor {
 
     /**
-     * 在进行服务之前调用,如果在方法中往{@link RequestContext}设置了{@link RopResponse}（相当于已经产生了响应了）,
+     * 在进行服务之前调用,如果在方法中往{@link RopRequestContext}设置了{@link RopResponse}（相当于已经产生了响应了）,
      * 所以服务将直接返回，不往下继续执行，反之服务会继续往下执行直到返回响应
      *
-     * @param methodContext
+     * @param ropRequestContext
      */
-    void beforeService(RequestContext methodContext);
+    void beforeService(RopRequestContext ropRequestContext);
 
     /**
      * 在服务之后，响应之前调用
      *
-     * @param methodContext
+     * @param ropRequestContext
      */
-    void beforeResponse(RequestContext methodContext);
+    void beforeResponse(RopRequestContext ropRequestContext);
 
     /**
-     * 该方法返回true时才实施拦截，否则不拦截。可以通过{@link RequestContext}
+     * 该方法返回true时才实施拦截，否则不拦截。可以通过{@link RopRequestContext}
      *
-     * @param methodContext
+     * @param ropRequestContext
      * @return
      */
-    boolean isMatch(RequestContext methodContext);
+    boolean isMatch(RopRequestContext ropRequestContext);
 
     /**
      * 执行的顺序，整数值越小的越早执行

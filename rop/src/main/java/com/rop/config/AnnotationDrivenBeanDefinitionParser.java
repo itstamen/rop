@@ -4,6 +4,8 @@
  */
 package com.rop.config;
 
+import com.rop.RopException;
+import com.rop.ThreadFerry;
 import com.rop.impl.AnnotationServletServiceRouterFactoryBean;
 import com.rop.impl.DefaultSecurityManager;
 import com.rop.session.DefaultSessionManager;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.format.support.FormattingConversionServiceFactoryBean;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
@@ -71,6 +74,21 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         if (StringUtils.hasText(signEnable)) {
             serviceRouterDef.getPropertyValues().addPropertyValue("signEnable", Boolean.valueOf(signEnable));
         }
+
+        //设置threadFerryClass
+        String threadFerryClassName = element.getAttribute("thread-ferry-class");
+        if (StringUtils.hasText(threadFerryClassName)) {
+            try {
+                Class<?> threadFerryClass = ClassUtils.forName(threadFerryClassName, getClass().getClassLoader());
+                if (!ClassUtils.isAssignable(ThreadFerry.class, threadFerryClass)) {
+                    throw new RopException(threadFerryClassName + "没有实现" + ThreadFerry.class.getName() + "接口");
+                }
+                serviceRouterDef.getPropertyValues().addPropertyValue("threadFerryClass", threadFerryClass);
+            } catch (ClassNotFoundException e) {
+                throw new RopException(e);
+            }
+        }
+
 
         //设置signEnable
         String extErrorBasename = element.getAttribute("ext-error-base-name");

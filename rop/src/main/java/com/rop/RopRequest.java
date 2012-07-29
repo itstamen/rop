@@ -19,7 +19,7 @@ public interface RopRequest {
      *
      * @return
      */
-    RequestContext getRequestContext();
+    RopRequestContext getRopRequestContext();
 
 }
 

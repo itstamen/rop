@@ -131,5 +131,11 @@ public interface ServiceRouter {
      * @param sessionManager
      */
     void setSessionManager(SessionManager sessionManager);
+
+    /**
+     * 设置线程信息摆渡器
+     * @param threadFerryClass
+     */
+    void setThreadFerryClass(Class<? extends ThreadFerry> threadFerryClass);
 }
 
