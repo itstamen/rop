@@ -17,19 +17,26 @@
     <rop:annotation-driven
             session-manager="sampleSessionManager"
             app-secret-manager="appSecretManager"
-            security-manager="securityManager"
+            service-access-controller="serviceAccessController"
             formatting-conversion-service="conversionService"
             ext-error-base-name="i18n/rop/sampleRopError"
+            service-timeout-seconds="10"
             thread-ferry-class="com.rop.sample.SampleThreadFerry"
+            invoke-times-controller="invokeTimesController"
+            upload-file-max-size="10"
+            upload-file-types="png,gif"
+            core-pool-size="200"
+            max-pool-size="500"
+            queue-capacity="50"
             sign-enable="true"/>
 
     <bean id="sampleSessionManager" class="com.rop.sample.SampleSessionManager" />
+    <bean id="invokeTimesController" class="com.rop.sample.SampleInvokeTimesController"/>
 
     <bean id="appSecretManager"
-          class="com.rop.validation.FileBaseAppSecretManager"
-          p:appSecretFile="classpath:rop.appSecret.properties"/>
+          class="com.rop.sample.SampleAppSecretManager"/>
 
-    <bean id="securityManager" class="com.rop.sample.SampleSecurityManager"/>
+    <bean id="serviceAccessController" class="com.rop.sample.SampleServiceAccessController"/>
 
     <!--设置自定义的类型转换服务，注册自定义的类型转换器-->
     <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">

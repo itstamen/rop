@@ -7,9 +7,9 @@ package com.rop.config;
 import com.rop.RopContext;
 import com.rop.impl.AnnotationServletServiceRouter;
 import com.rop.sample.SampleAppSecretManager;
-import com.rop.sample.SampleSecurityManager;
+import com.rop.sample.SampleServiceAccessController;
 import com.rop.sample.request.Telephone;
-import com.rop.validation.DefaultRopValidator;
+import com.rop.security.DefaultSecurityManager;
 import org.testng.annotations.Test;
 import org.unitils.UnitilsTestNG;
 import org.unitils.spring.annotation.SpringApplicationContext;
@@ -51,7 +51,7 @@ public class RopNamespaceHandlerIT extends UnitilsTestNG {
         assertNotNull(serviceRouter.getFormattingConversionService());
         assertFalse(serviceRouter.getFormattingConversionService().canConvert(String.class, Telephone.class));
         assertTrue(serviceRouter.isSignEnable());
-        assertNotNull(serviceRouter.getRopValidator());
+        assertNotNull(serviceRouter.getSecurityManager());
         assertNotNull(serviceRouter.getRopEventMulticaster());
         assertNotNull(serviceRouter.getThreadPoolExecutor());
         assertEquals(serviceRouter.getThreadPoolExecutor().getCorePoolSize(), 1);
@@ -82,10 +82,10 @@ public class RopNamespaceHandlerIT extends UnitilsTestNG {
         assertTrue(serviceRouter.getFormattingConversionService().canConvert(String.class, Telephone.class));
 
         assertFalse(serviceRouter.isSignEnable());
-        DefaultRopValidator ropValidator = (DefaultRopValidator) serviceRouter.getRopValidator();
-        assertNotNull(ropValidator);
-        assertTrue(ropValidator.getAppSecretManager() instanceof SampleAppSecretManager);
-        assertTrue(ropValidator.getSecurityManager() instanceof SampleSecurityManager);
+        DefaultSecurityManager validator = (DefaultSecurityManager) serviceRouter.getSecurityManager();
+        assertNotNull(validator);
+        assertTrue(validator.getAppSecretManager() instanceof SampleAppSecretManager);
+        assertTrue(validator.getServiceAccessController() instanceof SampleServiceAccessController);
 
         assertNotNull(serviceRouter.getRopEventMulticaster());
         assertNotNull(serviceRouter.getThreadPoolExecutor());

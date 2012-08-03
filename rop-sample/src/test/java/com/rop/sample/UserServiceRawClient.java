@@ -4,17 +4,18 @@
  */
 package com.rop.sample;
 
+import com.rop.request.UploadFile;
 import com.rop.utils.RopUtils;
-import com.rop.validation.MainErrorType;
+import com.rop.security.MainErrorType;
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.testng.Assert.assertTrue;
@@ -36,7 +37,7 @@ public class UserServiceRawClient {
      * 创建一个服务端的会话
      */
     @BeforeMethod
-//    @Test
+//    @Test(invocationCount = 10,threadPoolSize = 10)
     public void createSession() {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
@@ -52,7 +53,7 @@ public class UserServiceRawClient {
         String response = restTemplate.postForObject(
                 SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("<logonResponse sessionId=\"mockSessionId1\"/>") > -1);
+//        assertTrue(response.indexOf("<logonResponse sessionId=\"mockSessionId1\"/>") > -1);
     }
 
     /**
@@ -80,6 +81,31 @@ public class UserServiceRawClient {
         assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
     }
 
+    /**
+     * 测试过期版本的服务
+     */
+    @Test
+    public void testAddUserByVersion0_9() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.add");//<--指定方法名称
+        form.add("appKey", "00001");
+        form.add("v", "0.9");
+        form.add("sessionId", "mockSessionId1");
+        form.add("locale", "en");
+        form.add("userName", "tomson");
+        form.add("salary", "2,500.00");
+
+        //对请求参数列表进行签名
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+        String response = restTemplate.postForObject(
+                SERVER_URL, form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf("code=\"" + MainErrorType.METHOD_OBSOLETED.value() + "\"") > -1);
+    }
+
 
     /**
      * 显式指定返回的报文类型，在配置文件中已经显式指定了 报文格式参数的名称为messageFormat
@@ -103,7 +129,7 @@ public class UserServiceRawClient {
         String response = restTemplate.postForObject(
                 SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("{\"createUserResponse\":{\"userId\":\"1\",") > -1);
+        assertTrue(response.indexOf("{\"userId\":\"1\",") > -1);
     }
 
     /**
@@ -238,9 +264,9 @@ public class UserServiceRawClient {
         //address会正确绑定
         form.add("address",
                 "{\"zoneCode\":\"0001\",\n" +
-                " \"doorCode\":\"002\",\n" +
-                " \"streets\":[{\"no\":\"001\",\"name\":\"street1\"},\n" +
-                "            {\"no\":\"002\",\"name\":\"street2\"}]}");
+                        " \"doorCode\":\"002\",\n" +
+                        " \"streets\":[{\"no\":\"001\",\"name\":\"street1\"},\n" +
+                        "            {\"no\":\"002\",\"name\":\"street2\"}]}");
 
         //对请求参数列表进行签名
         String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
@@ -249,7 +275,7 @@ public class UserServiceRawClient {
         String response = restTemplate.postForObject(
                 SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
+        assertTrue(response.indexOf("\"userId\":\"1\"") > -1);
     }
 
     /**
@@ -294,8 +320,7 @@ public class UserServiceRawClient {
 
         form.add("sign", sign);
 
-        String response = restTemplate.postForObject(
-                SERVER_URL, form, String.class);
+        String response = restTemplate.postForObject(SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("userId=\"4\"") > -1);
     }
@@ -313,15 +338,15 @@ public class UserServiceRawClient {
         form.add("appKey", "00001");
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
-        form.add("userName", "tomsony");
-        form.add("salary", "100");
+        form.add("userName", "tom");
+        form.add("salary", "aaa");
         String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
         String response = restTemplate.postForObject(
                 SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("isv.invalid-paramete:salary") > -1);
+        assertTrue(response.indexOf("isv.parameters-mismatch:salary") > -1);
     }
 
     /**
@@ -349,6 +374,53 @@ public class UserServiceRawClient {
 
         //使用GET获取：正确返回
         String response = restTemplate.getForObject(
+                SERVER_URL +
+                        "?appKey={appKey}&locale={locale}&method={method}&salary={salary}&sessionId={sessionId}" +
+                        "&userName={userName}&v={v}&sign={sign}",
+                String.class, form);
+        System.out.println("response:" + response);
+    }
+
+
+    @Test
+    public void testI18nErrorMessage() {
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String, String> form = new HashMap<String, String>();
+        form.put("method", "user.add");//<--指定方法名称
+        form.put("appKey", "00001");
+        form.put("v", "1.0");
+        form.put("sessionId", "mockSessionId1");
+        form.put("locale", "en");
+        form.put("userName", "tomson");
+        form.put("salary", "aaa");
+
+        //对请求参数列表进行签名
+        form.put("sign", RopUtils.sign(form, "abcdeabcdeabcdeabcdeabcde"));
+
+
+        //使用GET获取：正确返回
+        String response = restTemplate.getForObject(
+                SERVER_URL +
+                        "?appKey={appKey}&locale={locale}&method={method}&salary={salary}&sessionId={sessionId}" +
+                        "&userName={userName}&v={v}&sign={sign}",
+                String.class, form);
+        System.out.println("response:" + response);
+
+        form.clear();
+        form.put("method", "user.add");//<--指定方法名称
+        form.put("appKey", "00001");
+        form.put("v", "1.0");
+        form.put("sessionId", "mockSessionId1");
+        form.put("locale", "zh_CN");
+        form.put("userName", "tomson");
+        form.put("salary", "aaa");
+
+        //对请求参数列表进行签名
+        form.put("sign", RopUtils.sign(form, "abcdeabcdeabcdeabcdeabcde"));
+
+
+        //使用GET获取：正确返回
+        response = restTemplate.getForObject(
                 SERVER_URL +
                         "?appKey={appKey}&locale={locale}&method={method}&salary={salary}&sessionId={sessionId}" +
                         "&userName={userName}&v={v}&sign={sign}",
@@ -404,13 +476,12 @@ public class UserServiceRawClient {
         //设置一个错误的签名
         String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
-        ;
 
         String response = restTemplate.postForObject(
                 SERVER_URL, form, String.class);
 
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("code=\"" + MainErrorType.INSUFFICIENT_USER_PERMISSIONS.value() + "\"") > -1);
+        assertTrue(response.indexOf("code=\"" + MainErrorType.INVALID_SESSION.value() + "\"") > -1);
     }
 
     /**
@@ -418,11 +489,11 @@ public class UserServiceRawClient {
      * 将返回会话错误的响应报文。
      */
     @Test
-    public void testViolationSecurityManager() {
+    public void testViolationServiceAccessController() {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
         form.add("method", "user.add");
-        form.add("appKey", "00002");
+        form.add("appKey", "00003");
         form.add("v", "1.0");
 
         form.add("sessionId", "mockSessionId1");
@@ -442,11 +513,40 @@ public class UserServiceRawClient {
     }
 
     /**
+     * 违反应用最大服务调用次数的限制
+     */
+    @Test
+    public void testViolationInvokeTimesController() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.add");
+        form.add("appKey", "00002");
+        form.add("v", "1.0");
+
+        form.add("sessionId", "mockSessionId1");
+
+        form.add("userName", "tomsony");
+        form.add("salary", "2,500.00");
+
+        //设置一个错误的签名
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeaaaaa");
+        form.add("sign", sign);
+
+        for (int i = 0; i < 11; i++) {
+            restTemplate.postForObject(SERVER_URL, form, String.class);
+        }
+
+        String response = restTemplate.postForObject(SERVER_URL, form, String.class);
+        System.out.println("response1:" + response);
+        assertTrue(response.indexOf("code=\"" + MainErrorType.EXCEED_APP_INVOKE_LIMITED.value() + "\"") > -1);
+    }
+
+    /**
      * “jhon”是{@link UserService#addUser(com.rop.sample.request.CreateUserRequest)} 服务方法预留的用户名，
      * 验证其会返回正确的业务错误码。
      */
     @Test
-    public void testServiceError() {
+    public void testBusinessServiceError() {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
         form.add("method", "user.add");//<--指定方法名称
@@ -505,7 +605,7 @@ public class UserServiceRawClient {
         form.add("appKey", "00001");
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
-        form.add("locale", "en");
+        form.add("locale", "zh_CN");
         form.add("userName", "tomson");
         form.add("salary", "2,500.00");
 
@@ -517,7 +617,7 @@ public class UserServiceRawClient {
         String response = restTemplate.postForObject(
                 SERVER_URL, form, String.class);
         System.out.println("response:" + response);
-        assertTrue(response.indexOf("isp.remote-service-timeout") > -1);
+        assertTrue(response.indexOf("isp.user-timeout-service-timeout") > -1);
     }
 
     /**
@@ -533,8 +633,7 @@ public class UserServiceRawClient {
         form.put("v", "1.0");
         form.put("sessionId", "mockSessionId1");
         form.put("locale", "en");
-        form.put("userName", "tomson");
-        form.put("salary", "2,500.00");
+        form.put("userId", "1");
 
         //对请求参数列表进行签名
         String sign = RopUtils.sign(form, "abcdeabcdeabcdeabcdeabcde");
@@ -544,7 +643,7 @@ public class UserServiceRawClient {
         String response = restTemplate.getForObject(
                 SERVER_URL +
                         "?method={method}&appKey={appKey}&v={v}&sessionId={sessionId}&locale={locale}" +
-                        "&userName={userName}&salary={salary}&sign={sign}",
+                        "&userId={userId}&sign={sign}",
                 String.class, form);
         System.out.println("response:" + response);
         assertTrue(response.indexOf("user.get") > -1);
@@ -562,8 +661,8 @@ public class UserServiceRawClient {
         form.add("v", "1.0");
         form.add("sessionId", "mockSessionId1");
         form.add("locale", "en");
-        form.add("userName", "tomson");
-        form.add("salary", "2,500.00");
+        form.add("userId", "2");
+
 
         //对请求参数列表进行签名
         String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
@@ -573,6 +672,33 @@ public class UserServiceRawClient {
                 SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
         assertTrue(response.indexOf("code=\"5\"") > -1);
+    }
+
+    @Test
+    public void testGetUserOf9999() {
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String, String> form = new HashMap<String, String>();
+
+        form.put("method", "user.get");//<--指定方法名称
+        form.put("appKey", "00001");
+        form.put("v", "1.0");
+        form.put("sessionId", "mockSessionId1");
+        form.put("locale", "en");
+        form.put("userId", "9999");
+        form.put("salary", "2,500.00");
+
+        //对请求参数列表进行签名
+        String sign = RopUtils.sign(form, "abcdeabcdeabcdeabcdeabcde");
+        form.put("sign", sign);
+
+        //使用GET获取：正确返回
+        String response = restTemplate.getForObject(
+                SERVER_URL +
+                        "?method={method}&appKey={appKey}&v={v}&sessionId={sessionId}&locale={locale}" +
+                        "&userId={userId}&salary={salary}&sign={sign}",
+                String.class, form);
+        System.out.println("response:" + response);
+        assertTrue(response.indexOf("isv.user-not-exist") > -1);
     }
 
 
@@ -604,21 +730,91 @@ public class UserServiceRawClient {
         System.out.println("time elapsed:" + (System.currentTimeMillis() - begin));
     }
 
+
+    /**
+     * 测试文件上传
+     */
     @Test
-    public void testMe(){
-        Map<String, String> map = new LinkedHashMap<String, String>();
-        map.put("appKey","000001");
-        map.put("sessionId","AAAA");
-        map.put("method","user.create");
-        map.put("v","1.0");
-        map.put("format","xml");
-        map.put("locale","zh_CN");
-        map.put("userName","tomson");
-        map.put("age","24");
-        map.put("sex","1");
-        String sign = RopUtils.sign(map, "abcdef");
+    public void testUploadUserPhoto() throws Throwable {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.upload.photo");
+        form.add("appKey", "00001");
+        form.add("v", "1.0");
+        form.add("sessionId", "mockSessionId1");
+        form.add("locale", "en");
+        form.add("userId", "1");
+        ClassPathResource resource = new ClassPathResource("photo.png");
+        UploadFile uploadFile = new UploadFile(resource.getFile());
+
+        //对请求参数列表进行签名
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+        form.add("photo", "png@" + Base64.encodeBase64String(uploadFile.getContent())); //文件不进行签名
+
+        String response = restTemplate.postForObject(
+                SERVER_URL, form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf("png") > -1);
     }
 
+    /**
+     * 上传文件类型不允许
+     */
+    @Test
+    public void testUploadErrorFileType() throws Throwable {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.upload.photo");
+        form.add("appKey", "00001");
+        form.add("v", "1.0");
+        form.add("sessionId", "mockSessionId1");
+        form.add("locale", "en");
+        form.add("userId", "1");
+        ClassPathResource resource = new ClassPathResource("photo.png");
+        UploadFile uploadFile = new UploadFile(resource.getFile());
+
+        //对请求参数列表进行签名
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+        form.add("photo", "exe@" + Base64.encodeBase64String(uploadFile.getContent())); //文件不进行签名
+
+        String response = restTemplate.postForObject(
+                SERVER_URL, form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf(MainErrorType.UPLOAD_FAIL.value()) > -1);
+    }
+
+    /**
+     * 测试文件大小超限
+     *
+     * @throws Throwable
+     */
+    @Test
+    public void testUploadExceedMaxSizeError() throws Throwable {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("method", "user.upload.photo");
+        form.add("appKey", "00001");
+        form.add("v", "1.0");
+        form.add("sessionId", "mockSessionId1");
+        form.add("locale", "en");
+        form.add("userId", "1");
+        ClassPathResource resource = new ClassPathResource("exceedMaxSize.png");
+        UploadFile uploadFile = new UploadFile(resource.getFile());
+
+        //对请求参数列表进行签名
+        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+        form.add("sign", sign);
+
+        form.add("photo", "png@" + Base64.encodeBase64String(uploadFile.getContent())); //文件不进行签名
+
+        String response = restTemplate.postForObject(SERVER_URL, form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf(MainErrorType.UPLOAD_FAIL.value()) > -1);
+    }
 
 }
 

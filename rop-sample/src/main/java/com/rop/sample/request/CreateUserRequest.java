@@ -11,6 +11,7 @@ import org.springframework.format.annotation.NumberFormat;
 import javax.validation.Valid;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 /**
@@ -23,6 +24,7 @@ import javax.validation.constraints.Pattern;
  */
 public class CreateUserRequest extends AbstractRopRequest {
 
+    @NotNull
     @Pattern(regexp = "\\w{4,30}")
     private String userName;
 
@@ -89,5 +91,6 @@ public class CreateUserRequest extends AbstractRopRequest {
     public void setTelephone(Telephone telephone) {
         this.telephone = telephone;
     }
+
 }
 

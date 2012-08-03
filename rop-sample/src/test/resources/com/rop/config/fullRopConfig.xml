@@ -16,12 +16,12 @@
             service-timeout-seconds="10"
             sign-enable="false"/>
 
-    <bean id="ropValidator" class="com.rop.validation.DefaultRopValidator">
+    <bean id="ropValidator" class="com.rop.security.DefaultSecurityManager">
         <property name="appSecretManager">
             <bean class="com.rop.sample.SampleAppSecretManager"/>
         </property>
         <property name="securityManager">
-            <bean class="com.rop.sample.SampleSecurityManager"/>
+            <bean class="com.rop.sample.SampleServiceAccessController"/>
         </property>
         <property name="sessionChecker">
             <bean class="com.rop.sample.SampleSessionChecker"/>

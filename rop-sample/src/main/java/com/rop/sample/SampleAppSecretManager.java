@@ -3,7 +3,7 @@ package com.rop.sample; /**
  * 日    期：12-5-25
  */
 
-import com.rop.validation.AppSecretManager;
+import com.rop.security.AppSecretManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,8 @@ public class SampleAppSecretManager implements AppSecretManager {
 
     static {
         appKeySecretMap.put("00001", "abcdeabcdeabcdeabcdeabcde");
+        appKeySecretMap.put("00002","abcdeabcdeabcdeabcdeaaaaa");
+        appKeySecretMap.put("00003","abcdeabcdeabcdeabcdeaaaaa");
     }
 
     @Override

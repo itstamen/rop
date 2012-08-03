@@ -4,7 +4,7 @@
  */
 package com.rop.sample;
 
-import com.rop.AbstractSecurityManager;
+import com.rop.security.AbstractServiceAccessController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import java.util.Map;
  * @author 陈雄华
  * @version 1.0
  */
-public class SampleSecurityManager extends AbstractSecurityManager {
+public class SampleServiceAccessController extends AbstractServiceAccessController {
 
     private static final Map<String, List<String>> aclMap = new HashMap<String, List<String>>();
 
@@ -28,11 +28,11 @@ public class SampleSecurityManager extends AbstractSecurityManager {
         serviceMethods.add("user.logon");
         serviceMethods.add("user.logout");
         serviceMethods.add("user.getSession");
-        aclMap.put("00002", serviceMethods);
+        aclMap.put("00003", serviceMethods);
     }
 
     @Override
-    public boolean isIsvGranted(String appKey,String method,String version) {
+    public boolean isAppGranted(String appKey, String method, String version) {
         if(aclMap.containsKey(appKey)){
             List<String> serviceMethods = aclMap.get(appKey);
             return serviceMethods.contains(method);
