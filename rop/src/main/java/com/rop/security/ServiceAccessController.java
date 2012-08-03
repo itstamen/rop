@@ -2,19 +2,19 @@
  *
  * 日    期：12-2-13
  */
-package com.rop;
+package com.rop.security;
 
 import com.rop.session.Session;
 
 /**
  * <pre>
- *    安全控制管理器，决定用户是否有。
+ *    安全控制控制器，决定用户是否有。
  * </pre>
  *
  * @author 陈雄华
  * @version 1.0
  */
-public interface SecurityManager {
+public interface ServiceAccessController {
 
     /**
      * 服务方法是否向ISV开放
@@ -22,7 +22,7 @@ public interface SecurityManager {
      * @param userId
      * @return
      */
-    boolean isIsvGranted(String appKey,String method,String version);
+    boolean isAppGranted(String appKey, String method, String version);
 
     /**
      *  服务方法是否向当前用户开放

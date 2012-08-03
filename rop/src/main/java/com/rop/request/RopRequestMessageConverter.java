@@ -2,11 +2,12 @@
  * 版权声明：中图一购网络科技有限公司 版权所有 违者必究 2012 
  * 日    期：12-4-17
  */
-package com.rop.impl;
+package com.rop.request;
 
 import com.rop.MessageFormat;
 import com.rop.RopException;
 import com.rop.RopRequestParseException;
+import com.rop.impl.SimpleRopRequestContext;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -45,8 +46,8 @@ public class RopRequestMessageConverter implements ConditionalGenericConverter {
     static {
         AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
         SerializationConfig serializationConfig = objectMapper.getSerializationConfig();
-        serializationConfig = serializationConfig.with(SerializationConfig.Feature.WRAP_ROOT_VALUE)
-                .withAnnotationIntrospector(introspector);
+        serializationConfig = serializationConfig.without(SerializationConfig.Feature.WRAP_ROOT_VALUE)
+                                                 .withAnnotationIntrospector(introspector);
         objectMapper.setSerializationConfig(serializationConfig);
     }
 
@@ -69,10 +70,10 @@ public class RopRequestMessageConverter implements ConditionalGenericConverter {
 
     public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
         try {
-            if (SimpleRopRequestContext.messageFormat.get() == MessageFormat.json) {
+            if (SimpleRopRequestContext.messageFormat.get() == MessageFormat.json) {//输入格式为JSON
                 JsonParser jsonParser = objectMapper.getJsonFactory().createJsonParser((String) source);
                 return jsonParser.readValueAs(targetType.getObjectType());
-            } else {//输入格式为JSON
+            } else {
                 Unmarshaller unmarshaller = createUnmarshaller(targetType.getObjectType());
                 StringReader reader = new StringReader((String) source);
                 return unmarshaller.unmarshal(reader);

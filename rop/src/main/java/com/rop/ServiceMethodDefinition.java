@@ -60,7 +60,7 @@ public class ServiceMethodDefinition {
     /**
      * 过期时间，单位为秒，0或负数表示不过期
      */
-    private int timeout = Integer.MAX_VALUE;
+    private int timeout = -9999;
 
     /**
      * 对应的版本号，如果为null或""表示不区分版本
@@ -77,6 +77,10 @@ public class ServiceMethodDefinition {
      */
     private boolean ignoreSign = false;
 
+    /**
+     * 服务方法是否已经过期
+     */
+    private boolean obsoleted = false;
 
     public String getMethod() {
         return method;
@@ -119,7 +123,7 @@ public class ServiceMethodDefinition {
     }
 
     public int getTimeout() {
-        return timeout > 0 ? timeout : Integer.MAX_VALUE;
+        return this.timeout;
     }
 
     public void setTimeout(int timeout) {
@@ -156,6 +160,14 @@ public class ServiceMethodDefinition {
 
     public void setHttpAction(HttpAction[] httpAction) {
         this.httpAction = httpAction;
+    }
+
+    public boolean isObsoleted() {
+        return obsoleted;
+    }
+
+    public void setObsoleted(boolean obsoleted) {
+        this.obsoleted = obsoleted;
     }
 }
 

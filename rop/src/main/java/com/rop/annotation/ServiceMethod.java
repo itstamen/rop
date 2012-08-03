@@ -63,7 +63,7 @@ public @interface ServiceMethod {
      *
      * @return
      */
-    int timeout() default -100;
+    int timeout() default -1;
 
     /**
      * 请求方法，默认不限制
@@ -84,13 +84,18 @@ public @interface ServiceMethod {
      *
      * @return
      */
-    NeedInSessionType needInSession() default NeedInSessionType.INVALID;
+    NeedInSessionType needInSession() default NeedInSessionType.DEFAULT;
 
     /**
      * 是否忽略签名检查，默认不忽略
      *
      * @return
      */
-    IgnoreSignType ignoreSign() default IgnoreSignType.INVALID;
+    IgnoreSignType ignoreSign() default IgnoreSignType.DEFAULT;
 
+    /**
+     * 服务方法是否已经过期，默认不过期
+     * @return
+     */
+    ObsoletedType obsoleted() default  ObsoletedType.DEFAULT;
 }

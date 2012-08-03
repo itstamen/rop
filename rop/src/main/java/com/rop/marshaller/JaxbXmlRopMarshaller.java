@@ -16,7 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <pre>
- * 功能说明：
+ *    将对象流化成XML，每个类型对应一个{@link JAXBContext}，{@link JAXBContext} 是线程安全的，但是
+ * {@link Marshaller}是非线程安全的，因此需要每次创建一个。
  * </pre>
  *
  * @author 陈雄华

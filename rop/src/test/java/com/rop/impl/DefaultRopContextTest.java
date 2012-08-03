@@ -6,7 +6,9 @@ package com.rop.impl;
 
 import com.rop.*;
 import com.rop.annotation.*;
+import com.rop.request.UploadFile;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.List;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
+import static org.testng.Assert.assertNotNull;
 
 /**
  * <pre>
@@ -184,6 +187,14 @@ public class DefaultRopContextTest {
             return new RopResponse() {
             };
         }
+    }
+
+    @Test
+    public void annotationTest(){
+        IgnoreSign annotation = AnnotationUtils.findAnnotation(UploadFile.class, IgnoreSign.class);
+        assertNotNull(annotation);
+        annotation = AnnotationUtils.findAnnotation(ExtUploadFile.class, IgnoreSign.class);
+        assertNotNull(annotation);
     }
 
 }

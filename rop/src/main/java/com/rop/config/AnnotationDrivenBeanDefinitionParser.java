@@ -4,13 +4,14 @@
  */
 package com.rop.config;
 
+import com.rop.impl.DefaultServiceAccessController;
+import com.rop.security.DefaultInvokeTimesController;
 import com.rop.RopException;
 import com.rop.ThreadFerry;
 import com.rop.impl.AnnotationServletServiceRouterFactoryBean;
-import com.rop.impl.DefaultSecurityManager;
+import com.rop.security.DefaultSecurityManager;
 import com.rop.session.DefaultSessionManager;
-import com.rop.validation.DefaultRopValidator;
-import com.rop.validation.FileBaseAppSecretManager;
+import com.rop.security.FileBaseAppSecretManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -35,6 +36,10 @@ import org.w3c.dom.Element;
  */
 public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 
+    public static final int DEFAULT_CORE_POOL_SIZE = 200;
+    public static final int DEFAULT_MAX_POOL_SIZE = 500;
+    public static final int DEFAULT_KEEP_ALIVE_SECONDS = 5 * 60;
+    public static final int DEFAULT_QUENE_CAPACITY = 20;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
@@ -61,9 +66,13 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         RuntimeBeanReference appSecretManager = getAppSecretManager(element, source, parserContext);
         serviceRouterDef.getPropertyValues().add("appSecretManager", appSecretManager);
 
-        //密钥管理器
-        RuntimeBeanReference securityManager = getSecurityManager(element, source, parserContext);
-        serviceRouterDef.getPropertyValues().add("securityManager", securityManager);
+        //服务访问控制器
+        RuntimeBeanReference serviceAccessController = getServiceAccessController(element, source, parserContext);
+        serviceRouterDef.getPropertyValues().add("serviceAccessController", serviceAccessController);
+
+        //访问次数/频度控制器
+        RuntimeBeanReference invokeTimesController = getInvokeTimesController(element, source, parserContext);
+        serviceRouterDef.getPropertyValues().add("invokeTimesController", invokeTimesController);
 
         //设置TaskExecutor
         RuntimeBeanReference taskExecutorBeanReference = getExecutor(element, source, parserContext);
@@ -101,29 +110,61 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             serviceRouterDef.getPropertyValues().addPropertyValue("serviceTimeoutSeconds", Integer.parseInt(serviceTimeoutSeconds));
         }
 
+        String uploadFileMaxSize = element.getAttribute("upload-file-max-size");
+        if (StringUtils.hasText(uploadFileMaxSize)) {
+            serviceRouterDef.getPropertyValues().addPropertyValue("uploadFileMaxSize", Integer.parseInt(uploadFileMaxSize));
+        }
+
+        String uploadFileTypes = element.getAttribute("upload-file-types");
+        if (StringUtils.hasText(uploadFileTypes)) {
+            serviceRouterDef.getPropertyValues().addPropertyValue("uploadFileTypes", uploadFileTypes);
+        }
+
+
         parserContext.popAndRegisterContainingComponent();
         return null;
     }
 
-    private RuntimeBeanReference getSecurityManager(Element element, Object source, ParserContext parserContext) {
-        RuntimeBeanReference securityManagerRef;
-        if (element.hasAttribute("security-manager")) {
-            securityManagerRef = new RuntimeBeanReference(element.getAttribute("security-manager"));
+    private RuntimeBeanReference getInvokeTimesController(Element element, Object source, ParserContext parserContext) {
+        RuntimeBeanReference invokeTimesControllerRef;
+        if (element.hasAttribute("invoke-times-controller")) {
+            invokeTimesControllerRef = new RuntimeBeanReference(element.getAttribute("invoke-times-controller"));
             if (logger.isInfoEnabled()) {
-                logger.info("Rop装配一个自定义的服务安全管理器:" + securityManagerRef.getBeanName());
+                logger.info("Rop装配一个自定义的服务调用次数/频度控制器:" + invokeTimesControllerRef.getBeanName());
             }
         } else {
-            RootBeanDefinition securityManagerDef = new RootBeanDefinition(DefaultSecurityManager.class);
-            securityManagerDef.setSource(source);
-            securityManagerDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            String securityManagerName = parserContext.getReaderContext().registerWithGeneratedName(securityManagerDef);
-            parserContext.registerComponent(new BeanComponentDefinition(securityManagerDef, securityManagerName));
-            securityManagerRef = new RuntimeBeanReference(securityManagerName);
+            RootBeanDefinition invokeTimesControllerDef = new RootBeanDefinition(DefaultInvokeTimesController.class);
+            invokeTimesControllerDef.setSource(source);
+            invokeTimesControllerDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            String invokeTimesControllerName = parserContext.getReaderContext().registerWithGeneratedName(invokeTimesControllerDef);
+            parserContext.registerComponent(new BeanComponentDefinition(invokeTimesControllerDef, invokeTimesControllerName));
+            invokeTimesControllerRef = new RuntimeBeanReference(invokeTimesControllerName);
             if (logger.isInfoEnabled()) {
-                logger.info("使用默认的服务安全管理器:" + DefaultSecurityManager.class.getName());
+                logger.info("使用默认的服务调用次数/频度控制器:" + DefaultInvokeTimesController.class.getName());
             }
         }
-        return securityManagerRef;
+        return invokeTimesControllerRef;
+    }
+
+    private RuntimeBeanReference getServiceAccessController(Element element, Object source, ParserContext parserContext) {
+        RuntimeBeanReference serviceAccessControllerRef;
+        if (element.hasAttribute("service-access-controller")) {
+            serviceAccessControllerRef = new RuntimeBeanReference(element.getAttribute("service-access-controller"));
+            if (logger.isInfoEnabled()) {
+                logger.info("Rop装配一个自定义的服务访问控制器:" + serviceAccessControllerRef.getBeanName());
+            }
+        } else {
+            RootBeanDefinition serviceAccessControllerDef = new RootBeanDefinition(DefaultServiceAccessController.class);
+            serviceAccessControllerDef.setSource(source);
+            serviceAccessControllerDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            String serviceAccessControllerName = parserContext.getReaderContext().registerWithGeneratedName(serviceAccessControllerDef);
+            parserContext.registerComponent(new BeanComponentDefinition(serviceAccessControllerDef, serviceAccessControllerName));
+            serviceAccessControllerRef = new RuntimeBeanReference(serviceAccessControllerName);
+            if (logger.isInfoEnabled()) {
+                logger.info("使用默认的服务访问控制器:" + DefaultServiceAccessController.class.getName());
+            }
+        }
+        return serviceAccessControllerRef;
     }
 
     private RuntimeBeanReference getAppSecretManager(Element element, Object source, ParserContext parserContext) {
@@ -198,14 +239,14 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
                 logger.info("Rop装配一个自定义的RopValidator:" + ropValidatorRbf.getBeanName());
             }
         } else {
-            RootBeanDefinition conversionDef = new RootBeanDefinition(DefaultRopValidator.class);
+            RootBeanDefinition conversionDef = new RootBeanDefinition(DefaultSecurityManager.class);
             conversionDef.setSource(source);
             conversionDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
             String conversionName = parserContext.getReaderContext().registerWithGeneratedName(conversionDef);
             parserContext.registerComponent(new BeanComponentDefinition(conversionDef, conversionName));
             ropValidatorRbf = new RuntimeBeanReference(conversionName);
             if (logger.isInfoEnabled()) {
-                logger.info("使用默认的RopValidator:" + DefaultRopValidator.class.getName());
+                logger.info("使用默认的RopValidator:" + DefaultSecurityManager.class.getName());
             }
         }
         return ropValidatorRbf;
@@ -227,23 +268,29 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         String corePoolSize = element.getAttribute("core-pool-size");
         if (StringUtils.hasText(corePoolSize)) {
             taskExecutorDef.getPropertyValues().addPropertyValue("corePoolSize", corePoolSize);
+        }else{
+            taskExecutorDef.getPropertyValues().addPropertyValue("corePoolSize", DEFAULT_CORE_POOL_SIZE);
         }
 
         String maxPoolSize = element.getAttribute("max-pool-size");
         if (StringUtils.hasText(maxPoolSize)) {
             taskExecutorDef.getPropertyValues().addPropertyValue("maxPoolSize", maxPoolSize);
+        }else{
+            taskExecutorDef.getPropertyValues().addPropertyValue("maxPoolSize", DEFAULT_MAX_POOL_SIZE);
         }
 
         String keepAliveSeconds = element.getAttribute("keep-alive-seconds");
         if (StringUtils.hasText(keepAliveSeconds)) {
             taskExecutorDef.getPropertyValues().addPropertyValue("keepAliveSeconds", keepAliveSeconds);
-        } else {
-            taskExecutorDef.getPropertyValues().addPropertyValue("keepAliveSeconds", 2 * 60); //默认为2分钟
+        }else{
+            taskExecutorDef.getPropertyValues().addPropertyValue("keepAliveSeconds", DEFAULT_KEEP_ALIVE_SECONDS);
         }
 
         String queueCapacity = element.getAttribute("queue-capacity");
         if (StringUtils.hasText(queueCapacity)) {
             taskExecutorDef.getPropertyValues().addPropertyValue("queueCapacity", queueCapacity);
+        }else{
+            taskExecutorDef.getPropertyValues().addPropertyValue("queueCapacity", DEFAULT_QUENE_CAPACITY);
         }
 
         parserContext.registerComponent(new BeanComponentDefinition(taskExecutorDef, taskExecutorName));

@@ -2,10 +2,9 @@
  *
  * 日    期：12-2-13
  */
-package com.rop.validation;
+package com.rop.security;
 
 import com.rop.RopRequestContext;
-import com.rop.SecurityManager;
 import com.rop.session.SessionManager;
 
 /**
@@ -16,7 +15,7 @@ import com.rop.session.SessionManager;
  * @author 陈雄华
  * @version 1.0
  */
-public interface RopValidator {
+public interface SecurityManager {
 
     /**
      * 对请求服务的上下文进行检查校验
@@ -24,7 +23,7 @@ public interface RopValidator {
      * @param ropRequestContext
      * @return
      */
-    MainError validateSysparams(RopRequestContext ropRequestContext);
+    MainError validateSystemParameters(RopRequestContext ropRequestContext);
 
     /**
      * 验证其它的事项：包括业务参数，业务安全性，会话安全等
@@ -39,7 +38,7 @@ public interface RopValidator {
      *
      * @return
      */
-    void setSecurityManager(SecurityManager securityManager);
+    void setServiceAccessController(ServiceAccessController serviceAccessController);
 
     /**
      * 获取应用密钥管理器
@@ -54,5 +53,18 @@ public interface RopValidator {
      * @return
      */
     void setSessionManager(SessionManager sessionManager);
+
+
+    /**
+     * 设置服务调度次数管理器
+     * @param invokeTimesController
+     */
+    void setInvokeTimesController(InvokeTimesController invokeTimesController);
+
+    /**
+     * 文件上传控制器
+     * @param fileUploadController
+     */
+    void setFileUploadController(FileUploadController fileUploadController);
 }
 

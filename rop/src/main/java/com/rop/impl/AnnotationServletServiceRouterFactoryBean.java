@@ -4,15 +4,13 @@
  */
 package com.rop.impl;
 
+import com.rop.security.*;
 import com.rop.Interceptor;
 import com.rop.ThreadFerry;
 import com.rop.config.InterceptorHolder;
 import com.rop.config.RopEventListenerHodler;
 import com.rop.event.RopEventListener;
 import com.rop.session.SessionManager;
-import com.rop.validation.AppSecretManager;
-import com.rop.SecurityManager;
-import com.rop.validation.DefaultRopValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -23,11 +21,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.format.support.FormattingConversionService;
+import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -51,19 +47,27 @@ public class AnnotationServletServiceRouterFactoryBean
 
     private AppSecretManager appSecretManager;
 
-    private SecurityManager securityManager;
+    private ServiceAccessController serviceAccessController;
+
+    private InvokeTimesController invokeTimesController;
 
     private boolean signEnable = true;
 
     private String extErrorBasename;
 
     private int serviceTimeoutSeconds = -1;
-    
-    private  Class<? extends ThreadFerry> threadFerryClass;
+
+    private Class<? extends ThreadFerry> threadFerryClass;
 
     private FormattingConversionService formattingConversionService;
 
     private AnnotationServletServiceRouter serviceRouter;
+
+    //多值用逗号分隔,默认支持4种格式的文件
+    private String uploadFileTypes = "gif,jpg,bmp,png";
+
+    //单位为K，默认为10M
+    private int uploadFileMaxSize = 10 * 1024;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -91,6 +95,10 @@ public class AnnotationServletServiceRouterFactoryBean
         return true;
     }
 
+    public void setInvokeTimesController(InvokeTimesController invokeTimesController) {
+        this.invokeTimesController = invokeTimesController;
+    }
+
     public void setThreadFerryClass(Class<? extends ThreadFerry> threadFerryClass) {
         this.threadFerryClass = threadFerryClass;
     }
@@ -104,19 +112,22 @@ public class AnnotationServletServiceRouterFactoryBean
         if (extErrorBasename != null) {
             serviceRouter.setExtErrorBasename(extErrorBasename);
         }
-        DefaultRopValidator ropValidator = BeanUtils.instantiate(DefaultRopValidator.class);
+        DefaultSecurityManager securityManager = BeanUtils.instantiate(DefaultSecurityManager.class);
 
-        ropValidator.setSessionManager(sessionManager);
-        ropValidator.setAppSecretManager(appSecretManager);
-        ropValidator.setSecurityManager(securityManager);
+        securityManager.setSessionManager(sessionManager);
+        securityManager.setAppSecretManager(appSecretManager);
+        securityManager.setServiceAccessController(serviceAccessController);
+        securityManager.setInvokeTimesController(invokeTimesController);
+        securityManager.setFileUploadController(buildFileUploadController());
 
-        serviceRouter.setRopValidator(ropValidator);
+        serviceRouter.setSecurityManager(securityManager);
         serviceRouter.setThreadPoolExecutor(threadPoolExecutor);
         serviceRouter.setSignEnable(signEnable);
         serviceRouter.setServiceTimeoutSeconds(serviceTimeoutSeconds);
         serviceRouter.setFormattingConversionService(formattingConversionService);
         serviceRouter.setSessionManager(sessionManager);
         serviceRouter.setThreadFerryClass(threadFerryClass);
+        serviceRouter.setInvokeTimesController(invokeTimesController);
 
         //注册拦截器
         ArrayList<Interceptor> interceptors = getInterceptors();
@@ -145,6 +156,14 @@ public class AnnotationServletServiceRouterFactoryBean
 
         //启动之
         serviceRouter.startup();
+    }
+
+    private DefaultFileUploadController buildFileUploadController() {
+        Assert.notNull(this.uploadFileTypes, "允许上传的文件类型不能为空");
+        Assert.isTrue(this.uploadFileMaxSize > 0);
+        String[] items = this.uploadFileTypes.split(",");
+        List<String> fileTypes = Arrays.asList(items);
+        return new DefaultFileUploadController(fileTypes, this.uploadFileMaxSize);
     }
 
     private ArrayList<Interceptor> getInterceptors() {
@@ -218,8 +237,24 @@ public class AnnotationServletServiceRouterFactoryBean
         this.appSecretManager = appSecretManager;
     }
 
-    public void setSecurityManager(SecurityManager securityManager) {
-        this.securityManager = securityManager;
+    public void setServiceAccessController(ServiceAccessController serviceAccessController) {
+        this.serviceAccessController = serviceAccessController;
+    }
+
+    public String getUploadFileTypes() {
+        return uploadFileTypes;
+    }
+
+    public void setUploadFileTypes(String uploadFileTypes) {
+        this.uploadFileTypes = uploadFileTypes;
+    }
+
+    public int getUploadFileMaxSize() {
+        return uploadFileMaxSize;
+    }
+
+    public void setUploadFileMaxSize(int uploadFileMaxSize) {
+        this.uploadFileMaxSize = uploadFileMaxSize;
     }
 }
 

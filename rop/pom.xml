@@ -55,6 +55,7 @@
         <unitils.version>3.3</unitils.version>
         <validation.version>1.0.0.GA</validation.version>
         <hibernateValidator.version>4.2.0.Final</hibernateValidator.version>
+        <codec.version>1.6</codec.version>
     </properties>
 
     <dependencies>
@@ -75,6 +76,12 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${log4j.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+          <version>${codec.version}</version>
         </dependency>
 
         <dependency>

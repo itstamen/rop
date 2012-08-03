@@ -5,8 +5,8 @@
 package com.rop;
 
 import com.rop.event.RopEventListener;
+import com.rop.security.*;
 import com.rop.session.SessionManager;
-import com.rop.validation.RopValidator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.format.support.FormattingConversionService;
 
@@ -84,11 +84,11 @@ public interface ServiceRouter {
     void addListener(RopEventListener listener);
 
     /**
-     * 设置{@link RopValidator}
+     * 设置{@link com.rop.security.SecurityManager}
      *
-     * @param ropValidator
+     * @param securityManager
      */
-    void setRopValidator(RopValidator ropValidator);
+    void setSecurityManager(com.rop.security.SecurityManager securityManager);
 
     /**
      * 注册
@@ -131,6 +131,12 @@ public interface ServiceRouter {
      * @param sessionManager
      */
     void setSessionManager(SessionManager sessionManager);
+
+    /**
+     * 设置服务调用限制管理器
+     * @param invokeTimesController
+     */
+    void setInvokeTimesController(InvokeTimesController invokeTimesController);
 
     /**
      * 设置线程信息摆渡器

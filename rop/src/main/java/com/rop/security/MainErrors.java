@@ -2,7 +2,7 @@
  *
  * 日    期：12-2-11
  */
-package com.rop.validation;
+package com.rop.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

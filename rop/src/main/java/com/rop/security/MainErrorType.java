@@ -2,7 +2,7 @@
  *
  * 日    期：12-2-23
  */
-package com.rop.validation;
+package com.rop.security;
 
 import java.util.EnumMap;
 
@@ -18,11 +18,12 @@ public enum MainErrorType {
     SERVICE_CURRENTLY_UNAVAILABLE,
     INSUFFICIENT_ISV_PERMISSIONS,
     INSUFFICIENT_USER_PERMISSIONS,
-    APP_CALL_LIMITED,
+    UPLOAD_FAIL,
     HTTP_ACTION_NOT_ALLOWED,
     INVALID_ENCODING,
     FORBIDDEN_REQUEST,
     METHOD_OBSOLETED,
+    BUSINESS_LOGIC_ERROR,
     MISSING_SESSION,
     INVALID_SESSION,
     MISSING_APP_KEY,
@@ -35,10 +36,12 @@ public enum MainErrorType {
     INVALID_VERSION,
     UNSUPPORTED_VERSION,
     INVALID_FORMAT,
-    APP_PARAMETER_ERROR,
     MISSING_REQUIRED_ARGUMENTS,
     INVALID_ARGUMENTS,
-    UPLOAD_FAIL;
+    EXCEED_USER_INVOKE_LIMITED,
+    EXCEED_SESSION_INVOKE_LIMITED,
+    EXCEED_APP_INVOKE_LIMITED,
+    EXCEED_APP_INVOKE_FREQUENCY_LIMITED;
 
     private static EnumMap<MainErrorType, String> errorCodeMap = new EnumMap<MainErrorType, String>(MainErrorType.class);
 
@@ -46,11 +49,12 @@ public enum MainErrorType {
         errorCodeMap.put(MainErrorType.SERVICE_CURRENTLY_UNAVAILABLE, "1");
         errorCodeMap.put(MainErrorType.INSUFFICIENT_ISV_PERMISSIONS, "2");
         errorCodeMap.put(MainErrorType.INSUFFICIENT_USER_PERMISSIONS, "3");
-        errorCodeMap.put(MainErrorType.APP_CALL_LIMITED, "4");
+        errorCodeMap.put(MainErrorType.UPLOAD_FAIL, "4");
         errorCodeMap.put(MainErrorType.HTTP_ACTION_NOT_ALLOWED, "5");
         errorCodeMap.put(MainErrorType.INVALID_ENCODING, "6");
         errorCodeMap.put(MainErrorType.FORBIDDEN_REQUEST, "7");
         errorCodeMap.put(MainErrorType.METHOD_OBSOLETED, "8");
+        errorCodeMap.put(MainErrorType.BUSINESS_LOGIC_ERROR, "9");
         errorCodeMap.put(MainErrorType.MISSING_SESSION, "20");
         errorCodeMap.put(MainErrorType.INVALID_SESSION, "21");
         errorCodeMap.put(MainErrorType.MISSING_APP_KEY, "22");
@@ -63,10 +67,12 @@ public enum MainErrorType {
         errorCodeMap.put(MainErrorType.INVALID_VERSION, "29");
         errorCodeMap.put(MainErrorType.UNSUPPORTED_VERSION, "30");
         errorCodeMap.put(MainErrorType.INVALID_FORMAT, "31");
-        errorCodeMap.put(MainErrorType.APP_PARAMETER_ERROR, "32");
-        errorCodeMap.put(MainErrorType.MISSING_REQUIRED_ARGUMENTS, "33");
-        errorCodeMap.put(MainErrorType.INVALID_ARGUMENTS, "34");
-        errorCodeMap.put(MainErrorType.UPLOAD_FAIL, "35");
+        errorCodeMap.put(MainErrorType.MISSING_REQUIRED_ARGUMENTS, "32");
+        errorCodeMap.put(MainErrorType.INVALID_ARGUMENTS, "33");
+        errorCodeMap.put(MainErrorType.EXCEED_USER_INVOKE_LIMITED, "34");
+        errorCodeMap.put(MainErrorType.EXCEED_SESSION_INVOKE_LIMITED, "35");
+        errorCodeMap.put(MainErrorType.EXCEED_APP_INVOKE_LIMITED, "36");
+        errorCodeMap.put(MainErrorType.EXCEED_APP_INVOKE_FREQUENCY_LIMITED, "37");
     }
 
     public String value() {

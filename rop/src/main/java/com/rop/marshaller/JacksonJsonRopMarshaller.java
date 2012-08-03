@@ -18,7 +18,7 @@ import java.io.OutputStream;
 
 /**
  * <pre>
- *    将{@link com.rop.RopResponse}流化成JSON。
+ *    将{@link com.rop.RopResponse}流化成JSON。 {@link ObjectMapper}是线程安全的。
  * </pre>
  *
  * @author 陈雄华
@@ -27,7 +27,6 @@ import java.io.OutputStream;
 public class JacksonJsonRopMarshaller implements RopMarshaller {
 
     private static ObjectMapper objectMapper;
-
     public void marshaller(Object object, OutputStream outputStream) {
         try {
             JsonGenerator jsonGenerator = getObjectMapper().getJsonFactory().createJsonGenerator(outputStream, JsonEncoding.UTF8);
@@ -42,8 +41,9 @@ public class JacksonJsonRopMarshaller implements RopMarshaller {
             ObjectMapper objectMapper = new ObjectMapper();
             AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
             SerializationConfig serializationConfig = objectMapper.getSerializationConfig();
-            serializationConfig = serializationConfig.with(SerializationConfig.Feature.WRAP_ROOT_VALUE)
-                    .withAnnotationIntrospector(introspector);
+            serializationConfig = serializationConfig.without(SerializationConfig.Feature.WRAP_ROOT_VALUE)
+                                                     .with(SerializationConfig.Feature.INDENT_OUTPUT)
+                                                     .withAnnotationIntrospector(introspector);
             objectMapper.setSerializationConfig(serializationConfig);
             this.objectMapper = objectMapper;
         }

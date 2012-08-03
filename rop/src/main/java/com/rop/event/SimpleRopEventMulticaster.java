@@ -4,7 +4,11 @@
  */
 package com.rop.event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * <pre>
@@ -16,22 +20,28 @@ import java.util.concurrent.Executor;
  */
 public class SimpleRopEventMulticaster extends AbstractRopEventMulticaster {
 
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+
     private Executor executor;
 
     @Override
     public void multicastEvent(final RopEvent event) {
-        for (final RopEventListener listener : getRopEventListeners(event)) {
-            Executor executor = getExecutor();
-            if (executor != null) {
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onRopEvent(event);
-                    }
-                });
-            } else {
-                listener.onRopEvent(event);
+        try {
+            for (final RopEventListener listener : getRopEventListeners(event)) {
+                Executor executor = getExecutor();
+                if (executor != null) {
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onRopEvent(event);
+                        }
+                    });
+                } else {
+                    listener.onRopEvent(event);
+                }
             }
+        } catch (Exception e) {
+            logger.error("处理"+event.getClass().getName()+"事件发生异常",e);
         }
     }
 

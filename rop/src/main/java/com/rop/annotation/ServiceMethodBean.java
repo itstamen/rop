@@ -52,7 +52,7 @@ public @interface ServiceMethodBean {
      *
      * @return
      */
-    int timeout() default 0;
+    int timeout() default -1;
 
     /**
      * 该方法所对应的版本号，对应version请求参数的值，版本为空，表示不进行版本限定
@@ -73,13 +73,19 @@ public @interface ServiceMethodBean {
      *
      * @return
      */
-    NeedInSessionType needInSession() default NeedInSessionType.INVALID;
+    NeedInSessionType needInSession() default NeedInSessionType.DEFAULT;
 
     /**
      * 是否忽略签名检查，默认不忽略
      *
      * @return
      */
-    IgnoreSignType ignoreSign() default IgnoreSignType.INVALID;
+    IgnoreSignType ignoreSign() default IgnoreSignType.DEFAULT;
+
+    /**
+     * 服务方法是否已经过期，默认不过期
+     * @return
+     */
+    ObsoletedType obsoleted() default  ObsoletedType.DEFAULT;
 }
 

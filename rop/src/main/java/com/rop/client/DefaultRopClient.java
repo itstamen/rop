@@ -12,6 +12,11 @@ import com.rop.annotation.Temporary;
 import com.rop.client.unmarshaller.JacksonJsonRopUnmarshaller;
 import com.rop.client.unmarshaller.JaxbXmlRopUnmarshaller;
 import com.rop.config.SystemParameterNames;
+import com.rop.impl.DefaultRopContext;
+import com.rop.marshaller.MessageMarshallerUtils;
+import com.rop.request.RopConverter;
+import com.rop.request.UploadFile;
+import com.rop.request.UploadFileConverter;
 import com.rop.response.ErrorResponse;
 import com.rop.utils.RopUtils;
 import org.slf4j.Logger;
@@ -22,6 +27,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -48,9 +55,9 @@ public class DefaultRopClient implements RopClient {
     private String appSecret;
 
     //报文格式
-    private String format = MessageFormat.xml.name();
+    private MessageFormat messageFormat = MessageFormat.xml;
 
-    private String locale = "zh_CN";
+    private Locale locale = Locale.SIMPLIFIED_CHINESE;
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -64,18 +71,93 @@ public class DefaultRopClient implements RopClient {
     //请求类所有不需要进行签名的参数
     private Map<Class<?>, List<String>> requestIgnoreSignFieldNames = new HashMap<Class<?>, List<String>>();
 
+
+    //键为转换的目标类型
+    private static Map<Class<?>, RopConverter<String, ?>> ropConverterMap =
+            new HashMap<Class<?>, RopConverter<String, ?>>();
+
+    {
+        ropConverterMap.put(UploadFile.class, new UploadFileConverter());
+    }
+
     public DefaultRopClient(String serverUrl, String appKey, String appSecret) {
         this.serverUrl = serverUrl;
         this.appKey = appKey;
         this.appSecret = appSecret;
     }
 
-    public void setLocale(String locale) {
+    public DefaultRopClient(String serverUrl, String appKey, String appSecret, MessageFormat messageFormat) {
+        this.serverUrl = serverUrl;
+        this.appKey = appKey;
+        this.appSecret = appSecret;
+        this.messageFormat = messageFormat;
+    }
+
+    public DefaultRopClient(String serverUrl, String appKey, String appSecret, MessageFormat messageFormat, Locale locale) {
+        this.serverUrl = serverUrl;
+        this.appKey = appKey;
+        this.appSecret = appSecret;
+        this.messageFormat = messageFormat;
         this.locale = locale;
     }
 
-    public void setFormat(String format) {
-        this.format = format;
+
+    public MessageFormat getMessageFormat() {
+        return messageFormat;
+    }
+
+    public void setMessageFormat(MessageFormat messageFormat) {
+        this.messageFormat = messageFormat;
+    }
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+    }
+
+    @Override
+    public RopClient setAppKeyParamName(String paramName) {
+        SystemParameterNames.setAppKey(paramName);
+        return this;
+    }
+
+    @Override
+    public RopClient setSessionIdParamName(String paramName) {
+        SystemParameterNames.setSessionId(paramName);
+        return this;
+    }
+
+    @Override
+    public RopClient setMethodParamName(String paramName) {
+        SystemParameterNames.setMethod(paramName);
+        return this;
+    }
+
+    @Override
+    public RopClient setVersionParamName(String paramName) {
+        SystemParameterNames.setVersion(paramName);
+        return this;
+    }
+
+    @Override
+    public RopClient setFormatParamName(String paramName) {
+        SystemParameterNames.setFormat(paramName);
+        return this;
+    }
+
+    @Override
+    public RopClient setLocaleParamName(String paramName) {
+        SystemParameterNames.setLocale(paramName);
+        return this;
+    }
+
+    @Override
+    public RopClient setSignParamName(String paramName) {
+        SystemParameterNames.setSign(paramName);
+        return this;
     }
 
     @Override
@@ -88,6 +170,11 @@ public class DefaultRopClient implements RopClient {
             logger.debug("response:\n" + responseContent);
         }
         return toCompositeResponse(responseContent, ropResponseClass);
+    }
+
+    @Override
+    public void addRopConvertor(RopConverter ropConverter) {
+        this.ropConverterMap.put(ropConverter.getTargetClass(), ropConverter);
     }
 
     @Override
@@ -117,7 +204,7 @@ public class DefaultRopClient implements RopClient {
         boolean successful = isSuccessful(content);
         DefaultCompositeResponse<T> compositeResponse = new DefaultCompositeResponse<T>(successful);
 
-        if (MessageFormat.json.name().equalsIgnoreCase(this.format)) {
+        if (MessageFormat.json == messageFormat) {
             if (successful) {
                 T ropResponse = jsonUnmarshaller.unmarshaller(content, ropResponseClass);
                 compositeResponse.setSuccessRopResponse(ropResponse);
@@ -138,7 +225,7 @@ public class DefaultRopClient implements RopClient {
     }
 
     private boolean isSuccessful(String content) {
-        if (MessageFormat.json.name().equalsIgnoreCase(this.format)) {
+        if (MessageFormat.json == messageFormat) {
             return !(content.contains("{\"error\"") && content.contains("\"code\":"));
         } else {
             return !(content.contains("<error") && content.contains("code=\""));
@@ -157,14 +244,14 @@ public class DefaultRopClient implements RopClient {
         form.put(SystemParameterNames.getAppKey(), appKey);
         form.put(SystemParameterNames.getMethod(), methodName);
         form.put(SystemParameterNames.getVersion(), version);
-        form.put(SystemParameterNames.getFormat(), format);
-        form.put(SystemParameterNames.getLocale(), locale);
+        form.put(SystemParameterNames.getFormat(), messageFormat.name());
+        form.put(SystemParameterNames.getLocale(), locale.toString());
         if (sessionId != null) {
             form.put(SystemParameterNames.getSessionId(), sessionId);
         }
 
         //业务级参数
-        form.putAll(getParamFields(ropRequest));
+        form.putAll(getParamFields(ropRequest, messageFormat));
 
         //对请求进行签名
         String signValue = sign(ropRequest.getClass(), appSecret, form);
@@ -183,7 +270,7 @@ public class DefaultRopClient implements RopClient {
             requestUrl.append(entry.getKey());
             requestUrl.append("=");
             requestUrl.append(entry.getValue());
-            joinChar ="&";
+            joinChar = "&";
         }
         return requestUrl.toString();
     }
@@ -211,60 +298,71 @@ public class DefaultRopClient implements RopClient {
         }
     }
 
-    private Map<String, String> getParamFields(RopRequest ropRequest) {
+    private Map<String, String> getParamFields(RopRequest ropRequest, MessageFormat mf) {
         if (!requestAllFields.containsKey(ropRequest.getClass())) {
-            final ArrayList<Field> allFields = new ArrayList<Field>();
-            final ArrayList<String> ignoreSignFieldNames = new ArrayList<String>();
-            ReflectionUtils.doWithFields(ropRequest.getClass(), new ReflectionUtils.FieldCallback() {
-                @Override
-                public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
-                    ReflectionUtils.makeAccessible(field);
-                    if (!isTemporaryField(field)) {
-                        allFields.add(field);
-                        if (isIgoreSignField(field)) {
-                            ignoreSignFieldNames.add(field.getName());
-                        }
-                    }
-                }
-
-                private boolean isTemporaryField(Field field) {
-                    Annotation[] declaredAnnotations = field.getDeclaredAnnotations();
-                    if (declaredAnnotations != null) {
-                        for (Annotation declaredAnnotation : declaredAnnotations) {
-                            if (declaredAnnotation.equals(Temporary.class)) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                }
-
-                private boolean isIgoreSignField(Field field) {
-                    Annotation[] declaredAnnotations = field.getDeclaredAnnotations();
-                    if (declaredAnnotations != null) {
-                        for (Annotation declaredAnnotation : declaredAnnotations) {
-                            if(ClassUtils.isAssignableValue(IgnoreSign.class,declaredAnnotation)){
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                }
-            });
-
-            requestAllFields.put(ropRequest.getClass(), allFields);
-            requestIgnoreSignFieldNames.put(ropRequest.getClass(), ignoreSignFieldNames);
+            parseRopRequestClass(ropRequest);
         }
+        return toParamValueMap(ropRequest, mf);
+    }
 
+    private Map<String, String> toParamValueMap(RopRequest ropRequest, MessageFormat mf) {
         List<Field> fields = requestAllFields.get(ropRequest.getClass());
         Map<String, String> params = new HashMap<String, String>();
         for (Field field : fields) {
+            RopConverter convertor = getConvertor(field.getType());
             Object fieldValue = ReflectionUtils.getField(field, ropRequest);
             if (fieldValue != null) {
-                params.put(field.getName(), fieldValue.toString());
+                if (convertor != null) {//有对应转换器
+                    String strParamValue = (String) convertor.unconvert(fieldValue);
+                    params.put(field.getName(), strParamValue);
+                } else if (field.getType().isAnnotationPresent(XmlRootElement.class) ||
+                        field.getType().isAnnotationPresent(XmlType.class)) {
+                    String message = MessageMarshallerUtils.getMessage(fieldValue, mf);
+                    params.put(field.getName(), message);
+                } else {
+                    params.put(field.getName(), fieldValue.toString());
+                }
             }
         }
         return params;
+    }
+
+    private RopConverter getConvertor(Class<?> fieldType) {
+        for (Class<?> aClass : ropConverterMap.keySet()) {
+            if (ClassUtils.isAssignable(aClass, fieldType)) {
+                return ropConverterMap.get(aClass);
+            }
+        }
+        return null;
+    }
+
+    private void parseRopRequestClass(RopRequest ropRequest) {
+        final ArrayList<Field> allFields = new ArrayList<Field>();
+        final List<String> ignoreSignFieldNames = DefaultRopContext.getIgnoreSignFieldNames(ropRequest.getClass());
+        ReflectionUtils.doWithFields(ropRequest.getClass(), new ReflectionUtils.FieldCallback() {
+            @Override
+            public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+                ReflectionUtils.makeAccessible(field);
+                if (!isTemporaryField(field)) {
+                    allFields.add(field);
+                }
+            }
+
+            private boolean isTemporaryField(Field field) {
+                Annotation[] declaredAnnotations = field.getDeclaredAnnotations();
+                if (declaredAnnotations != null) {
+                    for (Annotation declaredAnnotation : declaredAnnotations) {
+                        if (ClassUtils.isAssignable(Temporary.class, declaredAnnotation.getClass())) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        });
+
+        requestAllFields.put(ropRequest.getClass(), allFields);
+        requestIgnoreSignFieldNames.put(ropRequest.getClass(), ignoreSignFieldNames);
     }
 
 
@@ -275,5 +373,7 @@ public class DefaultRopClient implements RopClient {
         }
         return mvm;
     }
+
+
 }
 

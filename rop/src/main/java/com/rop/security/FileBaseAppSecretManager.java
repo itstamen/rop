@@ -2,20 +2,16 @@
  * 版权声明：中图一购网络科技有限公司 版权所有 违者必究 2012 
  * 日    期：12-3-1
  */
-package com.rop.validation;
+package com.rop.security;
 
 import com.rop.RopException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.util.ResourceUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Properties;
 
 /**

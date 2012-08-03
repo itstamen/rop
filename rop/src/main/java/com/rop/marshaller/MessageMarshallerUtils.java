@@ -7,12 +7,18 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.rop.*;
+import org.codehaus.jackson.JsonEncoding;
+import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
@@ -30,17 +36,14 @@ public class MessageMarshallerUtils {
 
     private static final String UTF_8 = "utf-8";
 
-    private static RopMarshaller xmlRopResponseMarshaller = new JaxbXmlRopMarshaller();
-
-    private static RopMarshaller jsonRopResponseMarshaller = new JacksonJsonRopMarshaller();
-
     private static ObjectMapper jsonObjectMapper = new ObjectMapper();
+
+    private static RopMarshaller xmlRopResponseMarshaller = new JaxbXmlRopMarshaller();
 
     static {
         SerializationConfig serializationConfig = jsonObjectMapper.getSerializationConfig();
-        serializationConfig = serializationConfig.with(SerializationConfig.Feature.INDENT_OUTPUT).
-                without(SerializationConfig.Feature.WRAP_ROOT_VALUE);
-        jsonObjectMapper.setSerializationConfig(serializationConfig);
+        serializationConfig = serializationConfig.without(SerializationConfig.Feature.WRAP_ROOT_VALUE)
+                .with(SerializationConfig.Feature.INDENT_OUTPUT);
     }
 
     private static XmlMapper xmlObjectMapper = new XmlMapper();
@@ -106,21 +109,28 @@ public class MessageMarshallerUtils {
     /**
      * 将{@link RopRequest}转换为字符串
      *
-     * @param response
+     * @param object
      * @param format
      * @return
      */
-    public static String getMessage(RopResponse response, MessageFormat format) {
+    public static String getMessage(Object object, MessageFormat format) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
         try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
             if (format == MessageFormat.json) {
-                jsonRopResponseMarshaller.marshaller(response, bos);
+                JsonGenerator jsonGenerator = jsonObjectMapper.getJsonFactory().createJsonGenerator(bos, JsonEncoding.UTF8);
+                jsonObjectMapper.writeValue(jsonGenerator, object);
             } else {
-                xmlRopResponseMarshaller.marshaller(response, bos);
+                xmlRopResponseMarshaller.marshaller(object, bos);
             }
             return bos.toString(UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (Throwable e) {
             throw new RopException(e);
+        } finally {
+            try {
+                bos.close();
+            } catch (IOException ee) {
+                logger.error("消息转换异常", ee);
+            }
         }
     }
 

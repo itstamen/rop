@@ -8,7 +8,7 @@ import com.rop.*;
 import com.rop.annotation.HttpAction;
 import com.rop.session.Session;
 import com.rop.utils.RopUtils;
-import com.rop.validation.MainError;
+import com.rop.security.MainError;
 
 import java.util.HashMap;
 import java.util.Locale;

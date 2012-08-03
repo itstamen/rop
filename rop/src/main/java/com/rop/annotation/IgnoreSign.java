@@ -16,7 +16,7 @@ import java.lang.annotation.*;
  * @author 陈雄华
  * @version 1.0
  */
-@Target({ElementType.FIELD})
+@Target({ElementType.FIELD,ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface IgnoreSign {

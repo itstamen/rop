@@ -6,6 +6,8 @@ package com.rop.client;
 
 import com.rop.RopRequest;
 import com.rop.RopResponse;
+import com.rop.config.SystemParameterNames;
+import com.rop.request.RopConverter;
 
 
 /**
@@ -17,6 +19,28 @@ import com.rop.RopResponse;
  * @version 1.0
  */
 public interface RopClient {
+
+    void addRopConvertor(RopConverter ropConverter);
+
+    /**
+     * 设置method系统参数的参数名，下同
+     * @param paramName
+     * @return
+     */
+    RopClient setAppKeyParamName(String paramName);
+
+    RopClient setSessionIdParamName(String paramName);
+
+    RopClient setMethodParamName(String paramName);
+
+    RopClient setVersionParamName(String paramName);
+
+    RopClient setFormatParamName(String paramName);
+
+    RopClient setLocaleParamName(String paramName);
+
+    RopClient setSignParamName(String paramName);
+
 
     /**
      * 如果不需要在会话环境下执行，则使用该方法

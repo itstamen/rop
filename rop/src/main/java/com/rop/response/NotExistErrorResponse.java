@@ -4,10 +4,10 @@
  */
 package com.rop.response;
 
-import com.rop.validation.MainError;
-import com.rop.validation.SubError;
-import com.rop.validation.SubErrorType;
-import com.rop.validation.SubErrors;
+import com.rop.security.MainError;
+import com.rop.security.SubError;
+import com.rop.security.SubErrorType;
+import com.rop.security.SubErrors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

@@ -4,10 +4,10 @@
  */
 package com.rop.response;
 
-import com.rop.validation.MainError;
-import com.rop.validation.SubError;
-import com.rop.validation.SubErrorType;
-import com.rop.validation.SubErrors;
+import com.rop.security.MainError;
+import com.rop.security.SubError;
+import com.rop.security.SubErrorType;
+import com.rop.security.SubErrors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -27,20 +27,28 @@ import java.util.Locale;
 @XmlRootElement(name = "error")
 public class TimeoutErrorResponse extends ErrorResponse {
 
+    private static final String ISP = "isp.";
+
+    private static final String SERVICE_TIMEOUT = "-service-timeout";
+
     public TimeoutErrorResponse() {
     }
 
-    public TimeoutErrorResponse(Locale locale) {
-        MainError mainError = SubErrors.getMainError(SubErrorType.ISP_REMOTE_SERVICE_TIMEOUT, locale);
-        String subErrorCode = SubErrors.getSubErrorCode(SubErrorType.ISP_REMOTE_SERVICE_TIMEOUT);
+    public TimeoutErrorResponse(String method, Locale locale, int timeout) {
+        MainError mainError = SubErrors.getMainError(SubErrorType.ISP_SERVICE_TIMEOUT, locale);
 
-
-        SubError subError = SubErrors.getSubError(subErrorCode, SubErrorType.ISP_REMOTE_SERVICE_TIMEOUT.value(), locale);
         ArrayList<SubError> subErrors = new ArrayList<SubError>();
+
+        String errorCodeKey = ISP + transform(method) + SERVICE_TIMEOUT;
+        SubError subError = SubErrors.getSubError(errorCodeKey,
+                SubErrorType.ISP_SERVICE_TIMEOUT.value(),
+                locale,
+                method, timeout);
         subErrors.add(subError);
 
-        setMainError(mainError);
         setSubErrors(subErrors);
+        setMainError(mainError);
     }
+
 }
 

@@ -4,6 +4,7 @@
  */
 package com.rop.impl;
 
+import com.rop.request.RopRequestMessageConverter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.format.support.FormattingConversionServiceFactoryBean;

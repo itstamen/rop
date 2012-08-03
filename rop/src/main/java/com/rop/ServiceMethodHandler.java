@@ -31,6 +31,9 @@ public class ServiceMethodHandler {
     //无需签名的字段列表
     private List<String> ignoreSignFieldNames;
 
+    //属性类型为FileItem的字段列表
+    private List<String> uploadFileFieldNames;
+
     //是否是实现类
     private boolean ropRequestImplType;
 
@@ -92,6 +95,18 @@ public class ServiceMethodHandler {
 
     public void setRopRequestImplType(boolean ropRequestImplType) {
         this.ropRequestImplType = ropRequestImplType;
+    }
+
+    public List<String> getUploadFileFieldNames() {
+        return uploadFileFieldNames;
+    }
+
+    public void setUploadFileFieldNames(List<String> uploadFileFieldNames) {
+        this.uploadFileFieldNames = uploadFileFieldNames;
+    }
+
+    public boolean hasUploadFiles(){
+        return uploadFileFieldNames != null && uploadFileFieldNames.size() > 0;
     }
 }
 

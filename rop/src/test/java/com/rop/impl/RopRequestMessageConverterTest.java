@@ -6,6 +6,7 @@ package com.rop.impl;
 
 import com.rop.MessageFormat;
 import com.rop.RopContext;
+import com.rop.request.RopRequestMessageConverter;
 import org.springframework.core.convert.TypeDescriptor;
 import org.testng.annotations.Test;
 

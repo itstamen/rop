@@ -2,13 +2,10 @@
  *
  * 日    期：12-2-12
  */
-package com.rop.validation;
+package com.rop.security;
 
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 
 /**
  * <pre>
@@ -25,7 +22,7 @@ public class SubError {
     @XmlAttribute
     private String code;
 
-    @XmlAttribute
+    @XmlElement
     private String message;
 
     public SubError() {

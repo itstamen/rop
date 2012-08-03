@@ -5,10 +5,10 @@
 package com.rop.response;
 
 import com.rop.RopResponse;
-import com.rop.validation.MainError;
-import com.rop.validation.MainErrorType;
-import com.rop.validation.MainErrors;
-import com.rop.validation.SubError;
+import com.rop.security.MainError;
+import com.rop.security.MainErrorType;
+import com.rop.security.MainErrors;
+import com.rop.security.SubError;
 
 import javax.xml.bind.annotation.*;
 import java.util.List;
@@ -29,10 +29,10 @@ public class ErrorResponse implements RopResponse {
     @XmlAttribute
     protected String code;
 
-    @XmlAttribute
+    @XmlElement
     protected String message;
 
-    @XmlAttribute
+    @XmlElement
     protected String solution;
 
     @XmlElementWrapper(name = "subErrors")
@@ -100,8 +100,12 @@ public class ErrorResponse implements RopResponse {
      * @return
      */
     protected String transform(String method) {
-        method = method.replace(".", "-");
-        return method;
+        if(method != null){
+            method = method.replace(".", "-");
+            return method;
+        }else{
+            return "LACK_METHOD";
+        }
     }
 
 }

@@ -33,16 +33,25 @@
                         <xsd:annotation>
                             <xsd:appinfo>
                                 <tool:annotation kind="ref">
-                                    <tool:expected-type type="java:com.rop.validation.AppSecretManager"/>
+                                    <tool:expected-type type="java:com.rop.security.AppSecretManager"/>
                                 </tool:annotation>
                             </xsd:appinfo>
                         </xsd:annotation>
                     </xsd:attribute>
-                    <xsd:attribute name="security-manager" type="xsd:string">
+                    <xsd:attribute name="service-access-controller" type="xsd:string">
                         <xsd:annotation>
                             <xsd:appinfo>
                                 <tool:annotation kind="ref">
-                                    <tool:expected-type type="java:com.rop.SecurityManager"/>
+                                    <tool:expected-type type="java:com.rop.security.ServiceAccessController"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="invoke-times-controller" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="java:com.rop.security.InvokeTimesController"/>
                                 </tool:annotation>
                             </xsd:appinfo>
                         </xsd:annotation>
@@ -55,6 +64,8 @@
                     <xsd:attribute name="keep-alive-seconds" type="xsd:integer"/>
                     <xsd:attribute name="queue-capacity" type="xsd:integer"/>
                     <xsd:attribute name="service-timeout-seconds" type="xsd:integer"/>
+                    <xsd:attribute name="upload-file-max-size" type="xsd:integer"/>
+                    <xsd:attribute name="upload-file-types" type="xsd:string"/>
                 </xsd:extension>
             </xsd:complexContent>
         </xsd:complexType>

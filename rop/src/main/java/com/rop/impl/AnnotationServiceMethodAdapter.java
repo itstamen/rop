@@ -10,6 +10,8 @@ import com.rop.ServiceMethodHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+
 
 /**
  * <pre>
@@ -44,7 +46,12 @@ public class AnnotationServiceMethodAdapter implements ServiceMethodAdapter {
                 return (RopResponse) serviceMethodHandler.getHandlerMethod().invoke(serviceMethodHandler.getHandler());
             }
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            if(e instanceof InvocationTargetException){
+                InvocationTargetException inve = (InvocationTargetException) e;
+                throw new RuntimeException(inve.getTargetException());
+            }else{
+                throw new RuntimeException(e);
+            }
         }
     }
 

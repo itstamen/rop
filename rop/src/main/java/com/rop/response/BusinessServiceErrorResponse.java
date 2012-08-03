@@ -4,9 +4,7 @@
  */
 package com.rop.response;
 
-import com.rop.validation.MainError;
-import com.rop.validation.SubError;
-import com.rop.validation.SubErrors;
+import com.rop.security.*;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -24,14 +22,14 @@ import java.util.Locale;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "error")
-public class ServiceErrorResponse extends ErrorResponse {
+public class BusinessServiceErrorResponse extends ErrorResponse {
 
     private static final String ISV = "isv.";
 
     private static final String SERVICE_ERROR = "-service-error:";
 
     //注意，这个不能删除，否则无法进行流化
-    public ServiceErrorResponse() {
+    public BusinessServiceErrorResponse() {
     }
 
     /**
@@ -45,8 +43,8 @@ public class ServiceErrorResponse extends ErrorResponse {
      * @param params      错误信息的参数，如错误消息的值为this is a {0} error，则传入的参数为big时，错误消息格式化为：
      *                    this is a big error
      */
-    public ServiceErrorResponse(String serviceName, String errorCode, Locale locale, Object... params) {
-        MainError mainError = getInvalidArgumentsError(locale);
+    public BusinessServiceErrorResponse(String serviceName, String errorCode, Locale locale, Object... params) {
+        MainError mainError = MainErrors.getError(MainErrorType.BUSINESS_LOGIC_ERROR,locale);
 
         serviceName = transform(serviceName);
         String subErrorCode = ISV + serviceName + SERVICE_ERROR + errorCode;
@@ -56,17 +54,6 @@ public class ServiceErrorResponse extends ErrorResponse {
 
         setMainError(mainError);
         setSubErrors(subErrors);
-    }
-
-    /**
-     * 对服务名进行标准化处理：如book.upload转换为book-upload，
-     *
-     * @param serviceName
-     * @return
-     */
-    protected String transform(String serviceName) {
-        serviceName = serviceName.replace(".", "-");
-        return serviceName;
     }
 
 }

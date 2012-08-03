@@ -4,7 +4,7 @@
  */
 package com.rop.impl;
 
-import com.rop.AbstractSecurityManager;
+import com.rop.security.AbstractServiceAccessController;
 
 /**
  * <pre>
@@ -14,7 +14,7 @@ import com.rop.AbstractSecurityManager;
  * @author 陈雄华
  * @version 1.0
  */
-public class DefaultSecurityManager extends AbstractSecurityManager {
+public class DefaultServiceAccessController extends AbstractServiceAccessController {
 
 }
 

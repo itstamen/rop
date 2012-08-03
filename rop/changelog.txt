@@ -36,6 +36,31 @@
 2.删除com.rop.validation.SessionChecker，采用com.rop.session新的会话管理体系，相应调整RopValidator的接口；
 
 
+1.0-SNAPSHOP-3 (2012-07-31)
+
+1.com.rop.response.ServiceErrorResponse 易名为BusinessServiceErrorResponse,其对应的主错误代码调整为9；
+2.新增com.rop.CallLimitManager，用以限定应用、会话、用户的访问效率及频率，在<rop:annotation-driver/>中添加call-limit-manager的配置属性；
+3.删除大部分ISP的子错误，仅留下isp.xxx-service-unavailable和isp.xxx-service-timeout错误；
+4.请求参数数据校验精细化处理，首先如何发现必须的参数未提供，则返回isv.missing-parameter:xxx错误，
+  然后再看是否存在数据类型转换的错误，如果存在则返回isv.parameters-mismatch:xxx-and-yyy错误，
+  最后查看是否存在其它类型的校验错误，如果存在则返回isv.invalid-paramete:xxx错误；
+5.添加了34~37的主错误，分别对应应用、会话及用户的访问超限；
+6.文件上传主错误码从34调用为4；
+7.错误报文的message,solution从属性调整为元素（因为其内容比较长，放在元素中好看些）；
+8.com.rop.SecurityManager的接口调用，新的接口方法一个用于检查应用的权限，另一个用户检查用户的权限，
+  当应用或用户的权限不满足要求时，返回的主错误码分别对应2和3；
+9.当服务内部抛出异常时，子错误对应isp.xxx-service-unavailable，其message会包含异常名字及异常的堆栈信息，方便问题定位和排查；
+10.新增FileItem对象及其转换器FileItemConverter；
+11.RopUtils新增若干个静态方法；
+12.如果RopRequest中的属性类型标注了@IgnoreSign，则也不纳入签名，FileItem类就打了@IgnoreSign
+13.新增com.rop.UploadFileSecurityManager类，用于管理上传文件的安全，同时<rop:annotation-driver/>中添加
+upload-file-max-size和upload-file-types属性。
+14.com.rop.validation包易名为com.rop.security,同时RopValidator易名为RopSecurityManager；
+15.com.rop.SecurityManager易名为com.rop.security.ServiceInvokeSecurityManager；
+16.CallLimitManager易名为InvokeTimesLimitSecurityManager
+
+
+
 
 
 

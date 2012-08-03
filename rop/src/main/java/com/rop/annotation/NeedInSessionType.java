@@ -13,10 +13,10 @@ package com.rop.annotation;
  * @version 1.0
  */
 public enum NeedInSessionType {
-    YES, NO, INVALID;
+    YES, NO, DEFAULT;
 
     public static boolean isNeedInSession(NeedInSessionType type) {
-        if (YES == type || INVALID == type) {
+        if (YES == type || DEFAULT == type) {
             return true;
         } else {
             return false;

@@ -7,6 +7,7 @@ package com.rop.impl;
 import com.rop.*;
 import com.rop.annotation.*;
 import com.rop.config.SystemParameterNames;
+import com.rop.request.UploadFile;
 import com.rop.session.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ import java.util.*;
  */
 public class DefaultRopContext implements RopContext {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    protected static Logger logger = LoggerFactory.getLogger(DefaultRopContext.class);
 
     private final Map<String, ServiceMethodHandler> serviceHandlerMap = new HashMap<String, ServiceMethodHandler>();
 
@@ -143,6 +144,9 @@ public class DefaultRopContext implements RopContext {
                             //2.set sign fieldNames
                             serviceMethodHandler.setIgnoreSignFieldNames(getIgnoreSignFieldNames(serviceMethodHandler.getRequestType()));
 
+                            //3.set fileItemFieldNames
+                            serviceMethodHandler.setUploadFileFieldNames(getFileItemFieldNames(serviceMethodHandler.getRequestType()));
+
                             addServiceMethod(definition.getMethod(), definition.getVersion(), serviceMethodHandler);
 
                             if (logger.isDebugEnabled()) {
@@ -177,6 +181,7 @@ public class DefaultRopContext implements RopContext {
         definition.setIgnoreSign(IgnoreSignType.isIgnoreSign(serviceMethod.ignoreSign()));
         definition.setVersion(serviceMethod.version());
         definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethod.needInSession()));
+        definition.setObsoleted(ObsoletedType.isObsoleted(serviceMethod.obsoleted()));
         definition.setHttpAction(serviceMethod.httpAction());
         return definition;
     }
@@ -191,6 +196,7 @@ public class DefaultRopContext implements RopContext {
         definition.setVersion(serviceMethodBean.version());
         definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethodBean.needInSession()));
         definition.setHttpAction(serviceMethodBean.httpAction());
+        definition.setObsoleted(ObsoletedType.isObsoleted(serviceMethodBean.obsoleted()));
 
         //如果ServiceMethod所提供的值和ServiceMethodGroup不一样，覆盖之
         definition.setMethod(serviceMethod.value());
@@ -208,11 +214,11 @@ public class DefaultRopContext implements RopContext {
             definition.setTags(serviceMethod.tags());
         }
 
-        if (serviceMethod.timeout() != -100) {
+        if (serviceMethod.timeout() != definition.getTimeout()) {
             definition.setTimeout(serviceMethod.timeout());
         }
 
-        if (serviceMethod.ignoreSign() != IgnoreSignType.INVALID) {
+        if (serviceMethod.ignoreSign() != IgnoreSignType.DEFAULT) {
             definition.setIgnoreSign(IgnoreSignType.isIgnoreSign(serviceMethod.ignoreSign()));
         }
 
@@ -220,8 +226,12 @@ public class DefaultRopContext implements RopContext {
             definition.setVersion(serviceMethod.version());
         }
 
-        if (serviceMethod.needInSession() != NeedInSessionType.INVALID) {
+        if (serviceMethod.needInSession() != NeedInSessionType.DEFAULT) {
             definition.setNeedInSession(NeedInSessionType.isNeedInSession(serviceMethod.needInSession()));
+        }
+
+        if (serviceMethod.obsoleted() != ObsoletedType.DEFAULT) {
+            definition.setObsoleted(ObsoletedType.isObsoleted(serviceMethod.obsoleted()));
         }
 
         if (serviceMethod.httpAction().length > 0) {
@@ -231,7 +241,7 @@ public class DefaultRopContext implements RopContext {
         return definition;
     }
 
-    private List<String> getIgnoreSignFieldNames(Class<? extends RopRequest> requestType) {
+    public static List<String> getIgnoreSignFieldNames(Class<? extends RopRequest> requestType) {
         final ArrayList<String> igoreSignFieldNames = new ArrayList<String>(1);
         igoreSignFieldNames.add(SystemParameterNames.getSign());
         if (requestType != null) {
@@ -245,16 +255,40 @@ public class DefaultRopContext implements RopContext {
                     },
                     new ReflectionUtils.FieldFilter() {
                         public boolean matches(Field field) {
-                            IgnoreSign ignoreSign = field.getAnnotation(IgnoreSign.class);
-                            return ignoreSign != null;
+                            IgnoreSign typeIgnore = AnnotationUtils.findAnnotation(field.getType(), IgnoreSign.class);
+                            IgnoreSign varIgnoreSign = field.getAnnotation(IgnoreSign.class);
+                            return typeIgnore != null || varIgnoreSign != null;
                         }
                     }
             );
-            if (logger.isDebugEnabled()) {
+            if (igoreSignFieldNames.size() > 1 && logger.isDebugEnabled()) {
                 logger.debug(requestType.getCanonicalName() + "不需要签名的属性:" + igoreSignFieldNames.toString());
             }
         }
         return igoreSignFieldNames;
+    }
+
+    private List<String> getFileItemFieldNames(Class<? extends RopRequest> requestType) {
+        final ArrayList<String> fileItemFieldNames = new ArrayList<String>(1);
+        if (requestType != null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("获取" + requestType.getCanonicalName() + "类型为FileItem的字段名");
+            }
+
+            ReflectionUtils.doWithFields(requestType, new ReflectionUtils.FieldCallback() {
+                        public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+                            fileItemFieldNames.add(field.getName());
+                        }
+                    },
+                    new ReflectionUtils.FieldFilter() {
+                        public boolean matches(Field field) {
+                            return ClassUtils.isAssignable(UploadFile.class, field.getType());
+                        }
+                    }
+            );
+
+        }
+        return fileItemFieldNames;
     }
 
 
