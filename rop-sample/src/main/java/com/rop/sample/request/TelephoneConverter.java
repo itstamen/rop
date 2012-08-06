@@ -4,6 +4,7 @@
  */
 package com.rop.sample.request;
 
+import com.rop.request.RopConverter;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.StringUtils;
 
@@ -15,7 +16,7 @@ import org.springframework.util.StringUtils;
  * @author 陈雄华
  * @version 1.0
  */
-public class TelephoneConverter implements Converter<String, Telephone> {
+public class TelephoneConverter implements RopConverter<String, Telephone> {
 
     @Override
     public Telephone convert(String source) {
@@ -29,6 +30,25 @@ public class TelephoneConverter implements Converter<String, Telephone> {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public String unconvert(Telephone target) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(target.getZoneCode());
+        sb.append("-");
+        sb.append(target.getTelephoneCode());
+        return sb.toString();
+    }
+
+    @Override
+    public Class<String> getSourceClass() {
+        return String.class;
+    }
+
+    @Override
+    public Class<Telephone> getTargetClass() {
+        return Telephone.class;
     }
 }
 

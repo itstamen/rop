@@ -4,8 +4,6 @@
  */
 package com.rop.sample.response;
 
-import com.rop.RopResponse;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -21,7 +19,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "uploadUserPhotoResponse")
-public class UploadUserPhotoResponse implements RopResponse{
+public class UploadUserPhotoResponse{
 
     @XmlAttribute
     private String fileType;

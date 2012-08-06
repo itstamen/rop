@@ -5,7 +5,6 @@
 package com.rop.sample;
 
 import com.rop.RopRequest;
-import com.rop.RopResponse;
 import com.rop.annotation.ServiceMethod;
 import com.rop.annotation.ServiceMethodBean;
 
@@ -21,8 +20,8 @@ import com.rop.annotation.ServiceMethodBean;
 public class LogoutService {
 
     @ServiceMethod(value = "user.logout")
-    public RopResponse logout(RopRequest request){
-        return new RopResponse() {};
+    public Object logout(RopRequest request){
+        return null;
     }
 }
 

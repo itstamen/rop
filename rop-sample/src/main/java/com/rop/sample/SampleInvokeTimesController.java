@@ -7,7 +7,8 @@ package com.rop.sample;
 import com.rop.security.InvokeTimesController;
 import com.rop.session.Session;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <pre>
@@ -19,7 +20,6 @@ import java.util.*;
  */
 public class SampleInvokeTimesController implements InvokeTimesController {
    
-    private int timesPerSecond = 0;
     private static Map<String,Integer> appCallLimits = new HashMap<String,Integer>();
     private static Map<String,Integer> appCallCounter = new HashMap<String,Integer>();
     static {

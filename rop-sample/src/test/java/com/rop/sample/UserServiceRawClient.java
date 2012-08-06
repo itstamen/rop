@@ -5,8 +5,8 @@
 package com.rop.sample;
 
 import com.rop.request.UploadFile;
-import com.rop.utils.RopUtils;
 import com.rop.security.MainErrorType;
+import com.rop.utils.RopUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.LinkedMultiValueMap;
@@ -304,8 +304,7 @@ public class UserServiceRawClient {
     }
 
     /**
-     * 由于{@link com.rop.sample.request.CreateUserRequest#password}标注了{@link com.rop.annotation.IgnoreSign},所以Rop
-     * 会忽略对password请求参数进行签名验证。
+     * 忽略对 user.add#4.0服务的会话验证功能
      */
     @Test
     public void testIngoreSession() {
@@ -319,6 +318,27 @@ public class UserServiceRawClient {
         String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
 
         form.add("sign", sign);
+
+        String response = restTemplate.postForObject(SERVER_URL, form, String.class);
+        System.out.println("response:\n" + response);
+        assertTrue(response.indexOf("userId=\"4\"") > -1);
+    }
+
+    /**
+     * 忽略对user.add#5.0服务的签名验证功能
+     */
+    @Test
+    public void testIngoreSign() {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+        form.add("appKey", "00001");
+        form.add("method", "user.add");//<--指定方法名称
+        form.add("v", "5.0");
+        form.add("userName", "tomsony");
+        form.add("sessionId", "mockSessionId1");
+        form.add("salary", "2,500.00");
+//        String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
+//        form.add("sign", sign);
 
         String response = restTemplate.postForObject(SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);

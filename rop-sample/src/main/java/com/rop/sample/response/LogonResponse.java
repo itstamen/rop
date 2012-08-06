@@ -4,7 +4,6 @@
  */
 package com.rop.sample.response;
 
-import com.rop.RopResponse;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -21,7 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "logonResponse")
-public class LogonResponse implements RopResponse {
+public class LogonResponse{
 
     @XmlAttribute
     private String sessionId;

@@ -58,9 +58,6 @@ public class ReservedUserNameInterceptor extends AbstractInterceptor {
      */
     @Override
     public boolean isMatch(RopRequestContext ropRequestContext) {
-//        if("group1".equals(methodContext.getServiceMethodDefinition().getMethodGroup())){
-//            //do sth
-//        }
         return "user.add".equals(ropRequestContext.getMethod());
     }
 }

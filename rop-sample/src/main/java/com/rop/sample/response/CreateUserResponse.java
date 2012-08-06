@@ -4,7 +4,6 @@
  */
 package com.rop.sample.response;
 
-import com.rop.RopResponse;
 
 import javax.xml.bind.annotation.*;
 
@@ -18,7 +17,7 @@ import javax.xml.bind.annotation.*;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "createUserResponse")
-public class CreateUserResponse implements RopResponse {
+public class CreateUserResponse{
 
     @XmlAttribute
     private String userId;
