@@ -4,7 +4,6 @@
  */
 package com.rop.marshaller;
 
-import com.rop.RopResponse;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -21,7 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "sampleResponse")
-public class SampleResponse implements RopResponse {
+public class SampleResponse{
 
     @XmlAttribute
     private String userId;

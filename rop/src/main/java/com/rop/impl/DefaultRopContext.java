@@ -124,6 +124,7 @@ public class DefaultRopContext implements RopContext {
                             serviceMethodHandler.setHandler(context.getBean(beanName)); //handler
                             serviceMethodHandler.setHandlerMethod(method); //handler'method
 
+
                             if (method.getParameterTypes().length > 1) {//handler method's parameter
                                 throw new RopException(method.getDeclaringClass().getName() + "." + method.getName()
                                         + "的入参只能是" + RopRequest.class.getName() + "或无入参。");
@@ -255,9 +256,17 @@ public class DefaultRopContext implements RopContext {
                     },
                     new ReflectionUtils.FieldFilter() {
                         public boolean matches(Field field) {
+
+                            //属性类标注了@IgnoreSign
                             IgnoreSign typeIgnore = AnnotationUtils.findAnnotation(field.getType(), IgnoreSign.class);
+
+                            //属性定义处标注了@IgnoreSign
                             IgnoreSign varIgnoreSign = field.getAnnotation(IgnoreSign.class);
-                            return typeIgnore != null || varIgnoreSign != null;
+
+                            //属性定义处标注了@Temporary
+                            Temporary varTemporary = field.getAnnotation(Temporary.class);
+
+                            return typeIgnore != null || varIgnoreSign != null || varTemporary != null;
                         }
                     }
             );

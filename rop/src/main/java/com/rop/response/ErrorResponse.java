@@ -4,7 +4,6 @@
  */
 package com.rop.response;
 
-import com.rop.RopResponse;
 import com.rop.security.MainError;
 import com.rop.security.MainErrorType;
 import com.rop.security.MainErrors;
@@ -24,7 +23,7 @@ import java.util.Locale;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "error")
-public class ErrorResponse implements RopResponse {
+public class ErrorResponse{
 
     @XmlAttribute
     protected String code;

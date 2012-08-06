@@ -37,10 +37,26 @@ public class RopUtils {
      * @return
      */
     public static String sign(Map<String, String> paramValues, String secret) {
+        return sign(paramValues,null,secret);
+    }
+
+    /**
+     * 对paramValues进行签名，其中ignoreParamNames这些参数不参与签名
+     * @param paramValues
+     * @param ignoreParamNames
+     * @param secret
+     * @return
+     */
+    public static String sign(Map<String, String> paramValues, List<String> ignoreParamNames,String secret) {
         try {
             StringBuilder sb = new StringBuilder();
             List<String> paramNames = new ArrayList<String>(paramValues.size());
             paramNames.addAll(paramValues.keySet());
+            if(ignoreParamNames != null && ignoreParamNames.size() > 0){
+                for (String ignoreParamName : ignoreParamNames) {
+                    paramNames.remove(ignoreParamName);
+                }
+            }
             Collections.sort(paramNames);
 
             sb.append(secret);
@@ -53,7 +69,7 @@ public class RopUtils {
         } catch (IOException e) {
             throw new RopException(e);
         }
-    }
+    }    
 
     public static String utf8Encoding(String value, String sourceCharsetName) {
         try {

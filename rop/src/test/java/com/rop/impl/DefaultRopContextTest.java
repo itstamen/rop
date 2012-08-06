@@ -4,7 +4,10 @@
  */
 package com.rop.impl;
 
-import com.rop.*;
+import com.rop.AbstractRopRequest;
+import com.rop.RopContext;
+import com.rop.ServiceMethodDefinition;
+import com.rop.ServiceMethodHandler;
 import com.rop.annotation.*;
 import com.rop.request.UploadFile;
 import org.springframework.context.ApplicationContext;
@@ -16,7 +19,6 @@ import java.util.List;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
-import static org.testng.Assert.assertNotNull;
 
 /**
  * <pre>
@@ -108,7 +110,7 @@ public class DefaultRopContextTest {
     public class IgnoreSignRopRequestService {
 
         @ServiceMethod(value = "method1", version = "1.0")
-        public RopResponse method1(FooRopRequest request) {
+        public Object method1(FooRopRequest request) {
             return null;
         }
     }
@@ -163,9 +165,8 @@ public class DefaultRopContextTest {
         @ServiceMethod(value = "service.method1", title = "测试方法1", group = "GROUP1", groupTitle = "分组1",
                 tags = {"TAG1", "TAG2"}, ignoreSign = IgnoreSignType.YES,
                 needInSession = NeedInSessionType.NO, timeout = 100, version = "1.0")
-        public RopResponse service1() {
-            return new RopResponse() {
-            };
+        public Object service1() {
+             return null;
         }
     }
 
@@ -175,17 +176,15 @@ public class DefaultRopContextTest {
     public class WithGroupService {
 
         @ServiceMethod(value = "service.method1", version = "1.0", title = "测试方法1")
-        public RopResponse service1() {
-            return new RopResponse() {
-            };
+        public Object service1() {
+            return null;
         }
 
         @ServiceMethod(value = "service.method2", title = "测试方法2", group = "GROUP2", groupTitle = "分组2",
                 tags = {"TAG11", "TAG21"}, ignoreSign = IgnoreSignType.NO,
                 needInSession = NeedInSessionType.YES, timeout = 200, version = "2.0")
-        public RopResponse service2() {
-            return new RopResponse() {
-            };
+        public Object service2() {
+            return null;
         }
     }
 

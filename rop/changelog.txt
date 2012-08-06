@@ -58,6 +58,7 @@ upload-file-max-size和upload-file-types属性。
 14.com.rop.validation包易名为com.rop.security,同时RopValidator易名为RopSecurityManager；
 15.com.rop.SecurityManager易名为com.rop.security.ServiceInvokeSecurityManager；
 16.CallLimitManager易名为InvokeTimesLimitSecurityManager
+17.删除RopResponse,服务方法的返回值可以是任何类型。
 
 
 

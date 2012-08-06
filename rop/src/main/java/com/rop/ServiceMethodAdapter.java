@@ -19,7 +19,7 @@ public interface ServiceMethodAdapter {
      * @param ropRequestContext
      * @return
      */
-    RopResponse invokeServiceMethod(RopRequestContext ropRequestContext);
+    Object invokeServiceMethod(RopRequestContext ropRequestContext);
 
 }
 

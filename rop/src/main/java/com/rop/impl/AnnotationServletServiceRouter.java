@@ -15,10 +15,10 @@ import com.rop.response.ErrorResponse;
 import com.rop.response.RejectedServiceResponse;
 import com.rop.response.ServiceUnavailableErrorResponse;
 import com.rop.response.TimeoutErrorResponse;
+import com.rop.security.*;
 import com.rop.security.SecurityManager;
 import com.rop.session.DefaultSessionManager;
 import com.rop.session.SessionManager;
-import com.rop.security.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -120,7 +120,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
             RopRequestContext ropRequestContext = buildRequestContextWhenException(servletRequest, beginTime);
             TimeoutErrorResponse ropResponse =
                     new TimeoutErrorResponse(ropRequestContext.getMethod(),
-                            ropRequestContext.getLocale(),serviceMethodTimeout);
+                            ropRequestContext.getLocale(), serviceMethodTimeout);
             writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
             fireAfterDoServiceEvent(ropRequestContext);
         } catch (Throwable throwable) {//产生未知的错误
@@ -275,7 +275,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
     }
 
     public int getServiceTimeoutSeconds() {
-        return serviceTimeoutSeconds > 0 ? serviceTimeoutSeconds : Integer.MAX_VALUE;
+        return serviceTimeoutSeconds >= 0 ? serviceTimeoutSeconds : Integer.MAX_VALUE;
     }
 
     /**
@@ -291,10 +291,10 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
             return getServiceTimeoutSeconds();
         } else {
             int methodTimeout = serviceMethodHandler.getServiceMethodDefinition().getTimeout();
-            if(methodTimeout < 0){
-               return getServiceTimeoutSeconds();
-            }else{
-               return methodTimeout;
+            if (methodTimeout <= 0) {
+                return getServiceTimeoutSeconds();
+            } else {
+                return methodTimeout;
             }
         }
     }
@@ -304,6 +304,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         private HttpServletRequest servletRequest;
         private HttpServletResponse servletResponse;
         private ThreadFerry threadFerry;
+
         private ServiceRunnable(HttpServletRequest servletRequest,
                                 HttpServletResponse servletResponse,
                                 ThreadFerry threadFerry) {
@@ -347,7 +348,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                             //如果拦截器没有产生ropResponse时才调用服务方法
                             ropRequestContext.setRopResponse(doService(ropRequestContext));
 
-                            //返回响应后拦截
+                            //输出响应前拦截
                             invokeBeforceResponseOfInterceptors(ropRequestContext);
                         }
                     }
@@ -358,6 +359,9 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                 String method = ropRequestContext.getMethod();
                 Locale locale = ropRequestContext.getLocale();
                 ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale, e);
+
+                //输出响应前拦截
+                invokeBeforceResponseOfInterceptors(ropRequestContext);
                 writeResponse(ropResponse, servletResponse, ropRequestContext.getMessageFormat());
             } finally {
                 if (ropRequestContext != null) {
@@ -485,7 +489,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         }
     }
 
-    private void writeResponse(RopResponse ropResponse, HttpServletResponse httpServletResponse, MessageFormat messageFormat) {
+    private void writeResponse(Object ropResponse, HttpServletResponse httpServletResponse, MessageFormat messageFormat) {
         try {
             httpServletResponse.setCharacterEncoding(Constants.UTF8);
             if (messageFormat == MessageFormat.xml) {
@@ -500,8 +504,8 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         }
     }
 
-    private RopResponse doService(RopRequestContext ropRequestContext) {
-        RopResponse ropResponse = null;
+    private Object doService(RopRequestContext ropRequestContext) {
+        Object ropResponse = null;
         if (ropRequestContext.getMethod() == null) {
             ropResponse = new ErrorResponse(MainErrors.getError(MainErrorType.MISSING_METHOD, ropRequestContext.getLocale()));
         } else if (!ropContext.isValidMethod(ropRequestContext.getMethod())) {

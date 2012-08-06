@@ -22,17 +22,17 @@ public class UploadFileConverter implements RopConverter<String, UploadFile> {
     }
 
     @Override
-    public String unconvert(UploadFile uploadFile) {
-        return UploadFileUtils.encode(uploadFile);
+    public String unconvert(UploadFile target) {
+        return UploadFileUtils.encode(target);
     }
 
     @Override
-    public Class<? extends String> getSourceClass() {
+    public Class<String> getSourceClass() {
         return String.class;
     }
 
     @Override
-    public Class<? extends UploadFile> getTargetClass() {
+    public Class<UploadFile> getTargetClass() {
         return UploadFile.class;
     }
 }

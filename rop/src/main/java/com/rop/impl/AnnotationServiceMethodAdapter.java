@@ -4,11 +4,12 @@
 package com.rop.impl;
 
 import com.rop.RopRequestContext;
-import com.rop.RopResponse;
 import com.rop.ServiceMethodAdapter;
 import com.rop.ServiceMethodHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -25,13 +26,15 @@ public class AnnotationServiceMethodAdapter implements ServiceMethodAdapter {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
+    private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+
     /**
      * 调用ROP服务方法
      *
      * @param ropRequestContext
      * @return
      */
-    public RopResponse invokeServiceMethod(RopRequestContext ropRequestContext) {
+    public Object invokeServiceMethod(RopRequestContext ropRequestContext) {
         try {
             //分析上下文中的错误
             ServiceMethodHandler serviceMethodHandler = ropRequestContext.getServiceMethodHandler();
@@ -40,16 +43,16 @@ public class AnnotationServiceMethodAdapter implements ServiceMethodAdapter {
                         "." + serviceMethodHandler.getHandlerMethod().getName());
             }
             if (serviceMethodHandler.isHandlerMethodWithParameter()) {
-                return (RopResponse) serviceMethodHandler.getHandlerMethod().invoke(
+                return serviceMethodHandler.getHandlerMethod().invoke(
                         serviceMethodHandler.getHandler(), ropRequestContext.getRopRequest());
             } else {
-                return (RopResponse) serviceMethodHandler.getHandlerMethod().invoke(serviceMethodHandler.getHandler());
+                return serviceMethodHandler.getHandlerMethod().invoke(serviceMethodHandler.getHandler());
             }
         } catch (Throwable e) {
-            if(e instanceof InvocationTargetException){
+            if (e instanceof InvocationTargetException) {
                 InvocationTargetException inve = (InvocationTargetException) e;
                 throw new RuntimeException(inve.getTargetException());
-            }else{
+            } else {
                 throw new RuntimeException(e);
             }
         }

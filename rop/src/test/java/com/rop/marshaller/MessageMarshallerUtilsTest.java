@@ -5,8 +5,8 @@
 package com.rop.marshaller;
 
 import com.rop.MessageFormat;
-import com.rop.RopRequestContext;
 import com.rop.RopRequest;
+import com.rop.RopRequestContext;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;

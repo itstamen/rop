@@ -4,8 +4,6 @@
  */
 package com.rop.client.unmarshaller;
 
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.rop.RopException;
 import com.rop.client.RopUnmarshaller;
 import org.codehaus.jackson.map.AnnotationIntrospector;

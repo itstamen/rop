@@ -6,9 +6,9 @@ package com.rop.impl;
 
 import com.rop.*;
 import com.rop.annotation.HttpAction;
+import com.rop.security.MainError;
 import com.rop.session.Session;
 import com.rop.utils.RopUtils;
-import com.rop.security.MainError;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -46,7 +46,7 @@ public class SimpleRopRequestContext implements RopRequestContext {
 
     private MainError mainError;
 
-    private RopResponse ropResponse;
+    private Object ropResponse;
 
     private RopRequest ropRequest;
 
@@ -174,7 +174,7 @@ public class SimpleRopRequestContext implements RopRequestContext {
     }
 
     @Override
-    public RopResponse getRopResponse() {
+    public Object getRopResponse() {
         return this.ropResponse;
     }
 
@@ -205,7 +205,7 @@ public class SimpleRopRequestContext implements RopRequestContext {
     }
 
     @Override
-    public void setRopResponse(RopResponse ropResponse) {
+    public void setRopResponse(Object ropResponse) {
         this.ropResponse = ropResponse;
     }
 

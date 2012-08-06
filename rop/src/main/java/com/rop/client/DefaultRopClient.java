@@ -6,7 +6,6 @@ package com.rop.client;
 
 import com.rop.MessageFormat;
 import com.rop.RopRequest;
-import com.rop.RopResponse;
 import com.rop.annotation.IgnoreSign;
 import com.rop.annotation.Temporary;
 import com.rop.client.unmarshaller.JacksonJsonRopUnmarshaller;
@@ -21,6 +20,7 @@ import com.rop.response.ErrorResponse;
 import com.rop.utils.RopUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -53,6 +53,8 @@ public class DefaultRopClient implements RopClient {
 
     //应用密钥
     private String appSecret;
+
+    private String sessionId;
 
     //报文格式
     private MessageFormat messageFormat = MessageFormat.xml;
@@ -119,6 +121,11 @@ public class DefaultRopClient implements RopClient {
     }
 
     @Override
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    @Override
     public RopClient setAppKeyParamName(String paramName) {
         SystemParameterNames.setAppKey(paramName);
         return this;
@@ -161,8 +168,8 @@ public class DefaultRopClient implements RopClient {
     }
 
     @Override
-    public <T extends RopResponse> CompositeResponse get(RopRequest ropRequest, Class<T> ropResponseClass,
-                                                         String methodName, String version) {
+    public <T> CompositeResponse get(RopRequest ropRequest, Class<T> ropResponseClass,
+                                     String methodName, String version) {
         Map<String, String> form = getRequestForm(ropRequest, methodName, version);
         String requestUrl = buildGetUrl(form);
         String responseContent = restTemplate.getForObject(requestUrl, String.class);
@@ -173,21 +180,16 @@ public class DefaultRopClient implements RopClient {
     }
 
     @Override
-    public void addRopConvertor(RopConverter ropConverter) {
-        this.ropConverterMap.put(ropConverter.getTargetClass(), ropConverter);
+    public <T> CompositeResponse get(Map<String, Object> businessParams, Class<T> ropResponseClass, String methodName, String version) {
+        return get(businessParams, null, ropResponseClass, methodName, version);
     }
 
     @Override
-    public <T extends RopResponse> CompositeResponse get(RopRequest ropRequest, Class<T> ropResponseClass,
-                                                         String methodName, String version, String sessionId) {
-        return get(ropRequest, ropResponseClass, methodName, version, null);
-    }
-
-    @Override
-    public <T extends RopResponse> CompositeResponse post(RopRequest ropRequest, Class<T> ropResponseClass,
-                                                          String methodName, String version, String sessionId) {
-        Map<String, String> form = getRequestForm(ropRequest, methodName, version, sessionId);
-        String responseContent = restTemplate.postForObject(serverUrl, toMultiValueMap(form), String.class);
+    public <T> CompositeResponse get(Map<String, Object> businessParams, List<String> ignoreSignParamNames,
+                                     Class<T> ropResponseClass, String methodName, String version) {
+        Map<String, String> requestForm = getRequestForm(businessParams, ignoreSignParamNames, methodName, version);
+        String requestUrl = buildGetUrl(requestForm);
+        String responseContent = restTemplate.getForObject(requestUrl, String.class);
         if (logger.isDebugEnabled()) {
             logger.debug("response:\n" + responseContent);
         }
@@ -195,12 +197,41 @@ public class DefaultRopClient implements RopClient {
     }
 
     @Override
-    public <T extends RopResponse> CompositeResponse post(RopRequest ropRequest, Class<T> ropResponseClass,
-                                                          String methodName, String version) {
-        return post(ropRequest, ropResponseClass, methodName, version, null);
+    public <T> CompositeResponse post(Map<String, Object> businessParams, Class<T> ropResponseClass, String methodName, String version) {
+        return post(businessParams, null, ropResponseClass, methodName, version);
     }
 
-    private <T extends RopResponse> CompositeResponse toCompositeResponse(String content, Class<T> ropResponseClass) {
+    @Override
+    public <T> CompositeResponse post(Map<String, Object> businessParams, List<String> ignoreSignParamNames,
+                                      Class<T> ropResponseClass, String methodName, String version) {
+        Map<String, String> form = getRequestForm(businessParams, ignoreSignParamNames, methodName, version);
+        String responseContent = restTemplate.postForObject(serverUrl, toMultiValueMap(form), String.class);
+        if (logger.isDebugEnabled()) {
+            logger.debug("response:\n" + responseContent);
+        }
+        return toCompositeResponse(responseContent, ropResponseClass);
+
+    }
+
+    @Override
+    public void addRopConvertor(RopConverter ropConverter) {
+        this.ropConverterMap.put(ropConverter.getTargetClass(), ropConverter);
+    }
+
+
+    @Override
+    public <T> CompositeResponse post(RopRequest ropRequest, Class<T> ropResponseClass,
+                                      String methodName, String version) {
+        Map<String, String> form = getRequestForm(ropRequest, methodName, version);
+        String responseContent = restTemplate.postForObject(serverUrl, toMultiValueMap(form), String.class);
+        if (logger.isDebugEnabled()) {
+            logger.debug("response:\n" + responseContent);
+        }
+        return toCompositeResponse(responseContent, ropResponseClass);
+    }
+
+
+    private <T> CompositeResponse toCompositeResponse(String content, Class<T> ropResponseClass) {
         boolean successful = isSuccessful(content);
         DefaultCompositeResponse<T> compositeResponse = new DefaultCompositeResponse<T>(successful);
 
@@ -233,10 +264,6 @@ public class DefaultRopClient implements RopClient {
     }
 
     private Map<String, String> getRequestForm(RopRequest ropRequest, String methodName, String version) {
-        return getRequestForm(ropRequest, methodName, version, null);
-    }
-
-    private Map<String, String> getRequestForm(RopRequest ropRequest, String methodName, String version, String sessionId) {
 
         Map<String, String> form = new LinkedHashMap<String, String>(16);
 
@@ -257,7 +284,48 @@ public class DefaultRopClient implements RopClient {
         String signValue = sign(ropRequest.getClass(), appSecret, form);
         form.put("sign", signValue);
         return form;
+    }
 
+    private Map<String, String> getRequestForm(Map<String, Object> businessParams, List<String> ignoreSignParamNames,
+                                               String methodName, String version) {
+
+        Map<String, String> form = new LinkedHashMap<String, String>(16);
+
+        //系统级参数
+        form.put(SystemParameterNames.getAppKey(), appKey);
+        form.put(SystemParameterNames.getMethod(), methodName);
+        form.put(SystemParameterNames.getVersion(), version);
+        form.put(SystemParameterNames.getFormat(), messageFormat.name());
+        form.put(SystemParameterNames.getLocale(), locale.toString());
+        if (sessionId != null) {
+            form.put(SystemParameterNames.getSessionId(), sessionId);
+        }
+
+        List<String> tempIgnoreSignParamNames = new ArrayList<String>();
+        if(ignoreSignParamNames != null && ignoreSignParamNames.size() > 0){
+            tempIgnoreSignParamNames.addAll(ignoreSignParamNames);
+        }
+
+        //业务级参数
+        for (Map.Entry<String, Object> businessParam : businessParams.entrySet()) {
+            if (ropConverterMap.containsKey(businessParam.getValue().getClass())) {
+                IgnoreSign typeIgnore = AnnotationUtils.findAnnotation(businessParam.getValue().getClass(),
+                        IgnoreSign.class);
+                if (typeIgnore != null) {
+                    tempIgnoreSignParamNames.add(businessParam.getKey());
+                }
+
+                RopConverter ropConverter = ropConverterMap.get(businessParam.getValue().getClass());
+                form.put(businessParam.getKey(), (String) ropConverter.unconvert(businessParam.getValue()));
+            } else {
+                form.put(businessParam.getKey(), businessParam.getValue().toString());
+            }
+        }
+
+        //对请求进行签名
+        String signValue = RopUtils.sign(form, tempIgnoreSignParamNames, this.appSecret);
+        form.put("sign", signValue);
+        return form;
     }
 
     private String buildGetUrl(Map<String, String> form) {
@@ -285,17 +353,7 @@ public class DefaultRopClient implements RopClient {
      */
     private String sign(Class<?> ropRequestClass, String appSecret, Map<String, String> form) {
         List<String> ignoreFieldNames = requestIgnoreSignFieldNames.get(ropRequestClass);
-        if (ignoreFieldNames != null && ignoreFieldNames.size() > 0) {
-            HashMap<String, String> needSignParams = new HashMap<String, String>();
-            for (Map.Entry<String, String> entry : form.entrySet()) {
-                if (!ignoreFieldNames.contains(entry.getKey())) {
-                    needSignParams.put(entry.getKey(), entry.getValue());
-                }
-            }
-            return RopUtils.sign(needSignParams, appSecret);
-        } else {
-            return RopUtils.sign(form, appSecret);
-        }
+        return RopUtils.sign(form, ignoreFieldNames, appSecret);
     }
 
     private Map<String, String> getParamFields(RopRequest ropRequest, MessageFormat mf) {
@@ -352,7 +410,8 @@ public class DefaultRopClient implements RopClient {
                 Annotation[] declaredAnnotations = field.getDeclaredAnnotations();
                 if (declaredAnnotations != null) {
                     for (Annotation declaredAnnotation : declaredAnnotations) {
-                        if (ClassUtils.isAssignable(Temporary.class, declaredAnnotation.getClass())) {
+                        Temporary varTemporary = field.getAnnotation(Temporary.class);
+                        if (varTemporary != null) {
                             return true;
                         }
                     }

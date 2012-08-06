@@ -18,13 +18,21 @@ public interface RopConverter<S, T> extends Converter<S, T> {
 
     /**
      * 从T转换成S
-     * @param dest
+     * @param target
      * @return
      */
-    S unconvert(T dest);
-    
-    Class<? extends S> getSourceClass();
+    S unconvert(T target);
 
-    Class<? extends T> getTargetClass();
+    /**
+     * 获取源类型
+     * @return
+     */
+    Class<S> getSourceClass();
+
+    /**
+     * 获取目标类型
+     * @return
+     */
+    Class<T> getTargetClass();
 }
 

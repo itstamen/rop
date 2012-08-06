@@ -4,7 +4,6 @@
  */
 package com.rop.client;
 
-import com.rop.RopResponse;
 import com.rop.response.ErrorResponse;
 
 /**
@@ -16,7 +15,7 @@ import com.rop.response.ErrorResponse;
  * @author 陈雄华
  * @version 1.0
  */
-public interface CompositeResponse<T extends RopResponse> {
+public interface CompositeResponse<T> {
 
     /**
      * 获取错误的响应对象

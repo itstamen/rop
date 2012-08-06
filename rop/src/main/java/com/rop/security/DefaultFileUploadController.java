@@ -9,7 +9,8 @@ import java.util.List;
 
 /**
  * <pre>
- * 功能说明：
+ *    1.如果maxSize为非正数，则表示不限制大小；
+ *    2.如果allowAllTypes为true表示不限制文件类型；
  * </pre>
  *
  * @author 陈雄华
@@ -20,6 +21,13 @@ public class DefaultFileUploadController implements FileUploadController {
     private List<String> fileTypes;
     
     private int maxSize;
+
+    private boolean allowAllTypes = false;
+
+    public DefaultFileUploadController(int maxSize) {
+        this.allowAllTypes = true;
+        this.maxSize = maxSize;
+    }
 
     public DefaultFileUploadController(List<String> fileTypes, int maxSize) {
         ArrayList<String> tempFileTypes = new ArrayList<String>(fileTypes.size());
@@ -32,17 +40,25 @@ public class DefaultFileUploadController implements FileUploadController {
 
     @Override
     public boolean isAllowFileType(String fileType) {
-        if(fileType == null ){
-            return false;
+        if(allowAllTypes){
+            return true;
         }else{
-            fileType = fileType.toLowerCase();
-            return fileTypes.contains(fileType);
+            if(fileType == null){
+                return false;
+            }else{
+                fileType = fileType.toLowerCase();
+                return fileTypes.contains(fileType);
+            }
         }
     }
 
     @Override
     public boolean isExceedMaxSize(int fileSize) {
-        return fileSize > maxSize * 1024;
+        if(maxSize > 0){
+            return fileSize > maxSize * 1024;
+        }else{
+            return false;
+        }
     }
 }
 

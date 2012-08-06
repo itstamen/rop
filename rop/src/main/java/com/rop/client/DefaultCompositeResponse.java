@@ -4,7 +4,6 @@
  */
 package com.rop.client;
 
-import com.rop.RopResponse;
 import com.rop.response.ErrorResponse;
 
 /**
@@ -15,7 +14,7 @@ import com.rop.response.ErrorResponse;
  * @author 陈雄华
  * @version 1.0
  */
-public class DefaultCompositeResponse<T extends RopResponse> implements CompositeResponse {
+public class DefaultCompositeResponse<T> implements CompositeResponse {
 
     private boolean successful;
 

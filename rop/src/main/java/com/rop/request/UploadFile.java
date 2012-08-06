@@ -5,14 +5,10 @@
 package com.rop.request;
 
 import com.rop.annotation.IgnoreSign;
-import com.rop.utils.RopUtils;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * <pre>
@@ -51,7 +47,6 @@ public class UploadFile {
             throw new RuntimeException(e);
         }
     }
-
 
     public String getFileType() {
         return fileType;

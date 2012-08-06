@@ -167,14 +167,14 @@ public interface RopRequestContext {
     /**
      * @param ropResponse
      */
-    void setRopResponse(RopResponse ropResponse);
+    void setRopResponse(Object ropResponse);
 
     /**
      * 返回响应对象
      *
      * @return
      */
-    RopResponse getRopResponse();
+    Object getRopResponse();
 
     /**
      * 设置{@link RopRequest}

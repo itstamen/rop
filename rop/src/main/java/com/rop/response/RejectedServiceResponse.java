@@ -4,7 +4,6 @@
  */
 package com.rop.response;
 
-import com.rop.RopResponse;
 import com.rop.security.MainError;
 import com.rop.security.MainErrorType;
 import com.rop.security.MainErrors;

@@ -4,12 +4,12 @@
  */
 package com.rop.impl;
 
-import com.rop.security.*;
 import com.rop.Interceptor;
 import com.rop.ThreadFerry;
 import com.rop.config.InterceptorHolder;
 import com.rop.config.RopEventListenerHodler;
 import com.rop.event.RopEventListener;
+import com.rop.security.*;
 import com.rop.session.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +36,8 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public class AnnotationServletServiceRouterFactoryBean
         implements FactoryBean, ApplicationContextAware, InitializingBean, DisposableBean {
+
+    private static final String ALL_FILE_TYPES = "*";
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -64,7 +66,7 @@ public class AnnotationServletServiceRouterFactoryBean
     private AnnotationServletServiceRouter serviceRouter;
 
     //多值用逗号分隔,默认支持4种格式的文件
-    private String uploadFileTypes = "gif,jpg,bmp,png";
+    private String uploadFileTypes = ALL_FILE_TYPES;
 
     //单位为K，默认为10M
     private int uploadFileMaxSize = 10 * 1024;
@@ -161,9 +163,13 @@ public class AnnotationServletServiceRouterFactoryBean
     private DefaultFileUploadController buildFileUploadController() {
         Assert.notNull(this.uploadFileTypes, "允许上传的文件类型不能为空");
         Assert.isTrue(this.uploadFileMaxSize > 0);
-        String[] items = this.uploadFileTypes.split(",");
-        List<String> fileTypes = Arrays.asList(items);
-        return new DefaultFileUploadController(fileTypes, this.uploadFileMaxSize);
+        if(ALL_FILE_TYPES.equals(uploadFileTypes.trim())){
+            return new DefaultFileUploadController(this.uploadFileMaxSize);
+        }else {
+            String[] items = this.uploadFileTypes.split(",");
+            List<String> fileTypes = Arrays.asList(items);
+            return new DefaultFileUploadController(fileTypes, this.uploadFileMaxSize);
+        }
     }
 
     private ArrayList<Interceptor> getInterceptors() {
