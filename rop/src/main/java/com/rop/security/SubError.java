@@ -22,7 +22,7 @@ public class SubError {
     @XmlAttribute
     private String code;
 
-    @XmlElement
+    @XmlAttribute
     private String message;
 
     public SubError() {

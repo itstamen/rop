@@ -28,10 +28,10 @@ public class ErrorResponse{
     @XmlAttribute
     protected String code;
 
-    @XmlElement
+    @XmlAttribute
     protected String message;
 
-    @XmlElement
+    @XmlAttribute
     protected String solution;
 
     @XmlElementWrapper(name = "subErrors")

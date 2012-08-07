@@ -91,75 +91,10 @@ public interface RopClient {
      */
     void setSessionId(String sessionId);
 
-
     /**
-     * 如果不需要在会话环境下执行，则使用该方法
-     *
-     * @param ropRequest
-     * @param methodName
-     * @param version
+     * 创建一个新的服务请求
      * @return
      */
-    <T> CompositeResponse get(RopRequest ropRequest, Class<T> ropResponseClass, String methodName, String version);
-
-    /**
-     * 通过参数列表的方式发送服务请求
-     * @param businessParams  业务级参数列表
-     * @param ropResponseClass  响应的服务类
-     * @param methodName 方法名
-     * @param version     版本号
-     * @param <T>
-     * @return
-     */
-    <T> CompositeResponse get(Map<String, Object> businessParams, Class<T> ropResponseClass, String methodName, String version);
-
-    /**
-     * 通过参数列表的方式发送服务请求
-     * @param businessParams  业务级参数列表
-     * @param ignoreSignParamNames 需要忽略签名的参数列表
-     * @param ropResponseClass  响应的服务类
-     * @param methodName 方法名
-     * @param version     版本号
-     * @param <T>
-     * @return
-     */
-    <T> CompositeResponse get(Map<String, Object> businessParams,List<String> ignoreSignParamNames,Class<T> ropResponseClass,
-                              String methodName, String version);
-    /**
-     * 以POST方式发送服务请求
-     * @param ropRequest   请求参数对象
-     * @param ropResponseClass   响应参数类
-     * @param methodName  服务方法
-     * @param version
-     * @param <T>
-     * @return
-     */
-    <T> CompositeResponse post(RopRequest ropRequest,
-                               Class<T> ropResponseClass, String methodName, String version);
-
-    /**
-     *以POST方式发送服务请求
-     * @param businessParams
-     * @param ropResponseClass
-     * @param methodName
-     * @param version
-     * @param <T>
-     * @return
-     */
-    <T> CompositeResponse post(Map<String, Object> businessParams,
-                                   Class<T> ropResponseClass, String methodName, String version);
-
-    /**
-     *以POST方式发送服务请求
-     * @param businessParams
-     * @param ignoreSignParamNames
-     * @param ropResponseClass
-     * @param methodName
-     * @param version
-     * @param <T>
-     * @return
-     */
-    <T> CompositeResponse post(Map<String, Object> businessParams,List<String> ignoreSignParamNames,
-                                       Class<T> ropResponseClass, String methodName, String version);
+    ClientRequest buildClientRequest();
 }
 
