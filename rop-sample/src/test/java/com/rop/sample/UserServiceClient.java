@@ -5,6 +5,7 @@
 package com.rop.sample;
 
 import com.rop.MessageFormat;
+import com.rop.client.ClientRequest;
 import com.rop.client.CompositeResponse;
 import com.rop.client.DefaultRopClient;
 import com.rop.request.UploadFile;
@@ -48,7 +49,8 @@ public class UserServiceClient {
         LogonRequest ropRequest = new LogonRequest();
         ropRequest.setUserName("tomson");
         ropRequest.setPassword("123456");
-        CompositeResponse response = ropClient.get(ropRequest, LogonResponse.class, "user.getSession", "1.0");
+        ClientRequest cr = ropClient.buildClientRequest();
+        CompositeResponse response = cr.get(ropRequest, LogonResponse.class, "user.getSession", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertNotNull(response.getSuccessResponse());
@@ -59,11 +61,11 @@ public class UserServiceClient {
 
     @Test
     public void createSessionWithParamMap() {
-        HashMap<String, Object> formMap = new HashMap<String, Object>();
-        formMap.put("userName","tomson");
-        formMap.put("password","123456");
+        CompositeResponse response = ropClient.buildClientRequest()
+                .addParam("userName", "tomson")
+                .addParam("password", "123456", true)
+                .get(LogonResponse.class, "user.getSession", "1.0");
 
-        CompositeResponse response = ropClient.get(formMap,Arrays.asList("password"),LogonResponse.class, "user.getSession", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertNotNull(response.getSuccessResponse());
@@ -73,12 +75,13 @@ public class UserServiceClient {
 
     @Test
     public void addUser() {
-        LogonRequest ropRequest = new LogonRequest();
-        ropRequest.setUserName("tomson");
-        ropRequest.setPassword("123456");
-        CompositeResponse response = ropClient.get(ropRequest, LogonResponse.class, "user.getSession", "1.0");
+        CompositeResponse response = ropClient.buildClientRequest()
+                .addParam("userName", "tomson")
+                .addParam("password", "123456", true)
+                .get(LogonResponse.class, "user.getSession", "1.0");
         String sessionId = ((LogonResponse) response.getSuccessResponse()).getSessionId();
         ropClient.setSessionId(sessionId);
+
 
         CreateUserRequest createUserRequest = new CreateUserRequest();
         createUserRequest.setUserName("katty");
@@ -89,34 +92,36 @@ public class UserServiceClient {
         telephone.setTelephoneCode("12345678");
         createUserRequest.setTelephone(telephone);
 
-        response = ropClient.post(createUserRequest, CreateUserResponse.class, "user.add", "1.0");
+        response = ropClient.buildClientRequest()
+                .post(createUserRequest, CreateUserResponse.class, "user.add", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertTrue(response.getSuccessResponse() instanceof CreateUserResponse);
     }
-    
+
     @Test
     public void addUserUseParamMap() {
-        LogonRequest ropRequest = new LogonRequest();
-        ropRequest.setUserName("tomson");
-        ropRequest.setPassword("123456");
-        CompositeResponse response = ropClient.get(ropRequest, LogonResponse.class, "user.getSession", "1.0");
+        CompositeResponse response = ropClient.buildClientRequest()
+                .addParam("userName", "tomson")
+                .addParam("password", "123456", true)
+                .get(LogonResponse.class, "user.getSession", "1.0");
         String sessionId = ((LogonResponse) response.getSuccessResponse()).getSessionId();
         ropClient.setSessionId(sessionId);
 
-        HashMap<String, Object> formMap = new HashMap<String, Object>();
-        formMap.put("userName","katty");
-        formMap.put("salary",2500L);
+
+        ClientRequest cr2 = ropClient.buildClientRequest();
+        cr2.addParam("userName", "katty");
+        cr2.addParam("salary", 2500L);
         Telephone telephone = new Telephone();
         telephone.setZoneCode("010");
         telephone.setTelephoneCode("12345678");
-        formMap.put("telephone",telephone);
+        cr2.addParam("telephone", telephone);
 
-        response = ropClient.post(formMap, CreateUserResponse.class, "user.add", "1.0");
+        response = cr2.post(CreateUserResponse.class, "user.add", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertTrue(response.getSuccessResponse() instanceof CreateUserResponse);
-    }    
+    }
 
 
     @Test
@@ -125,8 +130,9 @@ public class UserServiceClient {
         ropRequest.setUserName("tomson");
         ropRequest.setSalary(2500L);
         ropClient.setMessageFormat(MessageFormat.xml);
-        CompositeResponse response = ropClient.post(ropRequest, CreateUserResponse.class,
-                "user.add", "3.0");
+
+        CompositeResponse response = ropClient.buildClientRequest()
+                .post(ropRequest, CreateUserResponse.class, "user.add", "3.0");
         assertNotNull(response);
         assertFalse(response.isSuccessful());
         assertNull(response.getSuccessResponse());
@@ -137,14 +143,17 @@ public class UserServiceClient {
 
     @Test
     public void testFileUpload() throws Throwable {
+        ClientRequest cr = ropClient.buildClientRequest();
+
         UploadUserPhotoRequest request = new UploadUserPhotoRequest();
         ClassPathResource resource = new ClassPathResource("photo.png");
         UploadFile uploadFile = new UploadFile(resource.getFile());
         request.setPhoto(uploadFile);
         request.setUserId("1");
         ropClient.setMessageFormat(MessageFormat.xml);
-        CompositeResponse response = ropClient.post(request, UploadUserPhotoResponse.class,
-                "user.upload.photo", "1.0");
+
+        CompositeResponse response = ropClient.buildClientRequest()
+                .post(request, UploadUserPhotoResponse.class, "user.upload.photo", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertTrue(response.getSuccessResponse() instanceof UploadUserPhotoResponse);
@@ -173,8 +182,8 @@ public class UserServiceClient {
         request.setAddress(address);
 
         ropClient.setMessageFormat(MessageFormat.xml);
-        CompositeResponse response = ropClient.post(request, CreateUserResponse.class,
-                "user.add", "1.0");
+        CompositeResponse response = ropClient.buildClientRequest()
+                .post(request, CreateUserResponse.class, "user.add", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertTrue(response.getSuccessResponse() instanceof CreateUserResponse);
@@ -182,6 +191,7 @@ public class UserServiceClient {
 
     @Test
     public void testServiceJsonRequestAttr() throws Throwable {
+
         ropClient.setMessageFormat(MessageFormat.json);
         CreateUserRequest request = new CreateUserRequest();
         request.setUserName("tomson");
@@ -201,8 +211,8 @@ public class UserServiceClient {
         address.setStreets(streets);
         request.setAddress(address);
 
-        CompositeResponse response = ropClient.post(request, CreateUserResponse.class,
-                "user.add", "1.0");
+        CompositeResponse response = ropClient.buildClientRequest()
+                .post(request, CreateUserResponse.class, "user.add", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertTrue(response.getSuccessResponse() instanceof CreateUserResponse);
@@ -219,8 +229,7 @@ public class UserServiceClient {
         telephone.setZoneCode("0592");
         telephone.setTelephoneCode("12345678");
 
-        CompositeResponse response = ropClient.post(request, CreateUserResponse.class,
-                "user.add", "1.0");
+        CompositeResponse response = ropClient.buildClientRequest().post(request, CreateUserResponse.class, "user.add", "1.0");
 
         assertNotNull(response);
         assertTrue(response.isSuccessful());

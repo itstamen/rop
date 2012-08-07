@@ -4,12 +4,11 @@
  */
 package com.rop.sample.client;
 
+import com.rop.client.ClientRequest;
 import com.rop.client.CompositeResponse;
 import com.rop.sample.request.CreateUserRequest;
-import com.rop.sample.request.LogonRequest;
 import com.rop.sample.request.Telephone;
 import com.rop.sample.response.CreateUserResponse;
-import com.rop.sample.response.LogonResponse;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertNotNull;
@@ -54,7 +53,8 @@ public class RopSampleClientTest {
         telephone.setTelephoneCode("12345678");
         createUserRequest.setTelephone(telephone);
 
-        CompositeResponse response = ropSampleClient.post(createUserRequest, CreateUserResponse.class, "user.add", "1.0");
+        ClientRequest cr = ropSampleClient.buildClientRequest();
+        CompositeResponse response = cr.post(createUserRequest, CreateUserResponse.class, "user.add", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertTrue(response.getSuccessResponse() instanceof CreateUserResponse);

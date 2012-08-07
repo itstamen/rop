@@ -4,16 +4,12 @@
  */
 package com.rop.sample.client;
 
-import com.rop.AbstractRopRequest;
-import com.rop.RopRequest;
+import com.rop.client.ClientRequest;
 import com.rop.client.CompositeResponse;
 import com.rop.client.DefaultRopClient;
 import com.rop.sample.request.LogonRequest;
 import com.rop.sample.request.TelephoneConverter;
 import com.rop.sample.response.LogonResponse;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * <pre>
@@ -46,48 +42,23 @@ public class RopSampleClient {
      * @return
      */
     public String logon(String userName, String password) {
+        ClientRequest cr = ropClient.buildClientRequest();
         LogonRequest ropRequest = new LogonRequest();
         ropRequest.setUserName("tomson");
         ropRequest.setPassword("123456");
-        CompositeResponse response = ropClient.get(ropRequest, LogonResponse.class, "user.logon", "1.0");
+        CompositeResponse response = cr.get(ropRequest, LogonResponse.class, "user.logon", "1.0");
         String sessionId = ((LogonResponse) response.getSuccessResponse()).getSessionId();
         ropClient.setSessionId(sessionId);
         return sessionId;
     }
 
     public void logout() {
-        RopRequest ropRequest = new AbstractRopRequest() {
-        };
-        ropClient.get(ropRequest, LogonResponse.class, "user.logout", "1.0");
+        ClientRequest cr = ropClient.buildClientRequest();
+        cr.get(LogonResponse.class, "user.logout", "1.0");
     }
 
-    public <T> CompositeResponse get(RopRequest ropRequest, Class<T> ropResponseClass,
-                                     String methodName, String version) {
-        return ropClient.get(ropRequest, ropResponseClass, methodName, version);
-    }
-
-    public <T> CompositeResponse post(RopRequest ropRequest, Class<T> ropResponseClass,
-                                      String methodName, String version) {
-        return ropClient.post(ropRequest, ropResponseClass, methodName, version);
-    }
-    
-    public <T> CompositeResponse get(Map<String,Object> businessParams, Class<T> ropResponseClass,
-                                     String methodName, String version) {
-        return ropClient.get(businessParams, ropResponseClass, methodName, version);
-    }
-
-    public <T> CompositeResponse post(Map<String,Object> businessParams, Class<T> ropResponseClass,
-                                      String methodName, String version) {
-        return ropClient.post(businessParams, ropResponseClass, methodName, version);
-    }
-    public <T> CompositeResponse get(Map<String,Object> businessParams,List<String> ignoreSignParamNames, Class<T> ropResponseClass,
-                                     String methodName, String version) {
-        return ropClient.get(businessParams,ignoreSignParamNames, ropResponseClass, methodName, version);
-    }
-
-    public <T> CompositeResponse post(Map<String,Object> businessParams,List<String> ignoreSignParamNames, Class<T> ropResponseClass,
-                                      String methodName, String version) {
-        return ropClient.post(businessParams,ignoreSignParamNames, ropResponseClass, methodName, version);
+    public ClientRequest buildClientRequest(){
+        return ropClient.buildClientRequest();
     }
 }
 
