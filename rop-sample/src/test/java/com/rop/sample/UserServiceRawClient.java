@@ -108,7 +108,7 @@ public class UserServiceRawClient {
 
 
     /**
-     * 显式指定返回的报文类型，在配置文件中已经显式指定了 报文格式参数的名称为messageFormat
+     * 显式指定返回的报文类型，在配置文件中已经显式指定了 报文格式参数的名称为format
      */
     @Test
     public void testAddUserWithJsonFormat() {

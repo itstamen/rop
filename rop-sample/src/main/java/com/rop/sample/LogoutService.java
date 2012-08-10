@@ -19,7 +19,7 @@ import com.rop.annotation.ServiceMethodBean;
 @ServiceMethodBean(version = "1.0")
 public class LogoutService {
 
-    @ServiceMethod(value = "user.logout")
+    @ServiceMethod(method = "user.logout")
     public Object logout(RopRequest request){
         return null;
     }

@@ -49,8 +49,8 @@ public class UserServiceClient {
         LogonRequest ropRequest = new LogonRequest();
         ropRequest.setUserName("tomson");
         ropRequest.setPassword("123456");
-        ClientRequest cr = ropClient.buildClientRequest();
-        CompositeResponse response = cr.get(ropRequest, LogonResponse.class, "user.getSession", "1.0");
+        CompositeResponse response = ropClient.buildClientRequest()
+                                   .get(ropRequest, LogonResponse.class, "user.getSession", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertNotNull(response.getSuccessResponse());
