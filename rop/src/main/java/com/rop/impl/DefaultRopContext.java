@@ -173,7 +173,7 @@ public class DefaultRopContext implements RopContext {
 
     private ServiceMethodDefinition buildServiceMethodDefinition(ServiceMethod serviceMethod) {
         ServiceMethodDefinition definition = new ServiceMethodDefinition();
-        definition.setMethod(serviceMethod.value());
+        definition.setMethod(serviceMethod.method());
         definition.setMethodTitle(serviceMethod.title());
         definition.setMethodGroup(serviceMethod.group());
         definition.setMethodGroupTitle(serviceMethod.groupTitle());
@@ -200,7 +200,7 @@ public class DefaultRopContext implements RopContext {
         definition.setObsoleted(ObsoletedType.isObsoleted(serviceMethodBean.obsoleted()));
 
         //如果ServiceMethod所提供的值和ServiceMethodGroup不一样，覆盖之
-        definition.setMethod(serviceMethod.value());
+        definition.setMethod(serviceMethod.method());
         definition.setMethodTitle(serviceMethod.title());
 
         if (!ServiceMethodDefinition.DEFAULT_GROUP.equals(serviceMethod.group())) {

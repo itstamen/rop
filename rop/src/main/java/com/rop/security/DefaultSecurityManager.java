@@ -425,7 +425,9 @@ public class DefaultSecurityManager implements SecurityManager {
                 FieldError fieldError = (FieldError) objectError;
                 SubErrorType tempSubErrorType = INVALIDE_CONSTRAINT_SUBERROR_MAPPINGS.get(fieldError.getCode());
                 if (tempSubErrorType == subErrorType) {
-                    String subErrorCode = SubErrors.getSubErrorCode(tempSubErrorType, fieldError.getField());
+
+                    String subErrorCode = SubErrors.getSubErrorCode(tempSubErrorType, fieldError.getField(),fieldError.getRejectedValue());
+
                     SubError subError = SubErrors.getSubError(subErrorCode, tempSubErrorType.value(), locale,
                             fieldError.getField(), fieldError.getRejectedValue());
                     mainError.addSubError(subError);

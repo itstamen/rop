@@ -22,12 +22,13 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ServiceMethod {
+
     /**
      * 服务的方法名，即由method参数指定的服务方法名
      *
      * @return
      */
-    String value();
+    String method() default "";
 
     /**
      * 所属的服务分组

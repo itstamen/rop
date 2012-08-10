@@ -109,7 +109,7 @@ public class DefaultRopContextTest {
 
     public class IgnoreSignRopRequestService {
 
-        @ServiceMethod(value = "method1", version = "1.0")
+        @ServiceMethod(method = "method1", version = "1.0")
         public Object method1(FooRopRequest request) {
             return null;
         }
@@ -162,7 +162,7 @@ public class DefaultRopContextTest {
 
     public class WithoutGroupService {
 
-        @ServiceMethod(value = "service.method1", title = "测试方法1", group = "GROUP1", groupTitle = "分组1",
+        @ServiceMethod(method = "service.method1", title = "测试方法1", group = "GROUP1", groupTitle = "分组1",
                 tags = {"TAG1", "TAG2"}, ignoreSign = IgnoreSignType.YES,
                 needInSession = NeedInSessionType.NO, timeout = 100, version = "1.0")
         public Object service1() {
@@ -175,12 +175,12 @@ public class DefaultRopContextTest {
             needInSession = NeedInSessionType.NO, timeout = 100, version = "1.0")
     public class WithGroupService {
 
-        @ServiceMethod(value = "service.method1", version = "1.0", title = "测试方法1")
+        @ServiceMethod(method = "service.method1", version = "1.0", title = "测试方法1")
         public Object service1() {
             return null;
         }
 
-        @ServiceMethod(value = "service.method2", title = "测试方法2", group = "GROUP2", groupTitle = "分组2",
+        @ServiceMethod(method = "service.method2", title = "测试方法2", group = "GROUP2", groupTitle = "分组2",
                 tags = {"TAG11", "TAG21"}, ignoreSign = IgnoreSignType.NO,
                 needInSession = NeedInSessionType.YES, timeout = 200, version = "2.0")
         public Object service2() {
