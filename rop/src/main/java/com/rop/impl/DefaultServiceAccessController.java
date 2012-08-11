@@ -4,7 +4,8 @@
  */
 package com.rop.impl;
 
-import com.rop.security.AbstractServiceAccessController;
+import com.rop.security.ServiceAccessController;
+import com.rop.session.Session;
 
 /**
  * <pre>
@@ -14,7 +15,16 @@ import com.rop.security.AbstractServiceAccessController;
  * @author 陈雄华
  * @version 1.0
  */
-public class DefaultServiceAccessController extends AbstractServiceAccessController {
+public class DefaultServiceAccessController implements ServiceAccessController {
 
+    @Override
+    public boolean isAppGranted(String appKey, String method, String version) {
+        return true;
+    }
+
+    @Override
+    public boolean isUserGranted(Session session, String method, String version) {
+        return true;
+    }
 }
 
