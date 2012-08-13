@@ -53,8 +53,8 @@ public class RopSampleClientTest {
         telephone.setTelephoneCode("12345678");
         createUserRequest.setTelephone(telephone);
 
-        ClientRequest cr = ropSampleClient.buildClientRequest();
-        CompositeResponse response = cr.post(createUserRequest, CreateUserResponse.class, "user.add", "1.0");
+        CompositeResponse response = ropSampleClient.buildClientRequest()
+                                                      .post(createUserRequest, CreateUserResponse.class, "user.add", "1.0");
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertTrue(response.getSuccessResponse() instanceof CreateUserResponse);

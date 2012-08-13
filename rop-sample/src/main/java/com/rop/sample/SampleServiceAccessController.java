@@ -4,7 +4,8 @@
  */
 package com.rop.sample;
 
-import com.rop.security.AbstractServiceAccessController;
+import com.rop.security.ServiceAccessController;
+import com.rop.session.Session;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ import java.util.Map;
  * @author 陈雄华
  * @version 1.0
  */
-public class SampleServiceAccessController extends AbstractServiceAccessController {
+public class SampleServiceAccessController implements ServiceAccessController {
 
     private static final Map<String, List<String>> aclMap = new HashMap<String, List<String>>();
 
@@ -39,6 +40,11 @@ public class SampleServiceAccessController extends AbstractServiceAccessControll
         }else{
             return true;
         }
+    }
+
+    @Override
+    public boolean isUserGranted(Session session, String method, String version) {
+        return true;
     }
 }
 

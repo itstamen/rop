@@ -42,22 +42,20 @@ public class RopSampleClient {
      * @return
      */
     public String logon(String userName, String password) {
-        ClientRequest cr = ropClient.buildClientRequest();
         LogonRequest ropRequest = new LogonRequest();
         ropRequest.setUserName("tomson");
         ropRequest.setPassword("123456");
-        CompositeResponse response = cr.get(ropRequest, LogonResponse.class, "user.logon", "1.0");
+        CompositeResponse response = ropClient.buildClientRequest().get(ropRequest, LogonResponse.class, "user.logon", "1.0");
         String sessionId = ((LogonResponse) response.getSuccessResponse()).getSessionId();
         ropClient.setSessionId(sessionId);
         return sessionId;
     }
 
     public void logout() {
-        ClientRequest cr = ropClient.buildClientRequest();
-        cr.get(LogonResponse.class, "user.logout", "1.0");
+        ropClient.buildClientRequest().get(LogonResponse.class, "user.logout", "1.0");
     }
 
-    public ClientRequest buildClientRequest(){
+    public ClientRequest build(){
         return ropClient.buildClientRequest();
     }
 }
