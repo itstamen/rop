@@ -1,5 +1,5 @@
-   ROP is the Rest Open Platform ,thus like the TOP(Taobao Open Platform:http://api.taobao.com).
-ROP base the Spring MVC 3.1 platform,make you easy build a rest service application.
+   ROP is the Rapid Open Platform ,thus like the TOP(Taobao Open Platform:http://api.taobao.com).
+
    The rest url of ROP  is thus like the following :
    1)http://yourhost?method=rop.user.add&v=1.0&param1=value1&param=value2...
    2)http://yourhost?method=rop.user.update&v=1.0&param1=value1&param=value2...
