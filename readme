@@ -1,18 +1,18 @@
-   ROP is the Rest Open Platform ,thus like the TOP(Taobao Open Platform:http://api.taobao.com).
-ROP base the Spring MVC 3.1 platform,make you easy build a rest service application.
+   ROP is the Rapid Open Platform ,thus like the TOP(Taobao Open Platform:http://api.taobao.com).
+
    The rest url of ROP  is thus like the following :
-   1)http://yourhost?method=rop.user.add&param1=value1&param=value2...
-   2)http://yourhost?method=rop.user.update&param1=value1&param=value2...
+   1)http://yourhost?method=rop.user.add&v=1.0&param1=value1&param=value2...
+   2)http://yourhost?method=rop.user.update&v=1.0&param1=value1&param=value2...
    ROP can router the request to the dest handler's api.You can use the 
-@ApiMethod("rop.user.add") annotation to mark the api method in the handler.
+@ServiceMethod("rop.user.add") annotation to mark the api method in the handler.
 Handler must be a Spring Bean,In other word ,the handler is marked the @Service
 or @Component and so on.
    This is a right handler rest service api method:
 @Service
 public class SampleRestService {
 
-    @ApiMethod("rop.sample.method1")
-    public SampleRopResponse1 method1(SampleRopRequest1 request1) {
+    @ServiceMethod("rop.sample.method1")
+    public Object method1(SampleRopRequest1 request1) {
         SampleRopResponse1 response = new SampleRopResponse1();
         response.setCreateTime("20120101010101");
         response.setUserId("1");
@@ -20,7 +20,7 @@ public class SampleRestService {
     }
 }
    The parameter's list of the api method must extends the RopRequest,and the
-Return parameter must implements the RopResponse.
+Return parameter can be any Object.
    The Rop can marshaller the response to the xml or json format output,you can
 control the output format by "format" parameter.
    stame by 2012-3-1 Xiamen China
