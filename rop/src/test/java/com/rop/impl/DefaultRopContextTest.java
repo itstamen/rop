@@ -101,7 +101,7 @@ public class DefaultRopContextTest {
         ServiceMethodHandler method1 = ropContext.getServiceMethodHandler("method1", "1.0");
         List<String> ignoreSignFieldNames = method1.getIgnoreSignFieldNames();
         assertNotNull(ignoreSignFieldNames);
-        assertEquals(ignoreSignFieldNames.size(), 3);
+        assertEquals(ignoreSignFieldNames.size(), 4);
         assertTrue(ignoreSignFieldNames.contains("field1"));
         assertTrue(ignoreSignFieldNames.contains("field3"));
         assertTrue(ignoreSignFieldNames.contains("sign"));

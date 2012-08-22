@@ -215,7 +215,7 @@ public class DefaultRopContext implements RopContext {
             definition.setTags(serviceMethod.tags());
         }
 
-        if (serviceMethod.timeout() != definition.getTimeout()) {
+        if (serviceMethod.timeout() > 0) {
             definition.setTimeout(serviceMethod.timeout());
         }
 
