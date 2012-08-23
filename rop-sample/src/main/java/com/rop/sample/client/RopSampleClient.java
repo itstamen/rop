@@ -55,7 +55,7 @@ public class RopSampleClient {
         ropClient.buildClientRequest().get(LogonResponse.class, "user.logout", "1.0");
     }
 
-    public ClientRequest build(){
+    public ClientRequest buildClientRequest(){
         return ropClient.buildClientRequest();
     }
 }

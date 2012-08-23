@@ -13,7 +13,7 @@
     <groupId>com.bookegou</groupId>
     <artifactId>rop-sample</artifactId>
     <name>ropSample</name>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>war</packaging>
     <description>rest open platform</description>
 
@@ -55,7 +55,7 @@
         <dependency>
             <groupId>com.bookegou</groupId>
             <artifactId>rop</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
         <dependency>

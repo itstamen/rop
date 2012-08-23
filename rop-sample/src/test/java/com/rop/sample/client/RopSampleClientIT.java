@@ -4,7 +4,6 @@
  */
 package com.rop.sample.client;
 
-import com.rop.client.ClientRequest;
 import com.rop.client.CompositeResponse;
 import com.rop.sample.request.CreateUserRequest;
 import com.rop.sample.request.Telephone;
@@ -22,7 +21,7 @@ import static org.testng.Assert.assertTrue;
  * @author 陈雄华
  * @version 1.0
  */
-public class RopSampleClientTest {
+public class RopSampleClientIT {
     public static final String APP_KEY = "00001";
     public static final String APP_SECRET = "abcdeabcdeabcdeabcdeabcde";
 
