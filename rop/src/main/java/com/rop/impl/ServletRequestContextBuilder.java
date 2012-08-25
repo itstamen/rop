@@ -38,6 +38,7 @@ import java.util.Map;
  */
 public class ServletRequestContextBuilder implements RequestContextBuilder {
 
+    //通过前端的负载均衡服务器时，请求对象中的IP会变成负载均衡服务器的IP，因此需要特殊处理，下同。
     public static final String X_REAL_IP = "X-Real-IP";
 
     public static final String X_FORWARDED_FOR = "X-Forwarded-For";

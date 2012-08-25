@@ -40,15 +40,15 @@ public class NotExistErrorResponse extends ErrorResponse {
      * @param objectName     对象的名称
      * @param queryFieldName 查询字段的名称
      * @param locale         本地化对象
-     * @param params         错误信息的参数，如错误消息的值为:can't find user by {0} ，则传入的参数为001时，错误消息格式化为：
+     * @param params         错误信息的参数，如错误消息的值为:use '{0}'({1})can't find '{2}' object ，则传入的参数为001时，错误消息格式化为：
      *                       can't find user by 001
      */
     public NotExistErrorResponse(String objectName, String queryFieldName, Object queryFieldValue, Locale locale) {
         MainError mainError = SubErrors.getMainError(SubErrorType.ISV_NOT_EXIST, locale);
         String subErrorCode = SubErrors.getSubErrorCode(SubErrorType.ISV_NOT_EXIST, objectName, queryFieldName);
 
-
-        SubError subError = SubErrors.getSubError(subErrorCode, SubErrorType.ISV_NOT_EXIST.value(), locale, queryFieldName, queryFieldValue);
+        SubError subError = SubErrors.getSubError(subErrorCode, SubErrorType.ISV_NOT_EXIST.value(), locale,
+                                                 queryFieldName, queryFieldValue,objectName);
         ArrayList<SubError> subErrors = new ArrayList<SubError>();
         subErrors.add(subError);
 
