@@ -48,10 +48,14 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         CompositeComponentDefinition compDefinition = new CompositeComponentDefinition(element.getTagName(), source);
         parserContext.pushContainingComponent(compDefinition);
 
-
         //注册ServiceRouter Bean
         RootBeanDefinition serviceRouterDef = new RootBeanDefinition(AnnotationServletServiceRouterFactoryBean.class);
-        String serviceRouterName = parserContext.getReaderContext().registerWithGeneratedName(serviceRouterDef);
+        String serviceRouterName = element.getAttribute("id");
+        if (StringUtils.hasText(serviceRouterName)) {
+            parserContext.getRegistry().registerBeanDefinition(serviceRouterName, serviceRouterDef);
+        } else {
+            serviceRouterName = parserContext.getReaderContext().registerWithGeneratedName(serviceRouterDef);
+        }
         parserContext.registerComponent(new BeanComponentDefinition(serviceRouterDef, serviceRouterName));
 
         //设置formattingConversionService
@@ -268,28 +272,28 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         String corePoolSize = element.getAttribute("core-pool-size");
         if (StringUtils.hasText(corePoolSize)) {
             taskExecutorDef.getPropertyValues().addPropertyValue("corePoolSize", corePoolSize);
-        }else{
+        } else {
             taskExecutorDef.getPropertyValues().addPropertyValue("corePoolSize", DEFAULT_CORE_POOL_SIZE);
         }
 
         String maxPoolSize = element.getAttribute("max-pool-size");
         if (StringUtils.hasText(maxPoolSize)) {
             taskExecutorDef.getPropertyValues().addPropertyValue("maxPoolSize", maxPoolSize);
-        }else{
+        } else {
             taskExecutorDef.getPropertyValues().addPropertyValue("maxPoolSize", DEFAULT_MAX_POOL_SIZE);
         }
 
         String keepAliveSeconds = element.getAttribute("keep-alive-seconds");
         if (StringUtils.hasText(keepAliveSeconds)) {
             taskExecutorDef.getPropertyValues().addPropertyValue("keepAliveSeconds", keepAliveSeconds);
-        }else{
+        } else {
             taskExecutorDef.getPropertyValues().addPropertyValue("keepAliveSeconds", DEFAULT_KEEP_ALIVE_SECONDS);
         }
 
         String queueCapacity = element.getAttribute("queue-capacity");
         if (StringUtils.hasText(queueCapacity)) {
             taskExecutorDef.getPropertyValues().addPropertyValue("queueCapacity", queueCapacity);
-        }else{
+        } else {
             taskExecutorDef.getPropertyValues().addPropertyValue("queueCapacity", DEFAULT_QUENE_CAPACITY);
         }
 

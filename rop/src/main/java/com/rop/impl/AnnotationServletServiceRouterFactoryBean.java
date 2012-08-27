@@ -35,7 +35,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @version 1.0
  */
 public class AnnotationServletServiceRouterFactoryBean
-        implements FactoryBean, ApplicationContextAware, InitializingBean, DisposableBean {
+        implements FactoryBean<AnnotationServletServiceRouter>,ApplicationContextAware, InitializingBean, DisposableBean{
 
     private static final String ALL_FILE_TYPES = "*";
 

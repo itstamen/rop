@@ -156,7 +156,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         //设置异步执行器
         if (this.threadPoolExecutor == null) {
             this.threadPoolExecutor =
-                    new ThreadPoolExecutor(30, Integer.MAX_VALUE, 5 * 60, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
+                    new ThreadPoolExecutor(200, Integer.MAX_VALUE, 5 * 60, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
         }
 
         //创建Rop上下文
