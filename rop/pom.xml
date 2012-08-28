@@ -20,16 +20,16 @@
 
     <licenses>
         <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <name>GNU GENERAL PUBLIC LICENSE 2.0</name>
+            <url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:itstamen/rop.git</connection>
-        <developerConnection>scm:git:git@github.com:itstamen/rop.git</developerConnection>
-        <url>git@github.com:itstamen/rop.git</url>
+        <connection>scm:git:git://github.com/itstamen/rop.git</connection>
+        <developerConnection>scm:git:git://github.com/itstamen/rop.git</developerConnection>
+        <url>git://github.com/itstamen/rop.git</url>
     </scm>
 
     <developers>
