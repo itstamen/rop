@@ -387,13 +387,17 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                 // 输出响应
                 writeResponse(ropRequestContext.getRopResponse(), servletResponse, ropRequestContext.getMessageFormat());
             } catch (Throwable e) {
-                String method = ropRequestContext.getMethod();
-                Locale locale = ropRequestContext.getLocale();
-                ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale, e);
+                if (ropRequestContext != null) {
+                    String method = ropRequestContext.getMethod();
+                    Locale locale = ropRequestContext.getLocale();
+                    ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale, e);
 
-                // 输出响应前拦截
-                invokeBeforceResponseOfInterceptors(ropRequestContext);
-                writeResponse(ropResponse, servletResponse, ropRequestContext.getMessageFormat());
+                    // 输出响应前拦截
+                    invokeBeforceResponseOfInterceptors(ropRequestContext);
+                    writeResponse(ropResponse, servletResponse, ropRequestContext.getMessageFormat());
+                } else {
+                    throw new RopException("RopRequestContext is null.", e);
+                }
             } finally {
                 if (ropRequestContext != null) {
 
