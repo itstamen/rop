@@ -9,6 +9,7 @@ import com.rop.RopException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.AsyncContext;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
@@ -27,11 +28,12 @@ public class RopUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(RopUtils.class);
 
+    private static ThreadLocal<AsyncContext> asyncContextThreadLocal = new ThreadLocal<AsyncContext>();
+
     /**
      * 使用<code>secret</code>对paramValues按以下算法进行签名： <br/>
      * uppercase(hex(sha1(secretkey1value1key2value2...secret))
      *
-     * @param paramNames  需要签名的参数名
      * @param paramValues 参数列表
      * @param secret
      * @return
@@ -124,5 +126,33 @@ public class RopUtils {
         return uuid.toString().toUpperCase();
     }
 
+    /**
+     * 设置异步servlet上下文
+     * @param asyncContext  异步servlet上下文
+     */
+    public static void setAsyncContext(AsyncContext asyncContext){
+         asyncContextThreadLocal.set(asyncContext);
+    }
+
+    /**
+     * 获取异步servlet上下文
+     */
+    public static AsyncContext getAsyncContext(){
+        return asyncContextThreadLocal.get();
+    }
+
+    /**
+     * 清除异步servlet上下文
+     */
+    public static void cleanAsyncContext(){
+        asyncContextThreadLocal.remove();
+    }
+
+    /**
+     * 是否开始异步servlet
+     */
+    public static boolean isStartAsync(){
+        return asyncContextThreadLocal.get() != null;
+    }
 }
 

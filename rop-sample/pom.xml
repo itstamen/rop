@@ -49,15 +49,21 @@
         <testng.version>6.3</testng.version>
         <mockito.version>1.8.5</mockito.version>
         <unitils.version>3.3</unitils.version>
+        <servlet3.version>3.0.1</servlet3.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.bookegou</groupId>
             <artifactId>rop</artifactId>
-            <version>1.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
-
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${servlet3.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.unitils</groupId>
             <artifactId>unitils-core</artifactId>

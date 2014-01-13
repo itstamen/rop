@@ -15,9 +15,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.rop.utils.RopUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -136,10 +138,17 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                 threadFerry.doInSrcThread();
             }
 
-            ServiceRunnable runnable = new ServiceRunnable(servletRequest, servletResponse, threadFerry);
-            Future<?> future = this.threadPoolExecutor.submit(runnable);
-            while (!future.isDone()) {
-                future.get(serviceMethodTimeout, TimeUnit.SECONDS);
+            // 判断是否开始异步Servlet
+            if (RopUtils.isStartAsync()) {
+                RopUtils.getAsyncContext().setTimeout(serviceMethodTimeout * 1000);  // 设置超时时间，单位为秒
+                ServiceRunnable runnable = new ServiceRunnable(servletRequest, servletResponse, threadFerry, RopUtils.getAsyncContext());
+                this.threadPoolExecutor.execute(runnable);
+            }else{
+                ServiceRunnable runnable = new ServiceRunnable(servletRequest, servletResponse, threadFerry);
+                Future<?> future = this.threadPoolExecutor.submit(runnable);
+                while (!future.isDone()) {
+                    future.get(serviceMethodTimeout, TimeUnit.SECONDS);
+                }
             }
         } catch (RejectedExecutionException ree) {// 超过最大的服务平台的最大资源限制，无法提供服务
             RopRequestContext ropRequestContext = buildRequestContextWhenException(servletRequest, beginTime);
@@ -158,6 +167,8 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
             writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
             RopRequestContext ropRequestContext = buildRequestContextWhenException(servletRequest, beginTime);
             fireAfterDoServiceEvent(ropRequestContext);
+        } finally {
+            RopUtils.cleanAsyncContext(); // 清空异步servlet上下文
         }
     }
 
@@ -337,11 +348,21 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
         private ThreadFerry threadFerry;
 
+        private AsyncContext asyncContext;
+
         private ServiceRunnable(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
                 ThreadFerry threadFerry) {
             this.servletRequest = servletRequest;
             this.servletResponse = servletResponse;
             this.threadFerry = threadFerry;
+        }
+
+        private ServiceRunnable(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
+                                ThreadFerry threadFerry, AsyncContext asyncContext) {
+            this.servletRequest = servletRequest;
+            this.servletResponse = servletResponse;
+            this.threadFerry = threadFerry;
+            this.asyncContext = asyncContext;
         }
 
         @Override
@@ -408,6 +429,11 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                     invokeTimesController.caculateInvokeTimes(ropRequestContext.getAppKey(),
                             ropRequestContext.getSession());
                     fireAfterDoServiceEvent(ropRequestContext);
+                }
+
+                // 关闭异步Servlet上下文
+                if(asyncContext != null){
+                    asyncContext.complete();
                 }
             }
         }

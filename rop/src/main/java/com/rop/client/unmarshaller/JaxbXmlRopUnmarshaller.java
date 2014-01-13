@@ -32,7 +32,6 @@ public class JaxbXmlRopUnmarshaller implements RopUnmarshaller {
         try {
             Unmarshaller unmarshaller = buildUnmarshaller(objectType);
             StringReader reader = new StringReader(content);
-            new InputSource(reader);
             return (T) unmarshaller.unmarshal(reader);
         } catch (JAXBException e) {
             throw new RopException(e);
