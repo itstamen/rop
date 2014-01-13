@@ -33,7 +33,7 @@ import static org.testng.Assert.*;
  */
 public class UserServiceClient {
 
-    public static final String SERVER_URL = "http://localhost:8088/router";
+    public static final String SERVER_URL = "http://localhost:8080/router";
     public static final String APP_KEY = "00001";
     public static final String APP_SECRET = "abcdeabcdeabcdeabcdeabcde";
     private DefaultRopClient ropClient = new DefaultRopClient(SERVER_URL, APP_KEY, APP_SECRET);

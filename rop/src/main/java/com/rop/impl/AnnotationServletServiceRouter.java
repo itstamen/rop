@@ -4,21 +4,22 @@
  */
 package com.rop.impl;
 
-import com.rop.*;
-import com.rop.config.SystemParameterNames;
-import com.rop.event.*;
-import com.rop.marshaller.JacksonJsonRopMarshaller;
-import com.rop.marshaller.JaxbXmlRopMarshaller;
-import com.rop.request.RopRequestMessageConverter;
-import com.rop.request.UploadFileConverter;
-import com.rop.response.ErrorResponse;
-import com.rop.response.RejectedServiceResponse;
-import com.rop.response.ServiceUnavailableErrorResponse;
-import com.rop.response.TimeoutErrorResponse;
-import com.rop.security.*;
-import com.rop.security.SecurityManager;
-import com.rop.session.DefaultSessionManager;
-import com.rop.session.SessionManager;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.servlet.AsyncContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.rop.utils.RopUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -29,13 +30,44 @@ import org.springframework.format.support.FormattingConversionService;
 import org.springframework.format.support.FormattingConversionServiceFactoryBean;
 import org.springframework.util.Assert;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.*;
+import com.rop.Constants;
+import com.rop.Interceptor;
+import com.rop.MessageFormat;
+import com.rop.RequestContextBuilder;
+import com.rop.RopContext;
+import com.rop.RopException;
+import com.rop.RopMarshaller;
+import com.rop.RopRequestContext;
+import com.rop.ServiceMethodAdapter;
+import com.rop.ServiceMethodHandler;
+import com.rop.ServiceRouter;
+import com.rop.ThreadFerry;
+import com.rop.config.SystemParameterNames;
+import com.rop.event.AfterDoServiceEvent;
+import com.rop.event.AfterStartedRopEvent;
+import com.rop.event.PreCloseRopEvent;
+import com.rop.event.PreDoServiceEvent;
+import com.rop.event.RopEventListener;
+import com.rop.event.RopEventMulticaster;
+import com.rop.event.SimpleRopEventMulticaster;
+import com.rop.marshaller.JacksonJsonRopMarshaller;
+import com.rop.marshaller.JaxbXmlRopMarshaller;
+import com.rop.request.RopRequestMessageConverter;
+import com.rop.request.UploadFileConverter;
+import com.rop.response.ErrorResponse;
+import com.rop.response.RejectedServiceResponse;
+import com.rop.response.ServiceUnavailableErrorResponse;
+import com.rop.response.TimeoutErrorResponse;
+import com.rop.security.DefaultInvokeTimesController;
+import com.rop.security.DefaultSecurityManager;
+import com.rop.security.InvokeTimesController;
+import com.rop.security.MainError;
+import com.rop.security.MainErrorType;
+import com.rop.security.MainErrors;
+import com.rop.security.SecurityManager;
+import com.rop.security.SubErrors;
+import com.rop.session.DefaultSessionManager;
+import com.rop.session.SessionManager;
 
 public class AnnotationServletServiceRouter implements ServiceRouter {
 
@@ -73,13 +105,13 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
     private ApplicationContext applicationContext;
 
-    //所有服务方法的最大过期时间，单位为秒(0或负数代表不限制)
+    // 所有服务方法的最大过期时间，单位为秒(0或负数代表不限制)
     private int serviceTimeoutSeconds = Integer.MAX_VALUE;
 
-    //会话管理器
+    // 会话管理器
     private SessionManager sessionManager = new DefaultSessionManager();
 
-    //服务调用频率管理器
+    // 服务调用频率管理器
     private InvokeTimesController invokeTimesController = new DefaultInvokeTimesController();
 
     private Class<? extends ThreadFerry> threadFerryClass;
@@ -91,44 +123,52 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         HttpServletResponse servletResponse = (HttpServletResponse) response;
 
-        //获取服务方法最大过期时间
+        // 获取服务方法最大过期时间
         String method = servletRequest.getParameter(SystemParameterNames.getMethod());
         String version = servletRequest.getParameter(SystemParameterNames.getVersion());
         int serviceMethodTimeout = getServiceMethodTimeout(method, version);
         long beginTime = System.currentTimeMillis();
 
-        //使用异常方式调用服务方法
+        // 使用异常方式调用服务方法
         try {
 
-            //执行线程摆渡
+            // 执行线程摆渡
             ThreadFerry threadFerry = buildThreadFerryInstance();
             if (threadFerry != null) {
                 threadFerry.doInSrcThread();
             }
 
-            ServiceRunnable runnable = new ServiceRunnable(servletRequest, servletResponse, threadFerry);
-            Future<?> future = this.threadPoolExecutor.submit(runnable);
-            while (!future.isDone()) {
-                future.get(serviceMethodTimeout, TimeUnit.SECONDS);
+            // 判断是否开始异步Servlet
+            if (RopUtils.isStartAsync()) {
+                RopUtils.getAsyncContext().setTimeout(serviceMethodTimeout * 1000);  // 设置超时时间，单位为秒
+                ServiceRunnable runnable = new ServiceRunnable(servletRequest, servletResponse, threadFerry, RopUtils.getAsyncContext());
+                this.threadPoolExecutor.execute(runnable);
+            }else{
+                ServiceRunnable runnable = new ServiceRunnable(servletRequest, servletResponse, threadFerry);
+                Future<?> future = this.threadPoolExecutor.submit(runnable);
+                while (!future.isDone()) {
+                    future.get(serviceMethodTimeout, TimeUnit.SECONDS);
+                }
             }
-        } catch (RejectedExecutionException ree) {//超过最大的服务平台的最大资源限制，无法提供服务
+        } catch (RejectedExecutionException ree) {// 超过最大的服务平台的最大资源限制，无法提供服务
             RopRequestContext ropRequestContext = buildRequestContextWhenException(servletRequest, beginTime);
             RejectedServiceResponse ropResponse = new RejectedServiceResponse(ropRequestContext.getLocale());
             writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
             fireAfterDoServiceEvent(ropRequestContext);
-        } catch (TimeoutException e) {//服务时间超限
+        } catch (TimeoutException e) {// 服务时间超限
             RopRequestContext ropRequestContext = buildRequestContextWhenException(servletRequest, beginTime);
-            TimeoutErrorResponse ropResponse =
-                    new TimeoutErrorResponse(ropRequestContext.getMethod(),
-                            ropRequestContext.getLocale(), serviceMethodTimeout);
+            TimeoutErrorResponse ropResponse = new TimeoutErrorResponse(ropRequestContext.getMethod(),
+                    ropRequestContext.getLocale(), serviceMethodTimeout);
             writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
             fireAfterDoServiceEvent(ropRequestContext);
-        } catch (Throwable throwable) {//产生未知的错误
-            ServiceUnavailableErrorResponse ropResponse =
-                    new ServiceUnavailableErrorResponse(method, ServletRequestContextBuilder.getLocale(servletRequest), throwable);
+        } catch (Throwable throwable) {// 产生未知的错误
+            ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method,
+                    ServletRequestContextBuilder.getLocale(servletRequest), throwable);
             writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
             RopRequestContext ropRequestContext = buildRequestContextWhenException(servletRequest, beginTime);
             fireAfterDoServiceEvent(ropRequestContext);
+        } finally {
+            RopUtils.cleanAsyncContext(); // 清空异步servlet上下文
         }
     }
 
@@ -139,36 +179,37 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         }
         Assert.notNull(this.applicationContext, "Spring上下文不能为空");
 
-        //初始化类型转换器
+        // 初始化类型转换器
         if (this.formattingConversionService == null) {
             this.formattingConversionService = getDefaultConversionService();
         }
         registerConverters(formattingConversionService);
 
-        //实例化ServletRequestContextBuilder
-        this.requestContextBuilder = new ServletRequestContextBuilder(this.formattingConversionService, this.sessionManager);
+        // 实例化ServletRequestContextBuilder
+        this.requestContextBuilder = new ServletRequestContextBuilder(this.formattingConversionService,
+                this.sessionManager);
 
-        //设置校验器
+        // 设置校验器
         if (this.securityManager == null) {
             this.securityManager = new DefaultSecurityManager();
         }
 
-        //设置异步执行器
+        // 设置异步执行器
         if (this.threadPoolExecutor == null) {
-            this.threadPoolExecutor =
-                    new ThreadPoolExecutor(200, Integer.MAX_VALUE, 5 * 60, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>());
+            this.threadPoolExecutor = new ThreadPoolExecutor(200, Integer.MAX_VALUE, 5 * 60, TimeUnit.SECONDS,
+                    new LinkedBlockingDeque<Runnable>());
         }
 
-        //创建Rop上下文
+        // 创建Rop上下文
         this.ropContext = buildRopContext();
 
-        //初始化事件发布器
+        // 初始化事件发布器
         this.ropEventMulticaster = buildRopEventMulticaster();
 
-        //初始化信息源
+        // 初始化信息源
         initMessageSource();
 
-        //产生Rop框架初始化事件
+        // 产生Rop框架初始化事件
         fireAfterStartedRopEvent();
 
         if (logger.isInfoEnabled()) {
@@ -235,7 +276,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
     /**
      * 获取默认的格式化转换器
-     *
+     * 
      * @return
      */
     private FormattingConversionService getDefaultConversionService() {
@@ -280,7 +321,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
     /**
      * 取最小的过期时间
-     *
+     * 
      * @param method
      * @param version
      * @return
@@ -302,15 +343,26 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
     private class ServiceRunnable implements Runnable {
 
         private HttpServletRequest servletRequest;
+
         private HttpServletResponse servletResponse;
+
         private ThreadFerry threadFerry;
 
-        private ServiceRunnable(HttpServletRequest servletRequest,
-                                HttpServletResponse servletResponse,
-                                ThreadFerry threadFerry) {
+        private AsyncContext asyncContext;
+
+        private ServiceRunnable(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
+                ThreadFerry threadFerry) {
             this.servletRequest = servletRequest;
             this.servletResponse = servletResponse;
             this.threadFerry = threadFerry;
+        }
+
+        private ServiceRunnable(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
+                                ThreadFerry threadFerry, AsyncContext asyncContext) {
+            this.servletRequest = servletRequest;
+            this.servletResponse = servletResponse;
+            this.threadFerry = threadFerry;
+            this.asyncContext = asyncContext;
         }
 
         @Override
@@ -322,65 +374,74 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
             RopRequestContext ropRequestContext = null;
 
             try {
-                //用系统级参数构造一个RequestContext实例（第一阶段绑定）
+                // 用系统级参数构造一个RequestContext实例（第一阶段绑定）
                 ropRequestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
 
-                //验证系统级参数的合法性
+                // 验证系统级参数的合法性
                 MainError mainError = securityManager.validateSystemParameters(ropRequestContext);
                 if (mainError != null) {
                     ropRequestContext.setRopResponse(new ErrorResponse(mainError));
                 } else {
 
-                    //绑定业务数据（第二阶段绑定）
+                    // 绑定业务数据（第二阶段绑定）
                     requestContextBuilder.bindBusinessParams(ropRequestContext);
 
-                    //进行其它检查业务数据合法性，业务安全等
+                    // 进行其它检查业务数据合法性，业务安全等
                     mainError = securityManager.validateOther(ropRequestContext);
                     if (mainError != null) {
                         ropRequestContext.setRopResponse(new ErrorResponse(mainError));
                     } else {
                         firePreDoServiceEvent(ropRequestContext);
 
-                        //服务处理前拦截
+                        // 服务处理前拦截
                         invokeBeforceServiceOfInterceptors(ropRequestContext);
 
-                        if (ropRequestContext.getRopResponse() == null) { //拦截器未生成response
-                            //如果拦截器没有产生ropResponse时才调用服务方法
+                        if (ropRequestContext.getRopResponse() == null) { // 拦截器未生成response
+                            // 如果拦截器没有产生ropResponse时才调用服务方法
                             ropRequestContext.setRopResponse(doService(ropRequestContext));
 
-                            //输出响应前拦截
+                            // 输出响应前拦截
                             invokeBeforceResponseOfInterceptors(ropRequestContext);
                         }
                     }
                 }
-                //输出响应
+                // 输出响应
                 writeResponse(ropRequestContext.getRopResponse(), servletResponse, ropRequestContext.getMessageFormat());
             } catch (Throwable e) {
-                String method = ropRequestContext.getMethod();
-                Locale locale = ropRequestContext.getLocale();
-                ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale, e);
+                if (ropRequestContext != null) {
+                    String method = ropRequestContext.getMethod();
+                    Locale locale = ropRequestContext.getLocale();
+                    ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale, e);
 
-                //输出响应前拦截
-                invokeBeforceResponseOfInterceptors(ropRequestContext);
-                writeResponse(ropResponse, servletResponse, ropRequestContext.getMessageFormat());
+                    // 输出响应前拦截
+                    invokeBeforceResponseOfInterceptors(ropRequestContext);
+                    writeResponse(ropResponse, servletResponse, ropRequestContext.getMessageFormat());
+                } else {
+                    throw new RopException("RopRequestContext is null.", e);
+                }
             } finally {
                 if (ropRequestContext != null) {
 
-                    //发布服务完成事件
+                    // 发布服务完成事件
                     ropRequestContext.setServiceEndTime(System.currentTimeMillis());
 
-                    //完成一次服务请求，计算次数
-                    invokeTimesController.caculateInvokeTimes(ropRequestContext.getAppKey(), ropRequestContext.getSession());
+                    // 完成一次服务请求，计算次数
+                    invokeTimesController.caculateInvokeTimes(ropRequestContext.getAppKey(),
+                            ropRequestContext.getSession());
                     fireAfterDoServiceEvent(ropRequestContext);
+                }
+
+                // 关闭异步Servlet上下文
+                if(asyncContext != null){
+                    asyncContext.complete();
                 }
             }
         }
     }
 
-
     /**
      * 当发生异常时，创建一个请求上下文对象
-     *
+     * 
      * @param request
      * @param beginTime
      * @return
@@ -403,12 +464,12 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
         SimpleRopEventMulticaster simpleRopEventMulticaster = new SimpleRopEventMulticaster();
 
-        //设置异步执行器
+        // 设置异步执行器
         if (this.threadPoolExecutor != null) {
             simpleRopEventMulticaster.setExecutor(this.threadPoolExecutor);
         }
 
-        //添加事件监听器
+        // 添加事件监听器
         if (this.listeners != null && this.listeners.size() > 0) {
             for (RopEventListener ropEventListener : this.listeners) {
                 simpleRopEventMulticaster.addRopListener(ropEventListener);
@@ -444,49 +505,49 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
     /**
      * 在服务调用之前拦截
-     *
+     * 
      * @param ropRequestContext
      */
     private void invokeBeforceServiceOfInterceptors(RopRequestContext ropRequestContext) {
-        Interceptor tempInterceptor = null;
-        try {
-            if (interceptors != null && interceptors.size() > 0) {
-                for (Interceptor interceptor : interceptors) {
+        if (interceptors != null && interceptors.size() > 0) {
 
+            for (Interceptor interceptor : interceptors) {
+                try {
                     interceptor.beforeService(ropRequestContext);
+                } catch (Throwable e) {
+                    ropRequestContext.setRopResponse(new ServiceUnavailableErrorResponse(ropRequestContext.getMethod(),
+                            ropRequestContext.getLocale(), e));
+                    logger.error("在执行拦截器[" + interceptor.getClass().getName() + "]时发生异常.", e);
+                }
 
-                    //如果有一个产生了响应，则阻止后续的调用
-                    if (ropRequestContext.getRopResponse() != null) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("拦截器[" + interceptor.getClass().getName() + "]产生了一个RopResponse," +
-                                    " 阻止本次服务请求继续，服务将直接返回。");
-                        }
-                        return;
+                // 如果有一个产生了响应，则阻止后续的调用
+                if (ropRequestContext.getRopResponse() != null) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("拦截器[" + interceptor.getClass().getName() + "]产生了一个RopResponse,"
+                                + " 阻止本次服务请求继续，服务将直接返回。");
                     }
+                    return;
                 }
             }
-        } catch (Throwable e) {
-            ropRequestContext.setRopResponse(new ServiceUnavailableErrorResponse(ropRequestContext.getMethod(), ropRequestContext.getLocale(), e));
-            logger.error("在执行拦截器[" + tempInterceptor.getClass().getName() + "]时发生异常.", e);
         }
     }
 
     /**
      * 在服务调用之后，返回响应之前拦截
-     *
+     * 
      * @param ropRequestContext
      */
     private void invokeBeforceResponseOfInterceptors(RopRequestContext ropRequestContext) {
-        Interceptor tempInterceptor = null;
-        try {
-            if (interceptors != null && interceptors.size() > 0) {
-                for (Interceptor interceptor : interceptors) {
+        if (interceptors != null && interceptors.size() > 0) {
+            for (Interceptor interceptor : interceptors) {
+                try {
                     interceptor.beforeResponse(ropRequestContext);
+                } catch (Throwable e) {
+                    ropRequestContext.setRopResponse(new ServiceUnavailableErrorResponse(ropRequestContext.getMethod(),
+                            ropRequestContext.getLocale(), e));
+                    logger.error("在执行拦截器[" + interceptor.getClass().getName() + "]时发生异常.", e);
                 }
             }
-        } catch (Throwable e) {
-            ropRequestContext.setRopResponse(new ServiceUnavailableErrorResponse(ropRequestContext.getMethod(), ropRequestContext.getLocale(), e));
-            logger.error("在执行拦截器[" + tempInterceptor.getClass().getName() + "]时发生异常.", e);
         }
     }
 
@@ -508,18 +569,21 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
     private Object doService(RopRequestContext ropRequestContext) {
         Object ropResponse = null;
         if (ropRequestContext.getMethod() == null) {
-            ropResponse = new ErrorResponse(MainErrors.getError(MainErrorType.MISSING_METHOD, ropRequestContext.getLocale()));
+            ropResponse = new ErrorResponse(MainErrors.getError(MainErrorType.MISSING_METHOD,
+                    ropRequestContext.getLocale()));
         } else if (!ropContext.isValidMethod(ropRequestContext.getMethod())) {
-            ropResponse = new ErrorResponse(MainErrors.getError(MainErrorType.INVALID_METHOD, ropRequestContext.getLocale()));
+            ropResponse = new ErrorResponse(MainErrors.getError(MainErrorType.INVALID_METHOD,
+                    ropRequestContext.getLocale()));
         } else {
             try {
                 ropResponse = serviceMethodAdapter.invokeServiceMethod(ropRequestContext);
-            } catch (Exception e) { //出错则招聘服务不可用的异常
+            } catch (Exception e) { // 出错则招聘服务不可用的异常
                 if (logger.isInfoEnabled()) {
                     logger.info("调用" + ropRequestContext.getMethod() + "时发生异常，异常信息为：" + e.getMessage());
                     e.printStackTrace();
                 }
-                ropResponse = new ServiceUnavailableErrorResponse(ropRequestContext.getMethod(), ropRequestContext.getLocale(), e);
+                ropResponse = new ServiceUnavailableErrorResponse(ropRequestContext.getMethod(),
+                        ropRequestContext.getLocale(), e);
             }
         }
         return ropResponse;
@@ -542,7 +606,6 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
     public SecurityManager getSecurityManager() {
         return securityManager;
     }
-
 
     public FormattingConversionService getFormattingConversionService() {
         return formattingConversionService;

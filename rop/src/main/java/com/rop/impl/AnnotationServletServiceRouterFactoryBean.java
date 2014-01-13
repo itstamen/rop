@@ -39,7 +39,7 @@ public class AnnotationServletServiceRouterFactoryBean
 
     private static final String ALL_FILE_TYPES = "*";
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    protected final Logger logger = LoggerFactory.getLogger(AnnotationServletServiceRouterFactoryBean.class);
 
     private ApplicationContext applicationContext;
 

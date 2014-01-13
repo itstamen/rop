@@ -104,64 +104,67 @@ public class DefaultRopContext implements RopContext {
         String[] beanNames = context.getBeanNamesForType(Object.class);
         for (final String beanName : beanNames) {
             Class<?> handlerType = context.getType(beanName);
-            ReflectionUtils.doWithMethods(handlerType, new ReflectionUtils.MethodCallback() {
-                        public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
-                            ReflectionUtils.makeAccessible(method);
 
-                            ServiceMethod serviceMethod = method.getAnnotation(ServiceMethod.class);
-                            ServiceMethodBean serviceMethodBean = method.getDeclaringClass().getAnnotation(ServiceMethodBean.class);
+            // 1只对标注 ServiceMethodBean的Bean进行扫描
+            if (AnnotationUtils.findAnnotation(handlerType, ServiceMethodBean.class) != null) {
+                ReflectionUtils.doWithMethods(handlerType, new ReflectionUtils.MethodCallback() {
+                    public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
+                        ReflectionUtils.makeAccessible(method);
 
-                            ServiceMethodDefinition definition = null;
-                            if (serviceMethodBean != null) {
-                                definition = buildServiceMethodDefinition(serviceMethodBean, serviceMethod);
-                            } else {
-                                definition = buildServiceMethodDefinition(serviceMethod);
-                            }
-                            ServiceMethodHandler serviceMethodHandler = new ServiceMethodHandler();
-                            serviceMethodHandler.setServiceMethodDefinition(definition);
+                        ServiceMethod serviceMethod = method.getAnnotation(ServiceMethod.class);
+                        ServiceMethodBean serviceMethodBean = method.getDeclaringClass().getAnnotation(ServiceMethodBean.class);
 
-                            //1.set handler
-                            serviceMethodHandler.setHandler(context.getBean(beanName)); //handler
-                            serviceMethodHandler.setHandlerMethod(method); //handler'method
-
-
-                            if (method.getParameterTypes().length > 1) {//handler method's parameter
-                                throw new RopException(method.getDeclaringClass().getName() + "." + method.getName()
-                                        + "的入参只能是" + RopRequest.class.getName() + "或无入参。");
-                            } else if (method.getParameterTypes().length == 1) {
-                                Class<?> paramType = method.getParameterTypes()[0];
-                                if (!ClassUtils.isAssignable(RopRequest.class, paramType)) {
-                                    throw new RopException(method.getDeclaringClass().getName() + "." + method.getName()
-                                            + "的入参必须是" + RopRequest.class.getName());
-                                }
-                                boolean ropRequestImplType = !(paramType.isAssignableFrom(RopRequest.class) ||
-                                        paramType.isAssignableFrom(AbstractRopRequest.class));
-                                serviceMethodHandler.setRopRequestImplType(ropRequestImplType);
-                                serviceMethodHandler.setRequestType((Class<? extends RopRequest>) paramType);
-                            } else {
-                                logger.info(method.getDeclaringClass().getName() + "." + method.getName() + "无入参");
-                            }
-
-                            //2.set sign fieldNames
-                            serviceMethodHandler.setIgnoreSignFieldNames(getIgnoreSignFieldNames(serviceMethodHandler.getRequestType()));
-
-                            //3.set fileItemFieldNames
-                            serviceMethodHandler.setUploadFileFieldNames(getFileItemFieldNames(serviceMethodHandler.getRequestType()));
-
-                            addServiceMethod(definition.getMethod(), definition.getVersion(), serviceMethodHandler);
-
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("注册服务方法：" + method.getDeclaringClass().getCanonicalName() +
-                                        "#" + method.getName() + "(..)");
-                            }
+                        ServiceMethodDefinition definition = null;
+                        if (serviceMethodBean != null) {
+                            definition = buildServiceMethodDefinition(serviceMethodBean, serviceMethod);
+                        } else {
+                            definition = buildServiceMethodDefinition(serviceMethod);
                         }
-                    },
-                    new ReflectionUtils.MethodFilter() {
-                        public boolean matches(Method method) {
-                            return AnnotationUtils.findAnnotation(method, ServiceMethod.class) != null;
+                        ServiceMethodHandler serviceMethodHandler = new ServiceMethodHandler();
+                        serviceMethodHandler.setServiceMethodDefinition(definition);
+
+                        // 1.set handler
+                        serviceMethodHandler.setHandler(context.getBean(beanName)); // handler
+                        serviceMethodHandler.setHandlerMethod(method); // handler'method
+
+                        if (method.getParameterTypes().length > 1) {// handler method's parameter
+                            throw new RopException(method.getDeclaringClass().getName() + "." + method.getName()
+                                    + "的入参只能是" + RopRequest.class.getName() + "或无入参。");
+                        } else if (method.getParameterTypes().length == 1) {
+                            Class<?> paramType = method.getParameterTypes()[0];
+                            if (!ClassUtils.isAssignable(RopRequest.class, paramType)) {
+                                throw new RopException(method.getDeclaringClass().getName() + "." + method.getName()
+                                        + "的入参必须是" + RopRequest.class.getName());
+                            }
+                            boolean ropRequestImplType = !(paramType.isAssignableFrom(RopRequest.class) || paramType
+                                    .isAssignableFrom(AbstractRopRequest.class));
+                            serviceMethodHandler.setRopRequestImplType(ropRequestImplType);
+                            serviceMethodHandler.setRequestType((Class<? extends RopRequest>) paramType);
+                        } else {
+                            logger.info(method.getDeclaringClass().getName() + "." + method.getName() + "无入参");
+                        }
+
+                        // 2.set sign fieldNames
+                        serviceMethodHandler.setIgnoreSignFieldNames(getIgnoreSignFieldNames(serviceMethodHandler.getRequestType()));
+
+                        // 3.set fileItemFieldNames
+                        serviceMethodHandler.setUploadFileFieldNames(getFileItemFieldNames(serviceMethodHandler.getRequestType()));
+
+                        addServiceMethod(definition.getMethod(), definition.getVersion(), serviceMethodHandler);
+
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("注册服务方法：" + method.getDeclaringClass().getCanonicalName() + "#"
+                                    + method.getName() + "(..)");
                         }
                     }
-            );
+                }, new ReflectionUtils.MethodFilter() {
+                    public boolean matches(Method method) {
+                        // 2不是合成方法,且标注了ServiceMethod的方法!!
+                        return !method.isSynthetic()
+                                && AnnotationUtils.findAnnotation(method, ServiceMethod.class) != null;
+                    }
+                });
+            }
         }
         if (context.getParent() != null) {
             registerFromContext(context.getParent());
