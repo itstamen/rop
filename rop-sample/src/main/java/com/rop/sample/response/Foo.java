@@ -23,6 +23,14 @@ public class Foo {
     @XmlAttribute
     private String field2 = "2";
 
+    public Foo() {
+    }
+
+    public Foo(String field1, String field2) {
+        this.field1 = field1;
+        this.field2 = field2;
+    }
+
     public String getField1() {
         return field1;
     }

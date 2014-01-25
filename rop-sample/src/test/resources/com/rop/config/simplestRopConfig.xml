@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:rop="http://www.rop.com/schema/rop"
+       xmlns:rop="http://www.bookegou.com/schema/rop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-       http://www.rop.com/schema/rop http://www.rop.com/schema/rop/rop-1.0.xsd">
-    <rop:annotation-driven/>
+       http://www.bookegou.com/schema/rop http://www.bookegou.com/schema/rop/rop-1.0.xsd">
+    <rop:annotation-driven id="router"/>
 </beans>

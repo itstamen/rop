@@ -10,10 +10,10 @@
         <version>7</version>
     </parent>
 
-    <groupId>com.bookegou</groupId>
+    <groupId>com.rop</groupId>
     <artifactId>rop-sample</artifactId>
     <name>ropSample</name>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <description>rest open platform</description>
 
@@ -53,9 +53,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.bookegou</groupId>
+            <groupId>com.rop</groupId>
             <artifactId>rop</artifactId>
-            <version>1.0</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -63,6 +63,12 @@
             <artifactId>unitils-core</artifactId>
             <version>${unitils.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>3.2.3.RELEASE</version>
         </dependency>
 
         <dependency>
@@ -100,6 +106,19 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>internal.repo.release</id>
+            <name>中软海晟信息技术有限公司内部代码仓库</name>
+            <url>http://10.188.182.140:8081/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>internal.repo.snapshot</id>
+            <name>中软海晟信息技术有限公司内部代码仓库</name>
+            <url>http://10.188.182.140:8081/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <finalName>rop-sample</finalName>
         <plugins>
@@ -109,10 +128,10 @@
                 <artifactId>maven-jetty-plugin</artifactId>
                 <version>6.1.5</version>
                 <configuration>
+                    <webDefaultXml>src/main/resources/jetty/webdefault.xml</webDefaultXml>
                     <webAppSourceDirectory>src/main/webapp</webAppSourceDirectory>
                     <scanIntervalSeconds>3</scanIntervalSeconds>
                     <contextPath>/</contextPath>
-
                     <connectors>
                         <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
                             <port>8088</port>

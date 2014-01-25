@@ -61,6 +61,40 @@ upload-file-max-size和upload-file-types属性。
 17.删除RopResponse,服务方法的返回值可以是任何类型。
 
 
+1.0-SNAPSHOP-4 (2013-09-18)
+
+1.支持JSONP调用，默认指定回调方法的参数名为callback,也可以通过    
+<rop:sysparams/>标签指定一个自定义的jsonp参数名，如下所示：
+<rop:sysparams  jsonp-param-name="__invoke"/>
+调用很简单，只要请求参数中有callback（或<rop:sysparams/>指定的）参数，即以jsonp形式返回。
+2.支持CORS报文头的跨域功能。
+
+1.0-SNAPSHOP-5 (2013-10-18)
+1.新增com.rop.session.AuthRequest 认证请求；
+2.新增com.rop.session.AbstractAuthRequest，即AuthRequest的抽象类；
+2.新增com.rop.session.AuthResponse 认证响应，即认证的结果，如果认证成功，AuthResponse将包括一个Session对象，代表认证成功对应的会话；
+3.新增com.rop.session.AuthenticationManager认证管理器，即完成对AuthRequest进行认证，返回认证结果AuthResponse；
+4.新增com.rop.session.AuthenticationService 认证服务类，具体的项目可以通过扩展该抽象类提供认证服务，具体可以参见rop-sample的
+SampleAuthenticationService例子；
+5.新增com.rop.session.RopSessionHolder认证成功后，会产生Session，项目可以配置一个
+com.rop.session.SessionBindInterceptor拦截器，SessionBindInterceptor会将Session从SessionManager中
+绑定到本地线程中，这样当次请求的所有调用堆栈都可以通过RopSessionHolder访问到Session了。
+6.新增com.rop.session.SessionBindInterceptor参见com.rop.session.RopSessionHolder的说明，和rop-sample的配置。
+7.新增com.rop.session.UserNamePasswordAuthRequest基于用户名和密码的认证请求。
+8.解决了com.rop.impl.DefaultRopContext中的几个BUG：
+   BUG1：Rop启动时会扫描所有的Bean,性能较低，现改成只扫描标注
+@ServiceMethodBean的Bean！！所以ROP的服务类必须标注@ServiceMethodBean，否则会扫描不到！！
+   BUG2：原ROP会扫描所有的服务类方法，包括桥接方法和合成方法，这会引起服务方法注册的问题，
+   现已改成只扫描非合成方法（即手工写方法）；
+9.com.rop.impl.AnnotationServletServiceRouter在启动时自动注册com.rop.session.SessionBindInterceptor。
+
+1.0-SNAPSHOP-6 (2013-10-31)
+1.<rop:annotation-driven/>添加 ext-error-base-names,允许通过逗号分隔的方式设置多个国际化资源文件。
+
+1.0-SNAPSHOP-7 (2013-11-01)
+1.com.rop.response.ErrorResponse添加一个特殊标识：errorToken，
+同时修改了com.rop.client.DefaultRopClient#isSuccessful()方法。
+
 
 
 

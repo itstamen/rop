@@ -9,6 +9,7 @@ import com.rop.config.SystemParameterNames;
 import com.rop.event.*;
 import com.rop.marshaller.JacksonJsonRopMarshaller;
 import com.rop.marshaller.JaxbXmlRopMarshaller;
+import com.rop.marshaller.MessageMarshallerUtils;
 import com.rop.request.RopRequestMessageConverter;
 import com.rop.request.UploadFileConverter;
 import com.rop.response.ErrorResponse;
@@ -18,7 +19,9 @@ import com.rop.response.TimeoutErrorResponse;
 import com.rop.security.*;
 import com.rop.security.SecurityManager;
 import com.rop.session.DefaultSessionManager;
+import com.rop.session.SessionBindInterceptor;
 import com.rop.session.SessionManager;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -32,9 +35,7 @@ import org.springframework.util.Assert;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class AnnotationServletServiceRouter implements ServiceRouter {
@@ -42,6 +43,9 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
     public static final String APPLICATION_XML = "application/xml";
 
     public static final String APPLICATION_JSON = "application/json";
+    public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+    public static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
+    public static final String DEFAULT_EXT_ERROR_BASE_NAME = "i18n/rop/ropError";
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -84,7 +88,9 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
     private Class<? extends ThreadFerry> threadFerryClass;
 
-    private String extErrorBasename = "i18n/rop/ropError";
+    private String extErrorBasename;
+
+    private String[] extErrorBasenames;
 
     @Override
     public void service(Object request, Object response) {
@@ -94,8 +100,12 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         //获取服务方法最大过期时间
         String method = servletRequest.getParameter(SystemParameterNames.getMethod());
         String version = servletRequest.getParameter(SystemParameterNames.getVersion());
+        if(logger.isDebugEnabled()){
+            logger.debug("调用服务方法："+method+"("+version+")");
+        }
         int serviceMethodTimeout = getServiceMethodTimeout(method, version);
         long beginTime = System.currentTimeMillis();
+        String jsonpCallback = getJsonpcallback(servletRequest);
 
         //使用异常方式调用服务方法
         try {
@@ -106,29 +116,55 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                 threadFerry.doInSrcThread();
             }
 
-            ServiceRunnable runnable = new ServiceRunnable(servletRequest, servletResponse, threadFerry);
+            ServiceRunnable runnable = new ServiceRunnable(servletRequest, servletResponse,jsonpCallback, threadFerry);
             Future<?> future = this.threadPoolExecutor.submit(runnable);
             while (!future.isDone()) {
                 future.get(serviceMethodTimeout, TimeUnit.SECONDS);
             }
         } catch (RejectedExecutionException ree) {//超过最大的服务平台的最大资源限制，无法提供服务
+            if(logger.isInfoEnabled()){
+                logger.info("调用服务方法:"+method+"("+version+")，超过最大资源限制，无法提供服务。");
+            }
             RopRequestContext ropRequestContext = buildRequestContextWhenException(servletRequest, beginTime);
             RejectedServiceResponse ropResponse = new RejectedServiceResponse(ropRequestContext.getLocale());
-            writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
+            writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest),jsonpCallback);
             fireAfterDoServiceEvent(ropRequestContext);
         } catch (TimeoutException e) {//服务时间超限
+            if(logger.isInfoEnabled()){
+                logger.info("调用服务方法:"+method+"("+version+")，服务调用超时。");
+            }
             RopRequestContext ropRequestContext = buildRequestContextWhenException(servletRequest, beginTime);
             TimeoutErrorResponse ropResponse =
                     new TimeoutErrorResponse(ropRequestContext.getMethod(),
                             ropRequestContext.getLocale(), serviceMethodTimeout);
-            writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
+            writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest),jsonpCallback);
             fireAfterDoServiceEvent(ropRequestContext);
         } catch (Throwable throwable) {//产生未知的错误
+            if(logger.isInfoEnabled()){
+                logger.info("调用服务方法:"+method+"("+version+")，产生异常",throwable);
+            }
             ServiceUnavailableErrorResponse ropResponse =
                     new ServiceUnavailableErrorResponse(method, ServletRequestContextBuilder.getLocale(servletRequest), throwable);
-            writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest));
+            writeResponse(ropResponse, servletResponse, ServletRequestContextBuilder.getResponseFormat(servletRequest),jsonpCallback);
             RopRequestContext ropRequestContext = buildRequestContextWhenException(servletRequest, beginTime);
             fireAfterDoServiceEvent(ropRequestContext);
+        }
+    }
+
+    /**
+     * 获取JSONP的参数名，如果没有返回
+     * @param servletRequest
+     * @return
+     */
+    private String getJsonpcallback(HttpServletRequest servletRequest) {
+        if(servletRequest.getParameterMap().containsKey(SystemParameterNames.getJsonp())){
+            String callback = servletRequest.getParameter(SystemParameterNames.getJsonp());
+            if(StringUtils.isEmpty(callback)){
+                callback = "callback";
+            }
+            return callback;
+        }else {
+            return null;
         }
     }
 
@@ -164,6 +200,9 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
         //初始化事件发布器
         this.ropEventMulticaster = buildRopEventMulticaster();
+
+        //注册会话绑定拦截器
+        this.addInterceptor(new SessionBindInterceptor());
 
         //初始化信息源
         initMessageSource();
@@ -250,6 +289,11 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
     }
 
     @Override
+    public void setExtErrorBasenames(String[] extErrorBasenames) {
+        this.extErrorBasenames = extErrorBasenames;
+    }
+
+    @Override
     public void setThreadPoolExecutor(ThreadPoolExecutor threadPoolExecutor) {
         this.threadPoolExecutor = threadPoolExecutor;
     }
@@ -304,12 +348,15 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         private HttpServletRequest servletRequest;
         private HttpServletResponse servletResponse;
         private ThreadFerry threadFerry;
+        private String jsonpCallback;
 
         private ServiceRunnable(HttpServletRequest servletRequest,
                                 HttpServletResponse servletResponse,
-                                ThreadFerry threadFerry) {
+                                String jsonpCallback,
+                                ThreadFerry threadFerry ) {
             this.servletRequest = servletRequest;
             this.servletResponse = servletResponse;
+            this.jsonpCallback = jsonpCallback;
             this.threadFerry = threadFerry;
         }
 
@@ -354,7 +401,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                     }
                 }
                 //输出响应
-                writeResponse(ropRequestContext.getRopResponse(), servletResponse, ropRequestContext.getMessageFormat());
+                writeResponse(ropRequestContext.getRopResponse(), servletResponse, ropRequestContext.getMessageFormat(),jsonpCallback);
             } catch (Throwable e) {
                 String method = ropRequestContext.getMethod();
                 Locale locale = ropRequestContext.getLocale();
@@ -362,7 +409,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
                 //输出响应前拦截
                 invokeBeforceResponseOfInterceptors(ropRequestContext);
-                writeResponse(ropResponse, servletResponse, ropRequestContext.getMessageFormat());
+                writeResponse(ropResponse, servletResponse, ropRequestContext.getMessageFormat(),jsonpCallback);
             } finally {
                 if (ropRequestContext != null) {
 
@@ -490,18 +537,43 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         }
     }
 
-    private void writeResponse(Object ropResponse, HttpServletResponse httpServletResponse, MessageFormat messageFormat) {
+    private void writeResponse(Object ropResponse, HttpServletResponse httpServletResponse, MessageFormat messageFormat,String jsonpCallback) {
         try {
+            if(logger.isDebugEnabled()){
+                logger.debug("输出响应："+MessageMarshallerUtils.getMessage(ropResponse,messageFormat));
+            }
+            httpServletResponse.addHeader(ACCESS_CONTROL_ALLOW_ORIGIN,"*");
+            httpServletResponse.addHeader(ACCESS_CONTROL_ALLOW_METHODS,"*");
             httpServletResponse.setCharacterEncoding(Constants.UTF8);
+            RopMarshaller ropMarshaller = null;
+            String contentType = null;
             if (messageFormat == MessageFormat.xml) {
-                httpServletResponse.setContentType(APPLICATION_XML);
-                xmlMarshallerRop.marshaller(ropResponse, httpServletResponse.getOutputStream());
+                ropMarshaller = xmlMarshallerRop;
+                contentType =  APPLICATION_XML;
             } else {
-                httpServletResponse.setContentType(APPLICATION_JSON);
-                jsonMarshallerRop.marshaller(ropResponse, httpServletResponse.getOutputStream());
+                ropMarshaller = jsonMarshallerRop;
+                contentType =  APPLICATION_JSON;
+            }
+            httpServletResponse.setContentType(contentType);
+
+            if(jsonpCallback != null){
+                httpServletResponse.getOutputStream().write(jsonpCallback.getBytes());
+                httpServletResponse.getOutputStream().write('(');
+            }
+            ropMarshaller.marshaller(ropResponse, httpServletResponse.getOutputStream());
+            if(jsonpCallback != null){
+                httpServletResponse.getOutputStream().write(')');
+                httpServletResponse.getOutputStream().write(';');
             }
         } catch (IOException e) {
             throw new RopException(e);
+        }finally {
+            try {
+                httpServletResponse.getOutputStream().flush();
+                httpServletResponse.getOutputStream().close();
+            } catch (IOException e) {
+                logger.error("关闭响应出错",e);
+            }
         }
     }
 
@@ -529,11 +601,26 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
      * 设置国际化资源信息
      */
     private void initMessageSource() {
+        HashSet<String> baseNamesSet = new HashSet<String>();
+        baseNamesSet.add(I18N_ROP_ERROR);//ROP自动的资源
+
+        if(extErrorBasename == null && extErrorBasenames == null){
+            baseNamesSet.add(DEFAULT_EXT_ERROR_BASE_NAME);
+        }else{
+            if(extErrorBasename != null){
+                baseNamesSet.add(extErrorBasename);
+            }
+            if(extErrorBasenames != null){
+                baseNamesSet.addAll(Arrays.asList(extErrorBasenames));
+            }
+        }
+        String[] totalBaseNames = baseNamesSet.toArray(new String[0]);
+
         if (logger.isInfoEnabled()) {
-            logger.info("加载错误码国际化资源：" + I18N_ROP_ERROR + "," + this.extErrorBasename);
+            logger.info("加载错误码国际化资源：{}",StringUtils.join(totalBaseNames,","));
         }
         ResourceBundleMessageSource bundleMessageSource = new ResourceBundleMessageSource();
-        bundleMessageSource.setBasenames(I18N_ROP_ERROR, this.extErrorBasename);
+        bundleMessageSource.setBasenames(totalBaseNames);
         MessageSourceAccessor messageSourceAccessor = new MessageSourceAccessor(bundleMessageSource);
         MainErrors.setErrorMessageSourceAccessor(messageSourceAccessor);
         SubErrors.setErrorMessageSourceAccessor(messageSourceAccessor);
@@ -575,4 +662,5 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
     public String getExtErrorBasename() {
         return extErrorBasename;
     }
+
 }

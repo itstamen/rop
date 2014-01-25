@@ -32,6 +32,9 @@ public class Address {
     @XmlElement(name = "street")
     private List<Street> streets;
 
+    @XmlElementWrapper(name = "codes")
+    private String[] codes;
+
     public String getZoneCode() {
         return zoneCode;
     }
@@ -54,6 +57,14 @@ public class Address {
 
     public void setStreets(List<Street> streets) {
         this.streets = streets;
+    }
+
+    public String[] getCodes() {
+        return codes;
+    }
+
+    public void setCodes(String[] codes) {
+        this.codes = codes;
     }
 }
 

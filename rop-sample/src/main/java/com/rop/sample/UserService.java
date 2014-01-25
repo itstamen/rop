@@ -11,10 +11,7 @@ import com.rop.response.NotExistErrorResponse;
 import com.rop.sample.request.CreateUserRequest;
 import com.rop.sample.request.LogonRequest;
 import com.rop.sample.request.UploadUserPhotoRequest;
-import com.rop.sample.response.CreateUserResponse;
-import com.rop.sample.response.LogonResponse;
-import com.rop.sample.response.LogoutResponse;
-import com.rop.sample.response.UploadUserPhotoResponse;
+import com.rop.sample.response.*;
 import com.rop.session.SimpleSession;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
@@ -39,6 +36,7 @@ public class UserService {
 
     @ServiceMethod(method = "user.getSession",version = "1.0",needInSession = NeedInSessionType.NO)
     public Object getSession(LogonRequest request) {
+
         //创建一个会话
         SimpleSession session = new SimpleSession();
         session.setAttribute("userName",request.getUserName());
@@ -105,6 +103,7 @@ public class UserService {
             response.setCreateTime("20120101010101");
             response.setUserId("1");
             response.setFeedback("hello");
+            response.setFooList(Arrays.asList(new Foo("1","1"),new Foo("2","2")));
             return response;
         }
     }
@@ -225,6 +224,12 @@ public class UserService {
         response.setFileType(fileType);
         response.setLength(length);
         return response;
+    }
+
+
+    @ServiceMethod(method = "user.list", version = "1.0", httpAction = HttpAction.GET)
+    public Object userList(RopRequest ropRequest) throws Throwable {
+       return new UserListResponse();
     }
 
 }

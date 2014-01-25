@@ -36,7 +36,7 @@ import java.io.IOException;
  */
 public class RopServlet extends HttpServlet {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    protected  Logger logger = LoggerFactory.getLogger(getClass());
 
     private ServiceRouter serviceRouter;
 

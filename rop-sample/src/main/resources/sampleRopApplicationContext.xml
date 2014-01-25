@@ -2,10 +2,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:rop="http://www.bookegou.com/schema/rop"
+       xmlns:rop="http://www.rop.com/schema/rop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-       http://www.bookegou.com/schema/rop http://www.bookegou.com/schema/rop/rop-1.0.xsd
+       http://www.rop.com/schema/rop http://www.rop.com/schema/rop/rop-1.0.xsd
     http://www.springframework.org/schema/context
     http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
@@ -14,11 +14,12 @@
 
     <!-- 启动Rop框架 -->
     <rop:annotation-driven
+            id="router"
             session-manager="sampleSessionManager"
             app-secret-manager="appSecretManager"
             service-access-controller="serviceAccessController"
             formatting-conversion-service="conversionService"
-            ext-error-base-name="i18n/rop/sampleRopError"
+            ext-error-base-names="i18n/rop/sampleRopError,i18n/rop/sampleRopError1"
             service-timeout-seconds="10"
             thread-ferry-class="com.rop.sample.SampleThreadFerry"
             invoke-times-controller="invokeTimesController"
@@ -61,6 +62,8 @@
     </rop:listeners>
 
     <!--自定义method,appKey等这些系统级参数的参数名-->
-    <rop:sysparams format-param-name="messageFormat"/>
+    <rop:sysparams
+            format-param-name="messageFormat"
+            jsonp-param-name="__invoke"/>
 
 </beans>

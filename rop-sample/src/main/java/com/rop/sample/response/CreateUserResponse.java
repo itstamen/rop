@@ -6,6 +6,8 @@ package com.rop.sample.response;
 
 
 import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.List;
 
 /**
  * <pre>
@@ -26,10 +28,23 @@ public class CreateUserResponse{
     private String createTime;
 
     @XmlElement
-    private Foo foo = new Foo();
+    private Foo foo = new Foo("0","0");
 
     @XmlElement
     private String feedback;
+
+    @XmlElement
+    private List<Foo> fooList;
+
+    private boolean ok = true;
+
+    public List<Foo> getFooList() {
+        return fooList;
+    }
+
+    public void setFooList(List<Foo> fooList) {
+        this.fooList = fooList;
+    }
 
     public String getUserId() {
         return userId;
@@ -61,6 +76,14 @@ public class CreateUserResponse{
 
     public void setFoo(Foo foo) {
         this.foo = foo;
+    }
+
+    public boolean isOk() {
+        return ok;
+    }
+
+    public void setOk(boolean ok) {
+        this.ok = ok;
     }
 }
 

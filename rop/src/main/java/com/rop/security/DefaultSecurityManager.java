@@ -331,8 +331,8 @@ public class DefaultSecurityManager implements SecurityManager {
                 return null;
             }
         } else {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Rop关闭了签名检查,可通过将配置文件的“needCheckSign”开启。");
+            if (logger.isDebugEnabled()) {
+                logger.warn("{}{}服务方法未开启签名",ctx.getMethod(),ctx.getVersion());
             }
             return null;
         }

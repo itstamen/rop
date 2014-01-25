@@ -45,6 +45,7 @@ public class DefaultRopContextTest {
         assertEquals(definition.getMethodTitle(), "测试方法1");
         assertEquals(definition.getMethodGroup(), "GROUP1");
         assertEquals(definition.getMethodGroupTitle(), "分组1");
+
         assertEquals(definition.getTags(), new String[]{"TAG1", "TAG2"});
         assertEquals(definition.isIgnoreSign(), true);
         assertEquals(definition.isNeedInSession(), false);
@@ -194,6 +195,10 @@ public class DefaultRopContextTest {
         assertNotNull(annotation);
         annotation = AnnotationUtils.findAnnotation(ExtUploadFile.class, IgnoreSign.class);
         assertNotNull(annotation);
+    }
+
+    public static void main(String[] args) {
+        System.out.println("中国人民！");
     }
 
 }

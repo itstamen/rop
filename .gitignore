@@ -2,4 +2,5 @@
 .idea/
 rop/target/**/*
 rop-sample/target/**/*
+rop-client-js/**/*
 

@@ -9,6 +9,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <pre>
@@ -28,6 +31,11 @@ public class SampleResponse{
     @XmlAttribute
     private String createTime;
 
+    private List<Map<String,Object>> table;
+
+    public SampleResponse() {
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -42,6 +50,14 @@ public class SampleResponse{
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    public List<Map<String, Object>> getTable() {
+        return table;
+    }
+
+    public void setTable(List<Map<String, Object>> table) {
+        this.table = table;
     }
 }
 

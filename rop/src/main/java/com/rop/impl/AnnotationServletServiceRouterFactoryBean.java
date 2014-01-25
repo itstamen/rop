@@ -1,5 +1,5 @@
 /**
- * 版权声明：中图一购网络科技有限公司 版权所有 违者必究 2012 
+ * 版权声明： 版权所有 违者必究 2012
  * 日    期：12-6-7
  */
 package com.rop.impl;
@@ -57,6 +57,8 @@ public class AnnotationServletServiceRouterFactoryBean
 
     private String extErrorBasename;
 
+    private String[] extErrorBasenames;
+
     private int serviceTimeoutSeconds = -1;
 
     private Class<? extends ThreadFerry> threadFerryClass;
@@ -110,10 +112,15 @@ public class AnnotationServletServiceRouterFactoryBean
         //实例化一个AnnotationServletServiceRouter
         serviceRouter = new AnnotationServletServiceRouter();
 
-        //设置属性
+        //设置国际化错误资源
         if (extErrorBasename != null) {
             serviceRouter.setExtErrorBasename(extErrorBasename);
         }
+
+        if (extErrorBasenames != null) {
+            serviceRouter.setExtErrorBasenames(extErrorBasenames);
+        }
+
         DefaultSecurityManager securityManager = BeanUtils.instantiate(DefaultSecurityManager.class);
 
         securityManager.setSessionManager(sessionManager);
@@ -229,6 +236,10 @@ public class AnnotationServletServiceRouterFactoryBean
 
     public void setExtErrorBasename(String extErrorBasename) {
         this.extErrorBasename = extErrorBasename;
+    }
+
+    public void setExtErrorBasenames(String[] extErrorBasenames) {
+        this.extErrorBasenames = extErrorBasenames;
     }
 
     public void setServiceTimeoutSeconds(int serviceTimeoutSeconds) {
