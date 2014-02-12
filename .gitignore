@@ -1,6 +1,5 @@
 **/*.iml
 .idea/
-rop/target/**/*
-rop-sample/target/**/*
+**/target/**/*
 rop-client-js/**/*
 
