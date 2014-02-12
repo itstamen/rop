@@ -1,0 +1,2 @@
+1.SessionManager如何使用HttpSession作为会话管理。
+  需要更改SessionManager接口！

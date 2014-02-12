@@ -98,7 +98,9 @@ public class DefaultRopContextTest {
         when(context.getBeanNamesForType(Object.class)).thenReturn(new String[]{"method1"});
         Class serviceClass = IgnoreSignRopRequestService.class;
         when(context.getType("method1")).thenReturn(serviceClass);
+
         RopContext ropContext = new DefaultRopContext(context);
+
         ServiceMethodHandler method1 = ropContext.getServiceMethodHandler("method1", "1.0");
         List<String> ignoreSignFieldNames = method1.getIgnoreSignFieldNames();
         assertNotNull(ignoreSignFieldNames);
@@ -108,6 +110,7 @@ public class DefaultRopContextTest {
         assertTrue(ignoreSignFieldNames.contains("sign"));
     }
 
+    @ServiceMethodBean
     public class IgnoreSignRopRequestService {
 
         @ServiceMethod(method = "method1", version = "1.0")
@@ -161,6 +164,7 @@ public class DefaultRopContextTest {
         }
     }
 
+    @ServiceMethodBean
     public class WithoutGroupService {
 
         @ServiceMethod(method = "service.method1", title = "测试方法1", group = "GROUP1", groupTitle = "分组1",

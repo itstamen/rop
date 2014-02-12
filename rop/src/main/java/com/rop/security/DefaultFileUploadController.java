@@ -20,7 +20,7 @@ public class DefaultFileUploadController implements FileUploadController {
 
     private List<String> fileTypes;
     
-    private int maxSize;
+    private int maxSize = -1;
 
     private boolean allowAllTypes = false;
 

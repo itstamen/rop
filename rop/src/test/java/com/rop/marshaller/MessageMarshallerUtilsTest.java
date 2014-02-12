@@ -65,14 +65,14 @@ public class MessageMarshallerUtilsTest {
         response.setCreateTime("20120101");
 
 
-        List<Map<String,Object>> table = new ArrayList<Map<String,Object>>();
-        Map<String,Object> row1 = new LinkedHashMap<String, Object>();
+        List<HashMap<String,Object>> table = new ArrayList<HashMap<String,Object>>();
+        HashMap<String,Object> row1 = new HashMap<String, Object>();
         row1.put("col1", "id1");
         row1.put("col2", "user1");
         row1.put("col3", 20);
         row1.put("col4", 1000.34);
         table.add(row1);
-        Map<String,Object> row2 = new LinkedHashMap<String, Object>();
+        HashMap<String,Object> row2 = new HashMap<String, Object>();
         row2.put("col1", "id2");
         row2.put("col2", null);
         row2.put("col3", 22);

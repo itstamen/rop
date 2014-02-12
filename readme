@@ -29,9 +29,10 @@ public class SampleRestService {
     }
 }
 --------------------------------------------------------------------
+
    The parameter's list of the api method must extends the RopRequest,and the
 Return parameter can be any Object.
-   The Rop can marshaller the response to the xml or json format output,you can
-control the output format by "format" parameter.
+   The Rop can marshaller the response to the xml,json or jsonp format output,you can
+control the output format by "format=xml|json" parameter.
    Good 2014!
    stame by 2012-3-1 Xiamen China

@@ -57,15 +57,15 @@
                         </xsd:annotation>
                     </xsd:attribute>
                     <xsd:attribute name="thread-ferry-class" type="xsd:string"/>
-                    <xsd:attribute name="sign-enable" type="xsd:boolean"/>
+                    <xsd:attribute name="sign-enable" type="xsd:string"/>
                     <xsd:attribute name="ext-error-base-name" type="xsd:string"/>
                     <xsd:attribute name="ext-error-base-names" type="xsd:string"/>
-                    <xsd:attribute name="core-pool-size" type="xsd:integer"/>
-                    <xsd:attribute name="max-pool-size" type="xsd:integer"/>
-                    <xsd:attribute name="keep-alive-seconds" type="xsd:integer"/>
-                    <xsd:attribute name="queue-capacity" type="xsd:integer"/>
-                    <xsd:attribute name="service-timeout-seconds" type="xsd:integer"/>
-                    <xsd:attribute name="upload-file-max-size" type="xsd:integer"/>
+                    <xsd:attribute name="core-pool-size" type="xsd:string"/>
+                    <xsd:attribute name="max-pool-size" type="xsd:string"/>
+                    <xsd:attribute name="keep-alive-seconds" type="xsd:string"/>
+                    <xsd:attribute name="queue-capacity" type="xsd:string"/>
+                    <xsd:attribute name="service-timeout-seconds" type="xsd:string"/>
+                    <xsd:attribute name="upload-file-max-size" type="xsd:string"/>
                     <xsd:attribute name="upload-file-types" type="xsd:string"/>
                 </xsd:extension>
             </xsd:complexContent>

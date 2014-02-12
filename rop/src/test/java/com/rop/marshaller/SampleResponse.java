@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +32,7 @@ public class SampleResponse{
     @XmlAttribute
     private String createTime;
 
-    private List<Map<String,Object>> table;
+    private List<HashMap<String,Object>> table;
 
     public SampleResponse() {
     }
@@ -52,11 +53,11 @@ public class SampleResponse{
         this.createTime = createTime;
     }
 
-    public List<Map<String, Object>> getTable() {
+    public List<HashMap<String, Object>> getTable() {
         return table;
     }
 
-    public void setTable(List<Map<String, Object>> table) {
+    public void setTable(List<HashMap<String, Object>> table) {
         this.table = table;
     }
 }

@@ -107,7 +107,7 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             if (logger.isDebugEnabled()) {
                 logger.debug("Rop配置文件最大上传大小为{}K",uploadFileMaxSize);
             }
-            serviceRouterDef.getPropertyValues().addPropertyValue("uploadFileMaxSize", Integer.parseInt(uploadFileMaxSize));
+            serviceRouterDef.getPropertyValues().addPropertyValue("uploadFileMaxSize",uploadFileMaxSize);
         }
 
         String uploadFileTypes = element.getAttribute("upload-file-types");
@@ -179,7 +179,7 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             if (logger.isDebugEnabled()) {
                 logger.debug("Rop配置服务超时时间为{}秒",serviceTimeoutSeconds);
             }
-            serviceRouterDef.getPropertyValues().addPropertyValue("serviceTimeoutSeconds", Integer.parseInt(serviceTimeoutSeconds));
+            serviceRouterDef.getPropertyValues().addPropertyValue("serviceTimeoutSeconds", serviceTimeoutSeconds);
         }
     }
 
@@ -204,15 +204,7 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             if (logger.isDebugEnabled()) {
                 logger.debug("Rop配置一个{},实现类为{}",ThreadFerry.class.getCanonicalName(),threadFerryClassName);
             }
-            try {
-                Class<?> threadFerryClass = ClassUtils.forName(threadFerryClassName, getClass().getClassLoader());
-                if (!ClassUtils.isAssignable(ThreadFerry.class, threadFerryClass)) {
-                    throw new RopException(threadFerryClassName + "没有实现" + ThreadFerry.class.getName() + "接口");
-                }
-                serviceRouterDef.getPropertyValues().addPropertyValue("threadFerryClass", threadFerryClass);
-            } catch (ClassNotFoundException e) {
-                throw new RopException(e);
-            }
+            serviceRouterDef.getPropertyValues().addPropertyValue("threadFerryClassName", threadFerryClassName);
         }
     }
 

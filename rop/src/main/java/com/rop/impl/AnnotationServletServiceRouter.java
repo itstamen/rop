@@ -290,7 +290,15 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
     @Override
     public void setExtErrorBasenames(String[] extErrorBasenames) {
-        this.extErrorBasenames = extErrorBasenames;
+        if (extErrorBasenames != null){
+            List<String> list = new ArrayList<String>();
+            for (String errorBasename : extErrorBasenames) {
+                if (StringUtils.isNotBlank(errorBasename)) {
+                    list.add(errorBasename);
+                }
+            }
+            this.extErrorBasenames = list.toArray(new String[0]);
+        }
     }
 
     @Override

@@ -5,6 +5,7 @@
 package com.rop.impl;
 
 import com.rop.Interceptor;
+import com.rop.RopException;
 import com.rop.ThreadFerry;
 import com.rop.config.InterceptorHolder;
 import com.rop.config.RopEventListenerHodler;
@@ -22,6 +23,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -107,6 +110,22 @@ public class AnnotationServletServiceRouterFactoryBean
         this.threadFerryClass = threadFerryClass;
     }
 
+    public void setThreadFerryClassName(String threadFerryClassName) {
+        try {
+            if (StringUtils.hasText(threadFerryClassName)) {
+                Class<?> threadFerryClass =
+                        ClassUtils.forName(threadFerryClassName, getClass().getClassLoader());
+                if (!ClassUtils.isAssignable(ThreadFerry.class, threadFerryClass)) {
+                    throw new RopException(threadFerryClassName + "没有实现"
+                                         + ThreadFerry.class.getName() + "接口");
+                }
+                this.threadFerryClass = (Class<? extends ThreadFerry>)threadFerryClass;
+            }
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         //实例化一个AnnotationServletServiceRouter
@@ -169,7 +188,6 @@ public class AnnotationServletServiceRouterFactoryBean
 
     private DefaultFileUploadController buildFileUploadController() {
         Assert.notNull(this.uploadFileTypes, "允许上传的文件类型不能为空");
-        Assert.isTrue(this.uploadFileMaxSize > 0);
         if(ALL_FILE_TYPES.equals(uploadFileTypes.trim())){
             return new DefaultFileUploadController(this.uploadFileMaxSize);
         }else {
