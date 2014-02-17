@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 (http://www.altova.com) by hajunma (MiZE) -->
+<xsd:schema xmlns="http://www.rop.com/schema/rop" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:beans="http://www.springframework.org/schema/beans" xmlns:tool="http://www.springframework.org/schema/tool"
+            targetNamespace="http://www.rop.com/schema/rop" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <xsd:import namespace="http://www.springframework.org/schema/beans"
+                schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"/>
+    <xsd:import namespace="http://www.springframework.org/schema/tool"
+                schemaLocation="http://www.springframework.org/schema/tool/spring-tool-3.1.xsd"/>
+    <xsd:element name="annotation-driven">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:attribute name="formatting-conversion-service" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="java:org.springframework.format.support.FormattingConversionService"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="session-manager" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="java:com.rop.session.SessionManager"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="app-secret-manager" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="java:com.rop.security.AppSecretManager"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="service-access-controller" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="java:com.rop.security.ServiceAccessController"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="invoke-times-controller" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="java:com.rop.security.InvokeTimesController"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="thread-ferry-class" type="xsd:string"/>
+                    <xsd:attribute name="sign-enable" type="xsd:string"/>
+                    <xsd:attribute name="ext-error-base-name" type="xsd:string"/>
+                    <xsd:attribute name="ext-error-base-names" type="xsd:string"/>
+                    <xsd:attribute name="core-pool-size" type="xsd:string"/>
+                    <xsd:attribute name="max-pool-size" type="xsd:string"/>
+                    <xsd:attribute name="keep-alive-seconds" type="xsd:string"/>
+                    <xsd:attribute name="queue-capacity" type="xsd:string"/>
+                    <xsd:attribute name="service-timeout-seconds" type="xsd:string"/>
+                    <xsd:attribute name="upload-file-max-size" type="xsd:string"/>
+                    <xsd:attribute name="upload-file-types" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--Rop的拦截器-->
+    <xsd:element name="interceptors">
+        <xsd:complexType>
+            <xsd:choice maxOccurs="unbounded">
+                <xsd:element ref="beans:bean"/>
+                <xsd:element ref="beans:ref"/>
+            </xsd:choice>
+        </xsd:complexType>
+    </xsd:element>
+    <!--Rop的监听器-->
+    <xsd:element name="listeners">
+        <xsd:complexType>
+            <xsd:choice maxOccurs="unbounded">
+                <xsd:element ref="beans:bean"/>
+                <xsd:element ref="beans:ref"/>
+            </xsd:choice>
+        </xsd:complexType>
+    </xsd:element>
+    <!--自定义Rop系统参数名-->
+    <xsd:element name="sysparams">
+        <xsd:complexType>
+            <xsd:attribute name="appkey-param-name" type="xsd:string"/>
+            <xsd:attribute name="sessionid-param-name" type="xsd:string"/>
+            <xsd:attribute name="method-param-name" type="xsd:string"/>
+            <xsd:attribute name="version-param-name" type="xsd:string"/>
+            <xsd:attribute name="format-param-name" type="xsd:string"/>
+            <xsd:attribute name="locale-param-name" type="xsd:string"/>
+            <xsd:attribute name="sign-param-name" type="xsd:string"/>
+            <xsd:attribute name="jsonp-param-name" type="xsd:string"/>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

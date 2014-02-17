@@ -7,7 +7,7 @@ package com.rop.impl;
 import com.rop.ThreadFerry;
 
 /**
- * 不进行任何操作的实现类
+ * 不进行任何操作的实现类,仅为方便逻辑的运行
  * @author : chenxh(quickselect@163.com)
  * @date: 14-2-12
  */

@@ -169,7 +169,7 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             if (logger.isDebugEnabled()) {
                 logger.debug("Rop配置请求数据签名开关为{}",signEnable);
             }
-            serviceRouterDef.getPropertyValues().addPropertyValue("signEnable", Boolean.valueOf(signEnable));
+            serviceRouterDef.getPropertyValues().addPropertyValue("signEnable", signEnable);
         }
     }
 
