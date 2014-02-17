@@ -95,6 +95,14 @@ com.rop.session.SessionBindInterceptor拦截器，SessionBindInterceptor会将Se
 1.com.rop.response.ErrorResponse添加一个特殊标识：errorToken，
 同时修改了com.rop.client.DefaultRopClient#isSuccessful()方法。
 
+1.0-SNAPSHOP-8 (2014-02-17)
+1.添加JSONP及XCOR的支持，JSONP，默认使用callback函数，可以通过
+callback系统参数指定JSONP回调函数，只要系统参数中有callback参数，
+即会以JSONP的格式返回。如
+http://yourhost?method=rop.user.add&v=1.0&callback=myfun，则响应报文的
+内容以会以JSONP格式包含中myfun函数中返回。
+
+
 
 
 
