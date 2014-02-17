@@ -5,13 +5,18 @@
    2)http://yourhost?method=rop.user.update&v=1.0&param1=value1&param=value2...
    ROP can router the request to the dest handler's api.You can use the 
 @ServiceMethod("rop.user.add") annotation to mark the api method in the handler.
-Handler must be a Spring Bean,In other word ,the handler is marked the @Service
-or @Component and so on.
-   This is a right handler rest service api method:
-@Service
+Handler must be a add a @ServiceMethodBean annotation ,ServiceMethodBean has already
+annotated a @Service(Spring),So the Service Class would be a Spring Service Bean automaticly.
+
+This is a right handler rest service api method:
+   
+import com.rop.annotation.ServiceMethod;
+import com.rop.annotation.ServiceMethodBean;
+   
+@ServiceMethodBean//<--1. must mark the annotation,let it be a Service Bean
 public class SampleRestService {
 
-    @ServiceMethod("rop.sample.method1")
+    @ServiceMethod("rop.sample.method1")//<--2.Let it be a Service Method.
     public Object method1(SampleRopRequest1 request1) {
         SampleRopResponse1 response = new SampleRopResponse1();
         response.setCreateTime("20120101010101");
