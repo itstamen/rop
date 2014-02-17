@@ -19,14 +19,6 @@ public class SampleRestService {
         return response;
     }
 }
-<<<<<<< HEAD
---------------------------------------------------------------------
-<<<<<<< HEAD
-
-=======
->>>>>>> parent of bbd8cfe... modify the content of readme
-=======
->>>>>>> parent of 0a56858... 1.解决<rop:annotation-driven/>不支持变量的问题； 2.更改rop-1.0.xsd的配置，所以属性值类型都设置为xsd:string; 3.添加一个com.rop.impl.DumbThreadFerry 这是一个哑实现，不实现任何功能，仅为使配置能够正确 4.解决rop-sample的若干个测试的BUG
    The parameter's list of the api method must extends the RopRequest,and the
 Return parameter can be any Object.
    The Rop can marshaller the response to the xml or json format output,you can
