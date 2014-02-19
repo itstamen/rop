@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2010 (http://www.altova.com) by hajunma (MiZE) -->
-<xsd:schema xmlns="http://www.bookegou.com/schema/rop" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+<xsd:schema xmlns="http://www.rop.com/schema/rop" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns:beans="http://www.springframework.org/schema/beans" xmlns:tool="http://www.springframework.org/schema/tool"
-            targetNamespace="http://www.bookegou.com/schema/rop" elementFormDefault="qualified" attributeFormDefault="unqualified">
+            targetNamespace="http://www.rop.com/schema/rop" elementFormDefault="qualified" attributeFormDefault="unqualified">
     <xsd:import namespace="http://www.springframework.org/schema/beans"
                 schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"/>
     <xsd:import namespace="http://www.springframework.org/schema/tool"
@@ -57,14 +57,15 @@
                         </xsd:annotation>
                     </xsd:attribute>
                     <xsd:attribute name="thread-ferry-class" type="xsd:string"/>
-                    <xsd:attribute name="sign-enable" type="xsd:boolean"/>
+                    <xsd:attribute name="sign-enable" type="xsd:string"/>
                     <xsd:attribute name="ext-error-base-name" type="xsd:string"/>
-                    <xsd:attribute name="core-pool-size" type="xsd:integer"/>
-                    <xsd:attribute name="max-pool-size" type="xsd:integer"/>
-                    <xsd:attribute name="keep-alive-seconds" type="xsd:integer"/>
-                    <xsd:attribute name="queue-capacity" type="xsd:integer"/>
-                    <xsd:attribute name="service-timeout-seconds" type="xsd:integer"/>
-                    <xsd:attribute name="upload-file-max-size" type="xsd:integer"/>
+                    <xsd:attribute name="ext-error-base-names" type="xsd:string"/>
+                    <xsd:attribute name="core-pool-size" type="xsd:string"/>
+                    <xsd:attribute name="max-pool-size" type="xsd:string"/>
+                    <xsd:attribute name="keep-alive-seconds" type="xsd:string"/>
+                    <xsd:attribute name="queue-capacity" type="xsd:string"/>
+                    <xsd:attribute name="service-timeout-seconds" type="xsd:string"/>
+                    <xsd:attribute name="upload-file-max-size" type="xsd:string"/>
                     <xsd:attribute name="upload-file-types" type="xsd:string"/>
                 </xsd:extension>
             </xsd:complexContent>
@@ -98,6 +99,7 @@
             <xsd:attribute name="format-param-name" type="xsd:string"/>
             <xsd:attribute name="locale-param-name" type="xsd:string"/>
             <xsd:attribute name="sign-param-name" type="xsd:string"/>
+            <xsd:attribute name="jsonp-param-name" type="xsd:string"/>
         </xsd:complexType>
     </xsd:element>
 </xsd:schema>

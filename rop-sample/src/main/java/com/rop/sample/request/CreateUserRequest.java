@@ -13,6 +13,9 @@ import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import java.util.List;
 
 /**
  * <pre>
@@ -40,9 +43,16 @@ public class CreateUserRequest extends AbstractRopRequest {
     @Valid
     private Address address;
 
+    @Valid
+    private List<Address> addresses;
+
     private String format;
 
     private Telephone telephone;
+
+    private boolean locked;
+
+    private String favorites[];
 
     public String getUserName() {
         return userName;
@@ -92,5 +102,28 @@ public class CreateUserRequest extends AbstractRopRequest {
         this.telephone = telephone;
     }
 
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public String[] getFavorites() {
+        return favorites;
+    }
+
+    public void setFavorites(String[] favorites) {
+        this.favorites = favorites;
+    }
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+    }
 }
 

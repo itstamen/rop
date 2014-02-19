@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.rop</groupId>
+    <artifactId>node2</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+	
+    <dependencies>
+        <dependency>
+		<groupId>com.rop</groupId>
+		<artifactId>rop-sample</artifactId>
+            <type>war</type>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <container>
+                        <containerId>jetty7x</containerId>
+                        <type>embedded</type>
+                    </container>
+                    <configuration>
+                        <!--<type>standalone</type>-->
+                        <properties>
+                            <cargo.servlet.port>8090</cargo.servlet.port>
+                            <cargo.logging>high</cargo.logging>
+                        </properties>
+                        <deployables>
+                            <deployable>
+								<groupId>com.rop</groupId>
+							    <artifactId>rop-sample</artifactId>
+                                <type>war</type>
+                                <properties>
+                                    <context>/</context>
+                                </properties>
+                            </deployable>
+                        </deployables>
+                    </configuration>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

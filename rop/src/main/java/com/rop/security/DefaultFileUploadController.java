@@ -1,5 +1,5 @@
 /**
- * 版权声明：中图一购网络科技有限公司 版权所有 违者必究 2012 
+ * 版权声明： 版权所有 违者必究 2012
  * 日    期：12-8-2
  */
 package com.rop.security;
@@ -20,7 +20,7 @@ public class DefaultFileUploadController implements FileUploadController {
 
     private List<String> fileTypes;
     
-    private int maxSize;
+    private int maxSize = -1;
 
     private boolean allowAllTypes = false;
 

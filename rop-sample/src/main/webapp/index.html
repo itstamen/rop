@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <title>ROP跨域测试</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="jquery.encoding.js"></script>
+    <script type="text/javascript">
+    $(function(){
+        $("#logonBtn").click(function(){
+            var data = {
+                appKey:$("#appKey").val(),
+                userName:$("#userName").val(),
+                password:$("#password").val(),
+                method:"user.getSession",
+                messageFormat:"json",
+                v:"1.0"
+            };
+            signBySha1(data);
+            $.get($("#routerUrl").val(),data,function(data,textStatus){
+                $("#result").html("");
+                $("#result").fadeOut();
+                var date = (new Date());
+                var time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+                $("#result").html("<b>time:</b>"+time+ "<br/>"+
+                                  "<b>data:</b><br/>"+ JSON.stringify(data) +"<br/>"+
+                                  "<b>textStatus:</b><br/>"+textStatus);
+                $("#result").fadeIn();
+            });
+        });
+
+        $("#jsonp").click(function(){
+            var data={
+                appKey:$("#appKey").val(),
+                userName:$("#userName").val(),
+//                password:$("#password").val(),  //password不签名！
+                method:"user.getSession",
+                messageFormat:"json",
+                v:"1.0"
+            };
+            signBySha1(data);
+            $.ajax({
+                type: "get",
+                async: false,
+                url: $("#routerUrl").val(),
+                data:data,
+                dataType: "jsonp",
+                jsonp: "__invoke",//传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(一般默认为:callback)
+//                jsonpCallback:"flightHandler",//自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名，也可以写"?"，jQuery会自动为你处理数据
+                success: function(data,textStatus){
+
+                    $("#result").html("");
+                    $("#result").fadeOut();
+                    var date = (new Date());
+                    var time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+                    $("#result").html("<b>time:</b>"+time+ "<br/>"+
+                            "<b>data:</b><br/>"+ JSON.stringify(data) +"<br/>"+
+                            "<b>textStatus:</b><br/>"+textStatus);
+                    $("#result").fadeIn();
+                },
+                error: function(xmlHttpRequest,textStatus,errorThrown){
+                    $("#result").html("");
+                    $("#result").fadeOut();
+                    var date = (new Date());
+                    var time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+                    $("#result").html("<b>time:</b>"+time+ "<br/>"+
+                            "<b>data:</b><br/>"+ JSON.stringify(xmlHttpRequest) +"<br/>"+
+                            "<b>textStatus:</b><br/>"+textStatus);
+                    $("#result").fadeIn();
+                }
+            });
+        });
+
+        function signBySha1(data){
+          var secret = $("#secret").val();
+          var tempStr = secret+ "appKey"+data["appKey"];
+          tempStr += "messageFormat"+data["messageFormat"];
+          tempStr += "method"+data["method"];
+//          tempStr += "password"+data["password"];
+          tempStr += "userName"+data["userName"];
+          tempStr += "v"+data["v"];
+          tempStr += secret;
+          var signData = $.encoding.digests.hexSha1Str(tempStr);
+          data["sign"]=signData;
+          return data;
+        }
+
+    })
+    </script>
+    <style type="text/css">
+         input[type=text]{width: 500px;}
+         input[type=button]{width: 100px;}
+    </style>
+</head>
+<body>
+
+
+   基础设置
+   <hr/>
+   <div>
+      1.router url:<input id="routerUrl" type="text" value="http://localhost:8088/router"/> <br/>
+      2.appkey:<input id="appKey" type="text" value="00001"/>   <br/>
+      3.secret:<input id="secret" type="text" value="abcdeabcdeabcdeabcdeabcde"/>    <br/>
+   </div>
+   <br/>
+   登录测试：
+   <hr/>
+     1.用户名：<input id="userName" type="text" value="tomson"/><br/>
+     2.密码：<input id="password" type="text" value="123456"/><br/>
+   请求结果： <div id="result" style="background-color: #EFEFEF"></div>
+   <input id="logonBtn" type="button" value="提交"/>
+   <input id="jsonp" type="button" value="JSONP"/>
+</body>
+</html>

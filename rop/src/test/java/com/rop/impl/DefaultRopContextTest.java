@@ -45,6 +45,7 @@ public class DefaultRopContextTest {
         assertEquals(definition.getMethodTitle(), "测试方法1");
         assertEquals(definition.getMethodGroup(), "GROUP1");
         assertEquals(definition.getMethodGroupTitle(), "分组1");
+
         assertEquals(definition.getTags(), new String[]{"TAG1", "TAG2"});
         assertEquals(definition.isIgnoreSign(), true);
         assertEquals(definition.isNeedInSession(), false);
@@ -97,7 +98,9 @@ public class DefaultRopContextTest {
         when(context.getBeanNamesForType(Object.class)).thenReturn(new String[]{"method1"});
         Class serviceClass = IgnoreSignRopRequestService.class;
         when(context.getType("method1")).thenReturn(serviceClass);
+
         RopContext ropContext = new DefaultRopContext(context);
+
         ServiceMethodHandler method1 = ropContext.getServiceMethodHandler("method1", "1.0");
         List<String> ignoreSignFieldNames = method1.getIgnoreSignFieldNames();
         assertNotNull(ignoreSignFieldNames);
@@ -107,6 +110,7 @@ public class DefaultRopContextTest {
         assertTrue(ignoreSignFieldNames.contains("sign"));
     }
 
+    @ServiceMethodBean
     public class IgnoreSignRopRequestService {
 
         @ServiceMethod(method = "method1", version = "1.0")
@@ -160,6 +164,7 @@ public class DefaultRopContextTest {
         }
     }
 
+    @ServiceMethodBean
     public class WithoutGroupService {
 
         @ServiceMethod(method = "service.method1", title = "测试方法1", group = "GROUP1", groupTitle = "分组1",
@@ -194,6 +199,10 @@ public class DefaultRopContextTest {
         assertNotNull(annotation);
         annotation = AnnotationUtils.findAnnotation(ExtUploadFile.class, IgnoreSign.class);
         assertNotNull(annotation);
+    }
+
+    public static void main(String[] args) {
+        System.out.println("中国人民！");
     }
 
 }

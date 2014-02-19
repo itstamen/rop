@@ -14,6 +14,7 @@ import com.rop.sample.request.*;
 import com.rop.sample.response.CreateUserResponse;
 import com.rop.sample.response.LogonResponse;
 import com.rop.sample.response.UploadUserPhotoResponse;
+import com.rop.sample.response.UserListResponse;
 import com.rop.security.MainErrorType;
 import org.springframework.core.io.ClassPathResource;
 import org.testng.annotations.BeforeMethod;
@@ -33,7 +34,7 @@ import static org.testng.Assert.*;
  */
 public class UserServiceClient {
 
-    public static final String SERVER_URL = "http://localhost:8080/router";
+    public static final String SERVER_URL = "http://localhost:8080/admin";
     public static final String APP_KEY = "00001";
     public static final String APP_SECRET = "abcdeabcdeabcdeabcdeabcde";
     private DefaultRopClient ropClient = new DefaultRopClient(SERVER_URL, APP_KEY, APP_SECRET);
@@ -45,6 +46,7 @@ public class UserServiceClient {
 
 
     @BeforeMethod
+//    @Test
     public void createSession() {
         LogonRequest ropRequest = new LogonRequest();
         ropRequest.setUserName("tomson");
@@ -165,6 +167,7 @@ public class UserServiceClient {
     public void testServiceXmlRequestAttr() throws Throwable {
         CreateUserRequest request = new CreateUserRequest();
         request.setUserName("tomson");
+        request.setLocked(true);
         request.setSalary(2500L);
         Address address = new Address();
         address.setZoneCode("0001");
@@ -191,7 +194,6 @@ public class UserServiceClient {
 
     @Test
     public void testServiceJsonRequestAttr() throws Throwable {
-
         ropClient.setMessageFormat(MessageFormat.json);
         CreateUserRequest request = new CreateUserRequest();
         request.setUserName("tomson");
@@ -216,6 +218,15 @@ public class UserServiceClient {
         assertNotNull(response);
         assertTrue(response.isSuccessful());
         assertTrue(response.getSuccessResponse() instanceof CreateUserResponse);
+    }
+
+    @Test
+    public void testUserList() throws Throwable {
+        ropClient.setMessageFormat(MessageFormat.json);
+        CompositeResponse response = ropClient.buildClientRequest().get(UserListResponse.class,"user.list", "1.0");
+        assertNotNull(response);
+        assertTrue(response.isSuccessful());
+        assertTrue(response.getSuccessResponse() instanceof UserListResponse);
     }
 
 

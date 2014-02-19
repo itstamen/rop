@@ -1,9 +1,10 @@
 /**
- * 版权声明：中图一购网络科技有限公司 版权所有 违者必究 2012 
+ * 版权声明： 版权所有 违者必究 2012
  * 日    期：12-6-30
  */
 package com.rop.client;
 
+import com.rop.CommonConstant;
 import com.rop.MessageFormat;
 import com.rop.RopRequest;
 import com.rop.annotation.IgnoreSign;
@@ -272,6 +273,9 @@ public class DefaultRopClient implements RopClient {
         }
 
         private <T> CompositeResponse toCompositeResponse(String content, Class<T> ropResponseClass) {
+            if(logger.isDebugEnabled()){
+                logger.debug(content);
+            }
             boolean successful = isSuccessful(content);
             DefaultCompositeResponse<T> compositeResponse = new DefaultCompositeResponse<T>(successful);
 
@@ -296,11 +300,7 @@ public class DefaultRopClient implements RopClient {
         }
 
         private boolean isSuccessful(String content) {
-            if (MessageFormat.json == messageFormat) {
-                return !(content.contains("{\"error\"") && content.contains("\"code\":"));
-            } else {
-                return !(content.contains("<error") && content.contains("code=\""));
-            }
+            return !(content.contains(CommonConstant.ERROR_TOKEN));
         }
 
         private String buildGetUrl(Map<String, String> form) {

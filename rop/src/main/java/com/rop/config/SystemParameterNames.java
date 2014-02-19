@@ -1,5 +1,5 @@
 /**
- * 版权声明：中图一购网络科技有限公司 版权所有 违者必究 2012 
+ * 版权声明： 版权所有 违者必究 2012
  * 日    期：12-6-5
  */
 package com.rop.config;
@@ -13,6 +13,8 @@ package com.rop.config;
  * @version 1.0
  */
 public class SystemParameterNames {
+
+    private static final String JSONP = "callback";
 
     //方法的默认参数名
     private static final String METHOD = "method";
@@ -40,13 +42,15 @@ public class SystemParameterNames {
     private static String format = FORMAT;
 
     private static String locale = LOCALE;
-
     private static String sessionId = SESSION_ID;
+
     private static String appKey = APP_KEY;
 
     private static String version = VERSION;
 
     private static String sign = SIGN;
+
+    private static String jsonp = JSONP;
 
     public static String getMethod() {
         return method;
@@ -102,6 +106,14 @@ public class SystemParameterNames {
 
     public static void setSign(String sign) {
         SystemParameterNames.sign = sign;
+    }
+
+    public static String getJsonp() {
+        return jsonp;
+    }
+
+    public static void setJsonp(String jsonp) {
+        SystemParameterNames.jsonp = jsonp;
     }
 }
 

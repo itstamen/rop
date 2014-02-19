@@ -119,6 +119,12 @@ public interface ServiceRouter {
     void setExtErrorBasename(String extErrorBasename);
 
     /**
+     * 允许设置多个资源文件
+     * @param extErrorBasenames
+     */
+    void setExtErrorBasenames(String[] extErrorBasenames);
+
+    /**
      * 设置格式化类型转换器
      *
      * @param conversionService

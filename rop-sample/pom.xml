@@ -10,10 +10,10 @@
         <version>7</version>
     </parent>
 
-    <groupId>com.bookegou</groupId>
+    <groupId>com.rop</groupId>
     <artifactId>rop-sample</artifactId>
     <name>ropSample</name>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <description>rest open platform</description>
 
@@ -54,9 +54,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.bookegou</groupId>
+            <groupId>com.rop</groupId>
             <artifactId>rop</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -69,6 +69,12 @@
             <artifactId>unitils-core</artifactId>
             <version>${unitils.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>3.2.3.RELEASE</version>
         </dependency>
 
         <dependency>
@@ -115,6 +121,7 @@
                 <artifactId>maven-jetty-plugin</artifactId>
                 <version>6.1.5</version>
                 <configuration>
+                    <webDefaultXml>src/main/resources/jetty/webdefault.xml</webDefaultXml>
                     <webAppSourceDirectory>src/main/webapp</webAppSourceDirectory>
                     <scanIntervalSeconds>3</scanIntervalSeconds>
                     <contextPath>/</contextPath>

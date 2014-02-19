@@ -4,6 +4,7 @@
  */
 package com.rop.response;
 
+import com.rop.CommonConstant;
 import com.rop.security.MainError;
 import com.rop.security.MainErrorType;
 import com.rop.security.MainErrors;
@@ -24,6 +25,9 @@ import java.util.Locale;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "error")
 public class ErrorResponse{
+
+    @XmlAttribute
+    protected String errorToken = CommonConstant.ERROR_TOKEN;
 
     @XmlAttribute
     protected String code;
@@ -90,6 +94,10 @@ public class ErrorResponse{
         setCode(mainError.getCode());
         setMessage(mainError.getMessage());
         setSolution(mainError.getSolution());
+    }
+
+    public String getErrorToken() {
+        return errorToken;
     }
 
     /**

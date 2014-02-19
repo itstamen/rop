@@ -1,10 +1,11 @@
 /**
- * 版权声明：中图一购网络科技有限公司 版权所有 违者必究 2012 
+ * 版权声明： 版权所有 违者必究 2012
  * 日    期：12-6-7
  */
 package com.rop.impl;
 
 import com.rop.Interceptor;
+import com.rop.RopException;
 import com.rop.ThreadFerry;
 import com.rop.config.InterceptorHolder;
 import com.rop.config.RopEventListenerHodler;
@@ -22,6 +23,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -39,7 +42,7 @@ public class AnnotationServletServiceRouterFactoryBean
 
     private static final String ALL_FILE_TYPES = "*";
 
-    protected final Logger logger = LoggerFactory.getLogger(AnnotationServletServiceRouterFactoryBean.class);
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private ApplicationContext applicationContext;
 
@@ -56,6 +59,8 @@ public class AnnotationServletServiceRouterFactoryBean
     private boolean signEnable = true;
 
     private String extErrorBasename;
+
+    private String[] extErrorBasenames;
 
     private int serviceTimeoutSeconds = -1;
 
@@ -105,15 +110,36 @@ public class AnnotationServletServiceRouterFactoryBean
         this.threadFerryClass = threadFerryClass;
     }
 
+    public void setThreadFerryClassName(String threadFerryClassName) {
+        try {
+            if (StringUtils.hasText(threadFerryClassName)) {
+                Class<?> threadFerryClass =
+                        ClassUtils.forName(threadFerryClassName, getClass().getClassLoader());
+                if (!ClassUtils.isAssignable(ThreadFerry.class, threadFerryClass)) {
+                    throw new RopException(threadFerryClassName + "没有实现"
+                                         + ThreadFerry.class.getName() + "接口");
+                }
+                this.threadFerryClass = (Class<? extends ThreadFerry>)threadFerryClass;
+            }
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         //实例化一个AnnotationServletServiceRouter
         serviceRouter = new AnnotationServletServiceRouter();
 
-        //设置属性
+        //设置国际化错误资源
         if (extErrorBasename != null) {
             serviceRouter.setExtErrorBasename(extErrorBasename);
         }
+
+        if (extErrorBasenames != null) {
+            serviceRouter.setExtErrorBasenames(extErrorBasenames);
+        }
+
         DefaultSecurityManager securityManager = BeanUtils.instantiate(DefaultSecurityManager.class);
 
         securityManager.setSessionManager(sessionManager);
@@ -162,7 +188,6 @@ public class AnnotationServletServiceRouterFactoryBean
 
     private DefaultFileUploadController buildFileUploadController() {
         Assert.notNull(this.uploadFileTypes, "允许上传的文件类型不能为空");
-        Assert.isTrue(this.uploadFileMaxSize > 0);
         if(ALL_FILE_TYPES.equals(uploadFileTypes.trim())){
             return new DefaultFileUploadController(this.uploadFileMaxSize);
         }else {
@@ -229,6 +254,10 @@ public class AnnotationServletServiceRouterFactoryBean
 
     public void setExtErrorBasename(String extErrorBasename) {
         this.extErrorBasename = extErrorBasename;
+    }
+
+    public void setExtErrorBasenames(String[] extErrorBasenames) {
+        this.extErrorBasenames = extErrorBasenames;
     }
 
     public void setServiceTimeoutSeconds(int serviceTimeoutSeconds) {
