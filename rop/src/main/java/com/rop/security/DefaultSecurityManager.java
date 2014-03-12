@@ -315,7 +315,7 @@ public class DefaultSecurityManager implements SecurityManager {
                     }
 
                     String signValue = RopUtils.sign(needSignParams, signSecret);
-                    if (!signValue.equals(ctx.getSign())) {
+                    if (!signValue.equalsIgnoreCase(ctx.getSign())) {
                         if (logger.isErrorEnabled()) {
                             logger.error(ctx.getAppKey() + "的签名不合法，请检查");
                         }
