@@ -115,7 +115,7 @@ http://yourhost?method=rop.user.add&v=1.0&callback=myfun，则响应报文的
 1.0.2-SNAPSHOT (2014-03-21)
 1.com.rop.MessageFormat添加stream的输出类型，这种类型支持直接输出流，如文件下载
  图片获取等；
-
+2.重构了pom.xml的结构.
 
 
 

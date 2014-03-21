@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
     <groupId>com.rop</groupId>
     <artifactId>rop</artifactId>
     <version>1.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>rop core</name>
     <description>rest open platform</description>
-    <url>http://www.github.com</url>
+    <url>https://github.com/itstamen/rop</url>
 
     <licenses>
         <license>
@@ -18,9 +25,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:http://10.188.182.140/svn/cartan/Trunk/00.Coding/rop/rop</connection>
-        <developerConnection>scm:svn:http://10.188.182.140/svn/cartan/Trunk/00.Coding/rop/rop</developerConnection>
-        <url>http://10.188.182.140/svn/cartan/Trunk/00.Coding/rop/rop</url>
+        <connection>scm:git:git://github.com/itstamen/rop.git</connection>
+        <developerConnection>scm:git:git://github.com/itstamen/rop.git</developerConnection>
+        <url>git://github.com/itstamen/rop.git</url>
     </scm>
 
     <developers>
@@ -31,30 +38,14 @@
         </developer>
     </developers>
 
-    <properties>
-        <file.encoding>UTF-8</file.encoding>
-        <java.version>1.5</java.version>
-        <servlet.version>2.5</servlet.version>
-        <slf4j.version>1.7.5</slf4j.version>
-        <log4j.version>1.2.16</log4j.version>
-        <spring.version>3.2.3.RELEASE</spring.version>
-
-        <surefire.version>2.8</surefire.version>
-        <cobertura.version>2.5.1</cobertura.version>
-
-        <validation.version>1.0.0.GA</validation.version>
-        <hibernateValidator.version>4.2.0.Final</hibernateValidator.version>
-        <codec.version>1.6</codec.version>
-        <commonslang.version>2.6</commonslang.version>
-        <jackson.version>1.9.5</jackson.version>
-        <dataformat.version>2.3.2</dataformat.version>
-
-        <testng.version>6.3</testng.version>
-        <unitils.version>3.3</unitils.version>
-        <mockito.version>1.8.5</mockito.version>
-    </properties>
-
     <dependencies>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -87,76 +78,21 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api-osgi</artifactId>
-            <version>2.2.7</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
+            <artifactId>spring-context-support</artifactId>
             <version>${spring.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
+            <artifactId>spring-webmvc</artifactId>
             <version>${spring.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>${servlet.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.unitils</groupId>
-            <artifactId>unitils-core</artifactId>
-            <version>${unitils.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.unitils</groupId>
-            <artifactId>unitils-testng</artifactId>
-            <version>${unitils.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.unitils</groupId>
-            <artifactId>unitils-spring</artifactId>
-            <version>${unitils.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>${validation.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>${hibernateValidator.version}</version>
+            <version>${hibernate.version}</version>
         </dependency>
 
         <dependency>
@@ -184,26 +120,56 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
-            <version>${dataformat.version}</version>
+            <version>${jackson.xml.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-core</artifactId>
+            <version>${unitils.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-testng</artifactId>
+            <version>${unitils.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-spring</artifactId>
+            <version>${unitils.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <repository>
-            <id>internal.repo.release</id>
-            <name>releaseRepo</name>
-            <url>http://10.188.182.140:8081/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>internal.repo.snapshot</id>
-            <name>snapShotRepo</name>
-            <url>http://10.188.182.140:8081/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <build>
         <plugins>
-		    <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1.2</version>
@@ -222,9 +188,9 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.7</version>
                 <configuration>
-                    <charset>UTF-8</charset>
-                    <encoding>UTF-8</encoding>
-                    <docencoding>UTF-8</docencoding>
+                    <charset>${file.encoding}</charset>
+                    <encoding>${file.encoding}</encoding>
+                    <docencoding>${file.encoding}</docencoding>
                     <source></source>
                 </configuration>
                 <executions>
@@ -240,20 +206,20 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+                <version>3.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${file.encoding}</encoding>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-				<version>2.6</version>
+                <version>2.6</version>
                 <configuration>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${file.encoding}</encoding>
                 </configuration>
             </plugin>
 
@@ -263,7 +229,7 @@
                 <version>2.7.2</version>
                 <configuration>
                     <forkMode>once</forkMode>
-                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <argLine>-Dfile.encoding=${file.encoding}</argLine>
                     <systemProperties>
                         <property>
                             <name>net.sourceforge.cobertura.datafile</name>
@@ -272,16 +238,43 @@
                     </systemProperties>
                 </configuration>
             </plugin>
-			
-			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.4.1</version>
-                <configuration>
-                    <tagBase>http://10.188.182.140/svn/cartan/Tags/rop</tagBase>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>localDM</id>
+            <distributionManagement>
+                <repository>
+                    <id>internal.repo.release</id>
+                    <url>http://10.188.182.140:8081/nexus/content/repositories/releases/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>internal.repo.snapshot</id>
+                    <url>http://10.188.182.140:8081/nexus/content/repositories/snapshots/</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+    </profiles>
+
+    <properties>
+        <file.encoding>UTF-8</file.encoding>
+        <java.version>1.6</java.version>
+        <servlet.version>2.5</servlet.version>
+        <spring.version>3.2.3.RELEASE</spring.version>
+
+        <jackson.version>1.9.5</jackson.version>
+        <slf4j.version>1.6.1</slf4j.version>
+        <log4j.version>1.2.16</log4j.version>
+        <hibernate.version>4.2.0.Final</hibernate.version>
+        <codec.version>1.6</codec.version>
+        <jackson.xml.version>2.3.2</jackson.xml.version>
+        <commonslang.version>2.4</commonslang.version>
+        <testng.version>6.3</testng.version>
+        <unitils.version>3.3</unitils.version>
+        <mockito.version>1.8.5</mockito.version>
+        <surefire.version>2.8</surefire.version>
+        <cobertura.version>2.5.1</cobertura.version>
+    </properties>
 
 </project>

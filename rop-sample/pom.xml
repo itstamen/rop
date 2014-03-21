@@ -41,21 +41,26 @@
         </developer>
     </developers>
 
-    <properties>
-        <file.encoding>UTF-8</file.encoding>
-        <org.springframework.version>3.1.1.RELEASE</org.springframework.version>
-        <java.version>1.5</java.version>
-        <org.codehaus.jackson.version>1.9.5</org.codehaus.jackson.version>
-        <testng.version>6.3</testng.version>
-        <mockito.version>1.8.5</mockito.version>
-        <unitils.version>3.3</unitils.version>
-    </properties>
-
     <dependencies>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.rop</groupId>
             <artifactId>rop</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
         </dependency>
 
         <dependency>
@@ -63,18 +68,6 @@
             <artifactId>unitils-core</artifactId>
             <version>${unitils.version}</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>3.2.3.RELEASE</version>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
         </dependency>
 
         <dependency>
@@ -105,25 +98,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring-beans</artifactId>
-          <version>3.1.0.RELEASE</version>
-        </dependency>
     </dependencies>
-
-    <distributionManagement>
-        <repository>
-            <id>internal.repo.release</id>
-            <name>中软海晟信息技术有限公司内部代码仓库</name>
-            <url>http://10.188.182.140:8081/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>internal.repo.snapshot</id>
-            <name>中软海晟信息技术有限公司内部代码仓库</name>
-            <url>http://10.188.182.140:8081/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <build>
         <finalName>rop-sample</finalName>
@@ -147,4 +122,15 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <file.encoding>UTF-8</file.encoding>
+        <java.version>1.6</java.version>
+        <servlet.version>2.5</servlet.version>
+        <spring.version>3.2.3.RELEASE</spring.version>
+        <jackson.version>1.9.5</jackson.version>
+        <testng.version>6.3</testng.version>
+        <mockito.version>1.8.5</mockito.version>
+        <unitils.version>3.3</unitils.version>
+    </properties>
 </project>
