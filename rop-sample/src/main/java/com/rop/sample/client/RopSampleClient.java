@@ -8,7 +8,7 @@ import com.rop.client.ClientRequest;
 import com.rop.client.CompositeResponse;
 import com.rop.client.DefaultRopClient;
 import com.rop.sample.request.LogonRequest;
-import com.rop.sample.request.TelephoneConverter;
+import com.rop.sample.converter.TelephoneConverter;
 import com.rop.sample.response.LogonResponse;
 
 /**

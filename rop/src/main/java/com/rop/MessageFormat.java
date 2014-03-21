@@ -3,23 +3,38 @@
  */
 package com.rop;
 
+import org.springframework.util.StringUtils;
+
 /**
  * 支持的响应的格式类型
  */
 public enum MessageFormat {
 
-    xml, json;
+    xml, json, stream;
 
     public static MessageFormat getFormat(String value) {
-        if ("json".equalsIgnoreCase(value)) {
-            return json;
-        } else {
+        if (!StringUtils.hasText(value)) {
             return xml;
+        } else {
+            try {
+                return MessageFormat.valueOf(value.toLowerCase());
+            } catch (IllegalArgumentException e) {
+                return xml;
+            }
         }
     }
 
     public static boolean isValidFormat(String value) {
-        return xml.name().equalsIgnoreCase(value) || json.name().equalsIgnoreCase(value);
+        if (!StringUtils.hasText(value)) {
+            return true;
+        }else{
+            try {
+                MessageFormat.valueOf(value.toLowerCase());
+                return true;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
     }
 
 }

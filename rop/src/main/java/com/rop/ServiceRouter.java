@@ -40,8 +40,8 @@ public interface ServiceRouter {
     /**
      * ROP框架的总入口，一般框架实现，开发者无需关注。
      *
-     * @param webRequest
-     * @param httpServletResponse
+     * @param request
+     * @param response
      */
     void service(Object request, Object response);
 

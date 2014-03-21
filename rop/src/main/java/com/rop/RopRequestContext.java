@@ -122,6 +122,12 @@ public interface RopRequestContext {
     Object getRawRequestObject();
 
     /**
+     * 获取请求的原响应对象（如HttpServletResponse）
+     * @return
+     */
+    Object getRawResponseObject();
+
+    /**
      * 设置服务开始时间
      *
      * @param serviceBeginTime

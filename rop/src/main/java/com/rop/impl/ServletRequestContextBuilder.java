@@ -23,6 +23,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.ServletRequestDataBinder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -49,17 +50,19 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
 
     private Validator validator;
 
-    private SessionManager sessionManager;
-
-    public ServletRequestContextBuilder(FormattingConversionService conversionService, SessionManager sessionManager) {
+    public ServletRequestContextBuilder(FormattingConversionService conversionService) {
         this.conversionService = conversionService;
-        this.sessionManager = sessionManager;
     }
 
     @Override
-    public SimpleRopRequestContext buildBySysParams(RopContext ropContext, Object request) {
+    public SimpleRopRequestContext buildBySysParams(RopContext ropContext,
+                                                    Object request,
+                                                    Object response) {
         if (!(request instanceof HttpServletRequest)) {
             throw new IllegalArgumentException("请求对象必须是HttpServletRequest的类型");
+        }
+        if(response != null && !(response instanceof HttpServletResponse)){
+            throw new IllegalArgumentException("请求对象必须是HttpServletResponse的类型");
         }
 
         HttpServletRequest servletRequest = (HttpServletRequest) request;
@@ -67,6 +70,9 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
 
         //设置请求对象及参数列表
         requestContext.setRawRequestObject(servletRequest);
+        if (response != null) {
+            requestContext.setRawResponseObject(response);
+        }
         requestContext.setAllParams(getRequestParams(servletRequest));
         requestContext.setIp(getRemoteAddr(servletRequest)); //感谢melin所指出的BUG
 

@@ -5,8 +5,11 @@
 package com.rop.sample.response;
 
 
+import com.rop.sample.sys.DateXmlAdapter;
+
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,6 +38,10 @@ public class CreateUserResponse{
 
     @XmlElement
     private List<Foo> fooList;
+
+    @XmlElement
+    @XmlJavaTypeAdapter(DateXmlAdapter.class)
+    private Date date;
 
     private boolean ok = true;
 
@@ -84,6 +91,14 @@ public class CreateUserResponse{
 
     public void setOk(boolean ok) {
         this.ok = ok;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }
 

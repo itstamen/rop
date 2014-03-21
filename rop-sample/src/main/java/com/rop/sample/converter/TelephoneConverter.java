@@ -1,10 +1,11 @@
 /**
- * 版权声明：中图一购网络科技有限公司 版权所有 违者必究 2012 
- * 日    期：12-6-7
+ * 版权声明： 版权所有 违者必究 2012
+ * 日    期：12-6-8
  */
-package com.rop.sample.request;
+package com.rop.sample.converter;
 
 import com.rop.request.RopConverter;
+import com.rop.sample.request.Telephone;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.StringUtils;
 

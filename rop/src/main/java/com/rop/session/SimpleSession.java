@@ -4,27 +4,11 @@
  */
 package com.rop.session;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * <pre>
- * 功能说明：
- * </pre>
  *
  * @author 陈雄华
  * @version 1.0
  */
-public class SimpleSession implements Session {
-
-    private Map<String, Object> attributes = new HashMap<String, Object>();
-
-    public void setAttribute(String name, Object obj) {
-        attributes.put(name, obj);
-    }
-
-    public Object getAttribute(String name) {
-        return attributes.get(name);
-    }
+public class SimpleSession extends AbstractSession {
 }
 

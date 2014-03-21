@@ -4,6 +4,7 @@
  */
 package com.rop.marshaller;
 
+import com.beust.jcommander.internal.Maps;
 import com.rop.MessageFormat;
 import com.rop.RopRequest;
 import com.rop.RopRequestContext;
@@ -79,6 +80,12 @@ public class MessageMarshallerUtilsTest {
         row2.put("col4", 2000.34);
         table.add(row2);
         response.setTable(table);
+
+        HashMap<String,String> attaches = new HashMap<String, String>();
+        attaches.put("a","aa");
+        attaches.put("b","bb");
+        attaches.put("c","cc");
+        response.setAttaches(attaches);
 
         String message = MessageMarshallerUtils.getMessage(response, MessageFormat.json);
         assertTrue(message.indexOf("}") > -1);

@@ -5,10 +5,7 @@
 package com.rop.marshaller;
 
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +28,8 @@ public class SampleResponse{
 
     @XmlAttribute
     private String createTime;
+
+    private HashMap<String,String> attaches;
 
     private List<HashMap<String,Object>> table;
 
@@ -59,6 +58,14 @@ public class SampleResponse{
 
     public void setTable(List<HashMap<String, Object>> table) {
         this.table = table;
+    }
+
+    public HashMap<String, String> getAttaches() {
+        return attaches;
+    }
+
+    public void setAttaches(HashMap<String, String> attaches) {
+        this.attaches = attaches;
     }
 }
 

@@ -182,7 +182,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         registerConverters(formattingConversionService);
 
         //实例化ServletRequestContextBuilder
-        this.requestContextBuilder = new ServletRequestContextBuilder(this.formattingConversionService, this.sessionManager);
+        this.requestContextBuilder = new ServletRequestContextBuilder(this.formattingConversionService);
 
         //设置校验器
         if (this.securityManager == null) {
@@ -378,7 +378,8 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
             try {
                 //用系统级参数构造一个RequestContext实例（第一阶段绑定）
-                ropRequestContext = requestContextBuilder.buildBySysParams(ropContext, servletRequest);
+                ropRequestContext = requestContextBuilder.buildBySysParams(
+                                    ropContext, servletRequest,servletResponse);
 
                 //验证系统级参数的合法性
                 MainError mainError = securityManager.validateSystemParameters(ropRequestContext);
@@ -441,7 +442,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
      * @return
      */
     private RopRequestContext buildRequestContextWhenException(HttpServletRequest request, long beginTime) {
-        RopRequestContext ropRequestContext = requestContextBuilder.buildBySysParams(ropContext, request);
+        RopRequestContext ropRequestContext = requestContextBuilder.buildBySysParams(ropContext, request,null);
         ropRequestContext.setServiceBeginTime(beginTime);
         ropRequestContext.setServiceEndTime(System.currentTimeMillis());
         return ropRequestContext;
@@ -547,21 +548,24 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
     private void writeResponse(Object ropResponse, HttpServletResponse httpServletResponse, MessageFormat messageFormat,String jsonpCallback) {
         try {
+            if (!(ropResponse instanceof ErrorResponse) && messageFormat == MessageFormat.stream) {
+                if(logger.isDebugEnabled()){
+                    logger.debug("使用{}输出方式，由服务自身负责响应输出工作.",MessageFormat.stream);
+                }
+                return;
+            }
             if(logger.isDebugEnabled()){
                 logger.debug("输出响应："+MessageMarshallerUtils.getMessage(ropResponse,messageFormat));
+            }
+            RopMarshaller ropMarshaller = xmlMarshallerRop;
+            String contentType = APPLICATION_XML;
+            if(messageFormat == MessageFormat.json){
+                ropMarshaller = jsonMarshallerRop;
+                contentType =  APPLICATION_JSON;
             }
             httpServletResponse.addHeader(ACCESS_CONTROL_ALLOW_ORIGIN,"*");
             httpServletResponse.addHeader(ACCESS_CONTROL_ALLOW_METHODS,"*");
             httpServletResponse.setCharacterEncoding(Constants.UTF8);
-            RopMarshaller ropMarshaller = null;
-            String contentType = null;
-            if (messageFormat == MessageFormat.xml) {
-                ropMarshaller = xmlMarshallerRop;
-                contentType =  APPLICATION_XML;
-            } else {
-                ropMarshaller = jsonMarshallerRop;
-                contentType =  APPLICATION_JSON;
-            }
             httpServletResponse.setContentType(contentType);
 
             if(jsonpCallback != null){

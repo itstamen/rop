@@ -1,4 +1,8 @@
-package com.rop.sample.request;
+/**
+ * 版权声明： 版权所有 违者必究 2012
+ * 日    期：12-6-8
+ */
+package com.rop.sample.converter;
 
 import com.rop.request.RopConverter;
 

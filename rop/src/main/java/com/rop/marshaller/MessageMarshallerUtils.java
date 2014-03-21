@@ -85,7 +85,6 @@ public class MessageMarshallerUtils {
      * 将请求对象转换为String
      *
      * @param request
-     * @param format
      * @return
      */
     public static String asUrlString(RopRequest request) {
@@ -113,6 +112,9 @@ public class MessageMarshallerUtils {
      * @return
      */
     public static String getMessage(Object object, MessageFormat format) {
+        if (object == null) {
+            return "NONE MSG";
+        }
         ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
         try {
             if (format == MessageFormat.json) {

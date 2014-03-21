@@ -4,6 +4,7 @@
  */
 package com.rop.sample;
 
+import com.rop.Constants;
 import com.rop.RopRequest;
 import com.rop.annotation.*;
 import com.rop.response.BusinessServiceErrorResponse;
@@ -12,12 +13,16 @@ import com.rop.sample.request.CreateUserRequest;
 import com.rop.sample.request.LogonRequest;
 import com.rop.sample.request.UploadUserPhotoRequest;
 import com.rop.sample.response.*;
+import com.rop.session.Session;
 import com.rop.session.SimpleSession;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,17 +34,17 @@ import java.util.List;
  * @version 1.0
  */
 @ServiceMethodBean(version = "1.0")
-public class UserService {
+public class UserService extends AbstractUserService{
 
     private static final String USER_NAME_RESERVED = "USER_NAME_RESERVED";
     private List reservesUserNames = Arrays.asList(new String[]{"toms", "jhon"});
 
-    @ServiceMethod(method = "user.getSession",version = "1.0",needInSession = NeedInSessionType.NO)
+    @Override
     public Object getSession(LogonRequest request) {
 
         //创建一个会话
         SimpleSession session = new SimpleSession();
-        session.setAttribute("userName",request.getUserName());
+        session.setAttribute("userName", request.getUserName());
         request.getRopRequestContext().addSession("mockSessionId1", session);
 
         //返回响应
@@ -103,7 +108,12 @@ public class UserService {
             response.setCreateTime("20120101010101");
             response.setUserId("1");
             response.setFeedback("hello");
+            response.setDate(new Date());
             response.setFooList(Arrays.asList(new Foo("1","1"),new Foo("2","2")));
+
+            Session session = request.getRopRequestContext().getSession();
+            session.setAttribute("aa","bb");
+
             return response;
         }
     }
@@ -230,6 +240,19 @@ public class UserService {
     @ServiceMethod(method = "user.list", version = "1.0", httpAction = HttpAction.GET)
     public Object userList(RopRequest ropRequest) throws Throwable {
        return new UserListResponse();
+    }
+
+    @ServiceMethod(method = "img.get", version = "1.0",
+            httpAction = HttpAction.GET,
+            ignoreSign = IgnoreSignType.YES,
+            needInSession = NeedInSessionType.NO)
+    public void getImg(RopRequest ropRequest) throws Throwable {
+        HttpServletResponse response = (HttpServletResponse)
+                ropRequest.getRopRequestContext().getRawResponseObject();
+        response.setCharacterEncoding(Constants.UTF8);
+        response.setContentType("image/jpeg;charset=UTF-8");
+        ClassPathResource resource = new ClassPathResource("img/img1.jpg");
+        FileCopyUtils.copy(resource.getInputStream(), response.getOutputStream());
     }
 
 }

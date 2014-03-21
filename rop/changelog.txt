@@ -102,6 +102,21 @@ callback系统参数指定JSONP回调函数，只要系统参数中有callback�
 http://yourhost?method=rop.user.add&v=1.0&callback=myfun，则响应报文的
 内容以会以JSONP格式包含中myfun函数中返回。
 
+1.0-SNAPSHOP-9 (2014-02-27)
+1.com.rop.session.Session接口添加3个方法：
+  1)isChanged()：在会话内容变动后，该方法返回为true，以便ROP在处理完服务后通过SessionBindInterceptor将Session
+  同步到外部的会话管理器中；
+  2)removeAttribute(String name)：删除会话中属性列表的条目；
+  3)getAllAttributes():获取所有条目的方法；
+2.com.rop.session.SessionBindInterceptor复写了beforeResponse(RopRequestContext ropRequestContext)
+  方法，以便在服务处理后，如果会话内容有变化，则将其重写到外部缓存管理器，完成会话的同步。
+
+
+1.0.2-SNAPSHOT (2014-03-21)
+1.com.rop.MessageFormat添加stream的输出类型，这种类型支持直接输出流，如文件下载
+ 图片获取等；
+
+
 
 
 

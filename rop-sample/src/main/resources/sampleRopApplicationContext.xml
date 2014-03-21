@@ -44,7 +44,8 @@
         <property name="converters">
             <set>
                 <!--将xxxx-yyyyyyy格式的电话转换为内部的Telephone对象-->
-                <bean class="com.rop.sample.request.TelephoneConverter"/>
+                <bean class="com.rop.sample.converter.TelephoneConverter"/>
+                <bean class="com.rop.sample.converter.DateConverter"/>
             </set>
         </property>
     </bean>
