@@ -3,6 +3,7 @@
  */
 package com.rop.impl;
 
+import com.rop.RopRequest;
 import com.rop.RopRequestContext;
 import com.rop.ServiceMethodAdapter;
 import com.rop.ServiceMethodHandler;
@@ -31,11 +32,12 @@ public class AnnotationServiceMethodAdapter implements ServiceMethodAdapter {
     /**
      * 调用ROP服务方法
      *
-     * @param ropRequestContext
+     * @param ropRequest
      * @return
      */
-    public Object invokeServiceMethod(RopRequestContext ropRequestContext) {
+    public Object invokeServiceMethod(RopRequest ropRequest) {
         try {
+            RopRequestContext ropRequestContext = ropRequest.getRopRequestContext();
             //分析上下文中的错误
             ServiceMethodHandler serviceMethodHandler = ropRequestContext.getServiceMethodHandler();
             if (logger.isDebugEnabled()) {
@@ -44,7 +46,7 @@ public class AnnotationServiceMethodAdapter implements ServiceMethodAdapter {
             }
             if (serviceMethodHandler.isHandlerMethodWithParameter()) {
                 return serviceMethodHandler.getHandlerMethod().invoke(
-                        serviceMethodHandler.getHandler(), ropRequestContext.getRopRequest());
+                        serviceMethodHandler.getHandler(),ropRequest);
             } else {
                 return serviceMethodHandler.getHandlerMethod().invoke(serviceMethodHandler.getHandler());
             }

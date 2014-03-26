@@ -31,12 +31,13 @@ import static org.testng.Assert.assertTrue;
 public class UserServiceRawClient {
 
     public static final String SERVER_URL = "http://localhost:8088/router";
+
     private String sessionId;
 
     /**
      * 创建一个服务端的会话
      */
-    @BeforeMethod
+//    @BeforeMethod
     public void createSession() {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();

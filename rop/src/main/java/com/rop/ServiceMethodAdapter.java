@@ -16,10 +16,10 @@ public interface ServiceMethodAdapter {
     /**
      * 调用服务方法
      *
-     * @param ropRequestContext
+     * @param ropRequest
      * @return
      */
-    Object invokeServiceMethod(RopRequestContext ropRequestContext);
+    Object invokeServiceMethod(RopRequest ropRequest);
 
 }
 

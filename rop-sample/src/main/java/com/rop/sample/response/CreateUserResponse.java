@@ -36,6 +36,15 @@ public class CreateUserResponse{
     @XmlElement
     private String feedback;
 
+    @XmlAttribute
+    private Boolean status = true;
+
+    @XmlAttribute
+    private Integer age = 10;
+
+    @XmlAttribute
+    private Float height = 170.01f;
+
     @XmlElement
     private List<Foo> fooList;
 
@@ -51,6 +60,30 @@ public class CreateUserResponse{
 
     public void setFooList(List<Foo> fooList) {
         this.fooList = fooList;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public Float getHeight() {
+        return height;
+    }
+
+    public void setHeight(Float height) {
+        this.height = height;
     }
 
     public String getUserId() {

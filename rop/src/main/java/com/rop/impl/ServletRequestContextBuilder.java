@@ -120,7 +120,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
      * @param ropRequestContext
      */
     @Override
-    public void bindBusinessParams(RopRequestContext ropRequestContext) {
+    public RopRequest buildRopRequest(RopRequestContext ropRequestContext) {
         AbstractRopRequest ropRequest = null;
         if (ropRequestContext.getServiceMethodHandler().isRopRequestImplType()) {
             HttpServletRequest request =
@@ -134,7 +134,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
             ropRequest = new DefaultRopRequest();
         }
         ropRequest.setRopRequestContext(ropRequestContext);
-        ropRequestContext.setRopRequest(ropRequest);
+        return ropRequest;
     }
 
 

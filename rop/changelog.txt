@@ -117,6 +117,13 @@ http://yourhost?method=rop.user.add&v=1.0&callback=myfun，则响应报文的
  图片获取等；
 2.重构了pom.xml的结构.
 
+1.0.2-SNAPSHOT (2014-03-24)
+1.ServiceMethodAdapter的方法 ：Object invokeServiceMethod(RopRequestContext ropRequestContext)变更为：
+Object invokeServiceMethod(RopRequest ropRequest); 
+2.ReopRequestContext删除getRopRequest及setRopRequest的方法;
+3.SimpleRopRequestContext添加session属性,在创建RopRequestContext时获取设置session;
+4.解决会话更新后不能自动同步到会话管理器的BUG.
+
 
 
 

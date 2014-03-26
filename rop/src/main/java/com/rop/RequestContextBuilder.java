@@ -27,6 +27,6 @@ public interface RequestContextBuilder {
      *
      * @param ropRequestContext
      */
-    void bindBusinessParams(RopRequestContext ropRequestContext);
+    RopRequest buildRopRequest(RopRequestContext ropRequestContext);
 }
 

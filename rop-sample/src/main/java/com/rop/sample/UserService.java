@@ -244,8 +244,8 @@ public class UserService extends AbstractUserService{
 
     @ServiceMethod(method = "img.get", version = "1.0",
             httpAction = HttpAction.GET,
-            ignoreSign = IgnoreSignType.YES,
-            needInSession = NeedInSessionType.NO)
+    ignoreSign = IgnoreSignType.YES,
+    needInSession = NeedInSessionType.NO)
     public void getImg(RopRequest ropRequest) throws Throwable {
         HttpServletResponse response = (HttpServletResponse)
                 ropRequest.getRopRequestContext().getRawResponseObject();

@@ -66,6 +66,8 @@ public class SimpleRopRequestContext implements RopRequestContext {
 
     private String requestId = RopUtils.getUUID();
 
+    private Session session;
+
     @Override
     public long getServiceBeginTime() {
         return this.serviceBeginTime;
@@ -149,15 +151,17 @@ public class SimpleRopRequestContext implements RopRequestContext {
 
     @Override
     public Session getSession() {
-        if (ropContext != null && ropContext.getSessionManager() != null && getSessionId() != null) {
-            return ropContext.getSessionManager().getSession(getSessionId());
-        } else {
-            return null;
+        if (session == null && ropContext != null &&
+                ropContext.getSessionManager() != null && getSessionId() != null) {
+           session = ropContext.getSessionManager().getSession(getSessionId());
         }
+        return session;
     }
 
     @Override
     public void addSession(String sessionId, Session session) {
+        this.sessionId = sessionId;
+        this.session = session;
         if (ropContext != null && ropContext.getSessionManager() != null) {
             ropContext.getSessionManager().addSession(sessionId, session);
         }
@@ -187,16 +191,6 @@ public class SimpleRopRequestContext implements RopRequestContext {
     @Override
     public Object getRopResponse() {
         return this.ropResponse;
-    }
-
-    @Override
-    public RopRequest getRopRequest() {
-        return this.ropRequest;
-    }
-
-    @Override
-    public void setRopRequest(RopRequest ropRequest) {
-        this.ropRequest = ropRequest;
     }
 
     public String getAppKey() {

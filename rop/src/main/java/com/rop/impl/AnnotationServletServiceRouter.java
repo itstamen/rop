@@ -375,7 +375,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
             }
 
             RopRequestContext ropRequestContext = null;
-
+            RopRequest ropRequest = null;
             try {
                 //用系统级参数构造一个RequestContext实例（第一阶段绑定）
                 ropRequestContext = requestContextBuilder.buildBySysParams(
@@ -388,7 +388,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                 } else {
 
                     //绑定业务数据（第二阶段绑定）
-                    requestContextBuilder.bindBusinessParams(ropRequestContext);
+                    ropRequest = requestContextBuilder.buildRopRequest(ropRequestContext);
 
                     //进行其它检查业务数据合法性，业务安全等
                     mainError = securityManager.validateOther(ropRequestContext);
@@ -402,10 +402,10 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
 
                         if (ropRequestContext.getRopResponse() == null) { //拦截器未生成response
                             //如果拦截器没有产生ropResponse时才调用服务方法
-                            ropRequestContext.setRopResponse(doService(ropRequestContext));
+                            ropRequestContext.setRopResponse(doService(ropRequest));
 
                             //输出响应前拦截
-                            invokeBeforceResponseOfInterceptors(ropRequestContext);
+                            invokeBeforceResponseOfInterceptors(ropRequest);
                         }
                     }
                 }
@@ -418,7 +418,7 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
                     ServiceUnavailableErrorResponse ropResponse = new ServiceUnavailableErrorResponse(method, locale, e);
 
                     //输出响应前拦截
-                    invokeBeforceResponseOfInterceptors(ropRequestContext);
+                    invokeBeforceResponseOfInterceptors(ropRequest);
                     writeResponse(ropResponse, servletResponse, ropRequestContext.getMessageFormat(),jsonpCallback);
                 }else{
                     throw new RopException("RopRequestContext is null.", e);
@@ -534,9 +534,10 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
     /**
      * 在服务调用之后，返回响应之前拦截
      *
-     * @param ropRequestContext
+     * @param ropRequest
      */
-    private void invokeBeforceResponseOfInterceptors(RopRequestContext ropRequestContext) {
+    private void invokeBeforceResponseOfInterceptors(RopRequest ropRequest) {
+        RopRequestContext ropRequestContext = ropRequest.getRopRequestContext();
         Interceptor tempInterceptor = null;
         try {
             if (interceptors != null && interceptors.size() > 0) {
@@ -593,15 +594,16 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         }
     }
 
-    private Object doService(RopRequestContext ropRequestContext) {
+    private Object doService(RopRequest ropRequest) {
         Object ropResponse = null;
+        RopRequestContext ropRequestContext = ropRequest.getRopRequestContext();
         if (ropRequestContext.getMethod() == null) {
             ropResponse = new ErrorResponse(MainErrors.getError(MainErrorType.MISSING_METHOD, ropRequestContext.getLocale()));
         } else if (!ropContext.isValidMethod(ropRequestContext.getMethod())) {
             ropResponse = new ErrorResponse(MainErrors.getError(MainErrorType.INVALID_METHOD, ropRequestContext.getLocale()));
         } else {
             try {
-                ropResponse = serviceMethodAdapter.invokeServiceMethod(ropRequestContext);
+                ropResponse = serviceMethodAdapter.invokeServiceMethod(ropRequest);
             } catch (Exception e) { //出错则招聘服务不可用的异常
                 if (logger.isInfoEnabled()) {
                     logger.info("调用" + ropRequestContext.getMethod() + "时发生异常，异常信息为：" + e.getMessage());

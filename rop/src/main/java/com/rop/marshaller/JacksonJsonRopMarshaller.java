@@ -11,6 +11,7 @@ import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
 
 import java.io.IOException;
@@ -43,8 +44,10 @@ public class JacksonJsonRopMarshaller implements RopMarshaller {
             AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
             SerializationConfig serializationConfig = objectMapper.getSerializationConfig();
             serializationConfig = serializationConfig.without(SerializationConfig.Feature.WRAP_ROOT_VALUE)
-                                                     .with(SerializationConfig.Feature.INDENT_OUTPUT)
-                                                     .withAnnotationIntrospector(introspector);
+                    .with(SerializationConfig.Feature.INDENT_OUTPUT)
+                    .withSerializationInclusion(JsonSerialize.Inclusion.NON_NULL)
+                    .withSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY)
+                    .withAnnotationIntrospector(introspector);
             objectMapper.setSerializationConfig(serializationConfig);
             this.objectMapper = objectMapper;
         }

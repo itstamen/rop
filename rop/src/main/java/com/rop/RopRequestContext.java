@@ -144,7 +144,7 @@ public interface RopRequestContext {
     /**
      * 设置服务开始时间
      *
-     * @param serviceBeginTime
+     * @param serviceEndTime
      */
     void setServiceEndTime(long serviceEndTime);
 
@@ -182,19 +182,6 @@ public interface RopRequestContext {
      */
     Object getRopResponse();
 
-    /**
-     * 设置{@link RopRequest}
-     *
-     * @param ropRequest
-     */
-    void setRopRequest(RopRequest ropRequest);
-
-    /**
-     * 请求对象
-     *
-     * @return
-     */
-    RopRequest getRopRequest();
 
     /**
      * 获取特定属性

@@ -84,11 +84,10 @@ public class MessageMarshallerUtils {
     /**
      * 将请求对象转换为String
      *
-     * @param request
+     * @param allParams
      * @return
      */
-    public static String asUrlString(RopRequest request) {
-        Map<String, String> allParams = request.getRopRequestContext().getAllParams();
+    public static String asUrlString(Map<String,String> allParams) {
         StringBuilder sb = new StringBuilder(256);
         boolean first = true;
         for (Map.Entry<String, String> entry : allParams.entrySet()) {
