@@ -1,3 +1,5 @@
+Introduction
+
    ROP is the Rapid Open Platform ,thus like the TOP(Taobao Open Platform:http://api.taobao.com).
 
    The rest url of ROP  is thus like the following :
@@ -28,5 +30,11 @@ public class SampleRestService {
 Return parameter can be any Object.
    The Rop can marshaller the response to the xml or json format output,you can
 control the output format by "format" parameter.
-   Good 2014!
-   stame by 2012-3-1 Xiamen China
+
+Author and participants
+
+1)Stamen       XiaMen       http://stamen.iteye.com/  
+2)Wangxiancai  GuangZhou    http://wangxiancai.iteye.com/
+
+   Good Luck! 2014!
+   stame by 2014-07-16 Xiamen China
