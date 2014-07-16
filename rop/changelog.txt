@@ -1,43 +1,102 @@
-﻿
-1.0-SNAPSHOP-1  (2012-05-18)
+﻿1.0.6 (2014-07-16)
+1.Fix BUG:<rop:annotation-driven/> not support ${xxx};
+2.remove conf debug message of AnnotationDrivenBeanDefinitionParser,move to
+  AnnotationServletServiceRouter;
 
-1.解决JaxbXmlRopResponseMarshaller 存在的多线程安全问题；
-2.RopRequest添加一个rawRequestObject的属性，可以获取原始Request的对象（即HttpServletRequest）
-3.RopSample的UserRestServiceClient改为测试用例。
-4.可通过RopServlet的needCheckSign Servlet参数指定是否要进行签名校验。
-5.Rop框架的配置原来使用RopServlet的初始化参数，现在改为使用一个配置文件，默认的配置文件为：/WEB-INF/<ropServlet名称>.properties,参见RopSample的实例；
-6.解决JaxbXmlRopResponseMarshallerTest一个BUG，原来有依赖JUnit,现已经移除。
 
-1.0-SNAPSHOP-1 (2012-05-29)
+1.0.5 (2014-07-10)
+1.the JDK version down grade to JDK 5.0,the before version need the JDK 6.0;
+2.BusinessServiceErrorResponse#BusinessServiceErrorResponse(String serviceName, String errorCode, Locale locale, Object... params)
+  Deprecated.Please use BusinessServiceErrorResponse(RopRequestContext context,String errorCode,Object... params)
 
-1.com.rop.ApiMethod及IgoreSign注解类迁移到com.rop.annotation包下，同时易名为com.rop.ServiceMethod，
-  新增group,tags,title,timeout,version,ignoreSign,ioLogLevel等属性。
-2.在com.rop.annotation包下，新增com.rop.ServiceMethodGroup，ServiceMethodGroup 用于标注在服务类中，由于其
-  已经标注了Spring的Component注解，因此服务类标注ServiceMethodGroup后，即成为Spring的Bean，无需额外标注
-  @Component或@Service等。
-3.新增com.rop.ServiceMethodDefinition，用于描述Rop的服务方法定义；
-4.com.rop.RopServiceContext易名为ServiceMethodContext，在ServiceMethodContext中新增获取ServiceMethodDefinition的方法。
-5.com.rop.RopServiceHandler添加serviceMethodDefinition()的方法；
-6.com.rop.Interceptor添加boolean isMatch(ServiceMethodContext methodContext)方法，以便指定拦截器的拦截范围。
-  com.rop.AbstractInterceptor添加isMatch()的默认实现，返回true。
-7.com.rop.ResponseFormat易名为com.rop.MessageFormat.
-8.com.rop.RopResponseMarshaller接口类名易名为RopMarshaller，接口方法：
-  void marshaller(RopResponse response, OutputStream outputStream) 调整为
-  void marshaller(Object obj, OutputStream outputStream)
-9.新增com.rop.marshaller.MessageMarshallerUtils，可以对RopRequest和RopResponse对象进行序列化输出。
-10.对RopValidator及其实现类进行重构，使代码更加清晰。
-11.新增SignUtils工具类，它负责对参数列表进行签名.
-12.新增com.rop.RopContext它代表Rop框架的上下文，服务处理器(ServiceMethodHandler)在RopContext中通过 method+version的方式
-  注册。
+1.0.4 (2014-07-06)
+1.change i18n/rop/error resource ,add method and version to the Main Error message,
+just like:
+    ERROR_3 = service method ({0}, {1}) user permissions
+    ERROR_4 = service method ({0}, {1}) image upload failed, reason is: {2}
+    ERROR_5 = service method ({0}, {1}) HTTP method {2} be banned
+    the {0} and {1} is the holderplace of method name and method version.
+2.Fix Bug of AbstractAuthRequest,getDetail() return null but not detail;
 
-1.0-SNAPSHOP-2 (2012-06-21)
+1.0.3-SNAPSHOT (2014-07-04)
 
-1.新增com.rop.session包，管理会话，感谢iteye的melin的贡献；
-2.删除com.rop.validation.SessionChecker，采用com.rop.session新的会话管理体系，相应调整RopValidator的接口；
+1.ROP系统级错误信息添加了绑定参数的支持，大部分错误消息都添加了当前的服务方法及版本的信息；
+2.解决了com.rop.session.AbstractAuthRequest#getDetail()返回空的BUG；
+3.解决了<rop:annotation-driven/>的upload-file-max-size属性无法设置的问题;
+4.解决了若干个rop-sample的测试BUG;
+5.BusinessServiceErrorResponse的构造函数从
 
+ 改为：
+ BusinessServiceErrorResponse(RopRequestContext context,String errorCode,Object... params)
+
+1.0.2-SNAPSHOT (2014-05-27)
+1.com.rop.response.RejectedServiceResponse的构造函数改为RejectedServiceResponse(RopRequestContext context);
+2.com.rop.response.BusinessServiceErrorResponse的构造函数从BusinessServiceErrorResponse(String serviceName, String errorCode, Locale locale, Object... params)改为
+BusinessServiceErrorResponse(RopRequestContext context,String errorCode,Object... params);
+
+
+1.0.2-SNAPSHOT (2014-03-24)
+1.ServiceMethodAdapter的方法 ：Object invokeServiceMethod(RopRequestContext ropRequestContext)变更为：
+Object invokeServiceMethod(RopRequest ropRequest);
+2.ReopRequestContext删除getRopRequest及setRopRequest的方法;
+3.SimpleRopRequestContext添加session属性,在创建RopRequestContext时获取设置session;
+4.解决会话更新后不能自动同步到会话管理器的BUG.
+
+1.0.2-SNAPSHOT (2014-03-21)
+1.com.rop.MessageFormat添加stream的输出类型，这种类型支持直接输出流，如文件下载
+ 图片获取等；
+2.重构了pom.xml的结构.
+
+1.0-SNAPSHOP-9 (2014-02-27)
+1.com.rop.session.Session接口添加3个方法：
+  1)isChanged()：在会话内容变动后，该方法返回为true，以便ROP在处理完服务后通过SessionBindInterceptor将Session
+  同步到外部的会话管理器中；
+  2)removeAttribute(String name)：删除会话中属性列表的条目；
+  3)getAllAttributes():获取所有条目的方法；
+2.com.rop.session.SessionBindInterceptor复写了beforeResponse(RopRequestContext ropRequestContext)
+  方法，以便在服务处理后，如果会话内容有变化，则将其重写到外部缓存管理器，完成会话的同步。
+
+1.0-SNAPSHOP-8 (2014-02-17)
+1.添加JSONP及XCOR的支持，JSONP，默认使用callback函数，可以通过
+callback系统参数指定JSONP回调函数，只要系统参数中有callback参数，
+即会以JSONP的格式返回。如
+http://yourhost?method=rop.user.add&v=1.0&callback=myfun，则响应报文的
+内容以会以JSONP格式包含中myfun函数中返回。
+
+1.0-SNAPSHOP-7 (2013-11-01)
+1.com.rop.response.ErrorResponse添加一个特殊标识：errorToken，
+同时修改了com.rop.client.DefaultRopClient#isSuccessful()方法。
+
+1.0-SNAPSHOP-6 (2013-10-31)
+1.<rop:annotation-driven/>添加 ext-error-base-names,允许通过逗号分隔的方式设置多个国际化资源文件。
+
+1.0-SNAPSHOP-5 (2013-10-18)
+1.新增com.rop.session.AuthRequest 认证请求；
+2.新增com.rop.session.AbstractAuthRequest，即AuthRequest的抽象类；
+2.新增com.rop.session.AuthResponse 认证响应，即认证的结果，如果认证成功，AuthResponse将包括一个Session对象，代表认证成功对应的会话；
+3.新增com.rop.session.AuthenticationManager认证管理器，即完成对AuthRequest进行认证，返回认证结果AuthResponse；
+4.新增com.rop.session.AuthenticationService 认证服务类，具体的项目可以通过扩展该抽象类提供认证服务，具体可以参见rop-sample的
+SampleAuthenticationService例子；
+5.新增com.rop.session.RopSessionHolder认证成功后，会产生Session，项目可以配置一个
+com.rop.session.SessionBindInterceptor拦截器，SessionBindInterceptor会将Session从SessionManager中
+绑定到本地线程中，这样当次请求的所有调用堆栈都可以通过RopSessionHolder访问到Session了。
+6.新增com.rop.session.SessionBindInterceptor参见com.rop.session.RopSessionHolder的说明，和rop-sample的配置。
+7.新增com.rop.session.UserNamePasswordAuthRequest基于用户名和密码的认证请求。
+8.解决了com.rop.impl.DefaultRopContext中的几个BUG：
+   BUG1：Rop启动时会扫描所有的Bean,性能较低，现改成只扫描标注
+@ServiceMethodBean的Bean！！所以ROP的服务类必须标注@ServiceMethodBean，否则会扫描不到！！
+   BUG2：原ROP会扫描所有的服务类方法，包括桥接方法和合成方法，这会引起服务方法注册的问题，
+   现已改成只扫描非合成方法（即手工写方法）；
+9.com.rop.impl.AnnotationServletServiceRouter在启动时自动注册com.rop.session.SessionBindInterceptor。
+
+1.0-SNAPSHOP-4 (2013-09-18)
+1.支持JSONP调用，默认指定回调方法的参数名为callback,也可以通过
+<rop:sysparams/>标签指定一个自定义的jsonp参数名，如下所示：
+<rop:sysparams  jsonp-param-name="__invoke"/>
+调用很简单，只要请求参数中有callback（或<rop:sysparams/>指定的）参数，即以jsonp形式返回。
+2.支持CORS报文头的跨域功能。
 
 1.0-SNAPSHOP-3 (2012-07-31)
-
 1.com.rop.response.ServiceErrorResponse 易名为BusinessServiceErrorResponse,其对应的主错误代码调整为9；
 2.新增com.rop.CallLimitManager，用以限定应用、会话、用户的访问效率及频率，在<rop:annotation-driver/>中添加call-limit-manager的配置属性；
 3.删除大部分ISP的子错误，仅留下isp.xxx-service-unavailable和isp.xxx-service-timeout错误；
@@ -60,69 +119,50 @@ upload-file-max-size和upload-file-types属性。
 16.CallLimitManager易名为InvokeTimesLimitSecurityManager
 17.删除RopResponse,服务方法的返回值可以是任何类型。
 
+1.0-SNAPSHOP-2 (2012-06-21)
+1.新增com.rop.session包，管理会话，感谢iteye的melin的贡献；
+2.删除com.rop.validation.SessionChecker，采用com.rop.session新的会话管理体系，相应调整RopValidator的接口；
 
-1.0-SNAPSHOP-4 (2013-09-18)
+1.0-SNAPSHOP-1 (2012-05-29)
+1.com.rop.ApiMethod及IgoreSign注解类迁移到com.rop.annotation包下，同时易名为com.rop.ServiceMethod，
+  新增group,tags,title,timeout,version,ignoreSign,ioLogLevel等属性。
+2.在com.rop.annotation包下，新增com.rop.ServiceMethodGroup，ServiceMethodGroup 用于标注在服务类中，由于其
+  已经标注了Spring的Component注解，因此服务类标注ServiceMethodGroup后，即成为Spring的Bean，无需额外标注
+  @Component或@Service等。
+3.新增com.rop.ServiceMethodDefinition，用于描述Rop的服务方法定义；
+4.com.rop.RopServiceContext易名为ServiceMethodContext，在ServiceMethodContext中新增获取ServiceMethodDefinition的方法。
+5.com.rop.RopServiceHandler添加serviceMethodDefinition()的方法；
+6.com.rop.Interceptor添加boolean isMatch(ServiceMethodContext methodContext)方法，以便指定拦截器的拦截范围。
+  com.rop.AbstractInterceptor添加isMatch()的默认实现，返回true。
+7.com.rop.ResponseFormat易名为com.rop.MessageFormat.
+8.com.rop.RopResponseMarshaller接口类名易名为RopMarshaller，接口方法：
+  void marshaller(RopResponse response, OutputStream outputStream) 调整为
+  void marshaller(Object obj, OutputStream outputStream)
+9.新增com.rop.marshaller.MessageMarshallerUtils，可以对RopRequest和RopResponse对象进行序列化输出。
+10.对RopValidator及其实现类进行重构，使代码更加清晰。
+11.新增SignUtils工具类，它负责对参数列表进行签名.
+12.新增com.rop.RopContext它代表Rop框架的上下文，服务处理器(ServiceMethodHandler)在RopContext中通过 method+version的方式
+  注册。
 
-1.支持JSONP调用，默认指定回调方法的参数名为callback,也可以通过    
-<rop:sysparams/>标签指定一个自定义的jsonp参数名，如下所示：
-<rop:sysparams  jsonp-param-name="__invoke"/>
-调用很简单，只要请求参数中有callback（或<rop:sysparams/>指定的）参数，即以jsonp形式返回。
-2.支持CORS报文头的跨域功能。
-
-1.0-SNAPSHOP-5 (2013-10-18)
-1.新增com.rop.session.AuthRequest 认证请求；
-2.新增com.rop.session.AbstractAuthRequest，即AuthRequest的抽象类；
-2.新增com.rop.session.AuthResponse 认证响应，即认证的结果，如果认证成功，AuthResponse将包括一个Session对象，代表认证成功对应的会话；
-3.新增com.rop.session.AuthenticationManager认证管理器，即完成对AuthRequest进行认证，返回认证结果AuthResponse；
-4.新增com.rop.session.AuthenticationService 认证服务类，具体的项目可以通过扩展该抽象类提供认证服务，具体可以参见rop-sample的
-SampleAuthenticationService例子；
-5.新增com.rop.session.RopSessionHolder认证成功后，会产生Session，项目可以配置一个
-com.rop.session.SessionBindInterceptor拦截器，SessionBindInterceptor会将Session从SessionManager中
-绑定到本地线程中，这样当次请求的所有调用堆栈都可以通过RopSessionHolder访问到Session了。
-6.新增com.rop.session.SessionBindInterceptor参见com.rop.session.RopSessionHolder的说明，和rop-sample的配置。
-7.新增com.rop.session.UserNamePasswordAuthRequest基于用户名和密码的认证请求。
-8.解决了com.rop.impl.DefaultRopContext中的几个BUG：
-   BUG1：Rop启动时会扫描所有的Bean,性能较低，现改成只扫描标注
-@ServiceMethodBean的Bean！！所以ROP的服务类必须标注@ServiceMethodBean，否则会扫描不到！！
-   BUG2：原ROP会扫描所有的服务类方法，包括桥接方法和合成方法，这会引起服务方法注册的问题，
-   现已改成只扫描非合成方法（即手工写方法）；
-9.com.rop.impl.AnnotationServletServiceRouter在启动时自动注册com.rop.session.SessionBindInterceptor。
-
-1.0-SNAPSHOP-6 (2013-10-31)
-1.<rop:annotation-driven/>添加 ext-error-base-names,允许通过逗号分隔的方式设置多个国际化资源文件。
-
-1.0-SNAPSHOP-7 (2013-11-01)
-1.com.rop.response.ErrorResponse添加一个特殊标识：errorToken，
-同时修改了com.rop.client.DefaultRopClient#isSuccessful()方法。
-
-1.0-SNAPSHOP-8 (2014-02-17)
-1.添加JSONP及XCOR的支持，JSONP，默认使用callback函数，可以通过
-callback系统参数指定JSONP回调函数，只要系统参数中有callback参数，
-即会以JSONP的格式返回。如
-http://yourhost?method=rop.user.add&v=1.0&callback=myfun，则响应报文的
-内容以会以JSONP格式包含中myfun函数中返回。
-
-1.0-SNAPSHOP-9 (2014-02-27)
-1.com.rop.session.Session接口添加3个方法：
-  1)isChanged()：在会话内容变动后，该方法返回为true，以便ROP在处理完服务后通过SessionBindInterceptor将Session
-  同步到外部的会话管理器中；
-  2)removeAttribute(String name)：删除会话中属性列表的条目；
-  3)getAllAttributes():获取所有条目的方法；
-2.com.rop.session.SessionBindInterceptor复写了beforeResponse(RopRequestContext ropRequestContext)
-  方法，以便在服务处理后，如果会话内容有变化，则将其重写到外部缓存管理器，完成会话的同步。
+1.0-SNAPSHOP-1  (2012-05-18)
+1.解决JaxbXmlRopResponseMarshaller 存在的多线程安全问题；
+2.RopRequest添加一个rawRequestObject的属性，可以获取原始Request的对象（即HttpServletRequest）
+3.RopSample的UserRestServiceClient改为测试用例。
+4.可通过RopServlet的needCheckSign Servlet参数指定是否要进行签名校验。
+5.Rop框架的配置原来使用RopServlet的初始化参数，现在改为使用一个配置文件，默认的配置文件为：/WEB-INF/<ropServlet名称>.properties,参见RopSample的实例；
+6.解决JaxbXmlRopResponseMarshallerTest一个BUG，原来有依赖JUnit,现已经移除。
 
 
-1.0.2-SNAPSHOT (2014-03-21)
-1.com.rop.MessageFormat添加stream的输出类型，这种类型支持直接输出流，如文件下载
- 图片获取等；
-2.重构了pom.xml的结构.
 
-1.0.2-SNAPSHOT (2014-03-24)
-1.ServiceMethodAdapter的方法 ：Object invokeServiceMethod(RopRequestContext ropRequestContext)变更为：
-Object invokeServiceMethod(RopRequest ropRequest); 
-2.ReopRequestContext删除getRopRequest及setRopRequest的方法;
-3.SimpleRopRequestContext添加session属性,在创建RopRequestContext时获取设置session;
-4.解决会话更新后不能自动同步到会话管理器的BUG.
+
+
+
+
+
+
+
+
+
 
 
 

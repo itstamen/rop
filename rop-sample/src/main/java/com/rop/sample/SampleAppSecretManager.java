@@ -26,13 +26,13 @@ public class SampleAppSecretManager implements AppSecretManager {
         appKeySecretMap.put("00003","abcdeabcdeabcdeabcdeaaaaa");
     }
 
-    @Override
+
     public String getSecret(String appKey) {
         System.out.println("use SampleAppSecretManager!");
         return appKeySecretMap.get(appKey);
     }
 
-    @Override
+
     public boolean isValidAppKey(String appKey) {
         return getSecret(appKey) != null;
     }

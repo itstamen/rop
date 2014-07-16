@@ -54,7 +54,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
         this.conversionService = conversionService;
     }
 
-    @Override
+
     public SimpleRopRequestContext buildBySysParams(RopContext ropContext,
                                                     Object request,
                                                     Object response) {
@@ -119,7 +119,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
      *
      * @param ropRequestContext
      */
-    @Override
+
     public RopRequest buildRopRequest(RopRequestContext ropRequestContext) {
         AbstractRopRequest ropRequest = null;
         if (ropRequestContext.getServiceMethodHandler().isRopRequestImplType()) {
@@ -168,6 +168,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
             return true;
         } else {
             try {
+                //check error resource file exists
                 MainErrors.getError(MainErrorType.INVALID_APP_KEY, locale);
             } catch (Exception e) {
                 return false;

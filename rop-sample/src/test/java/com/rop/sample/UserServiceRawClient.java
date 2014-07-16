@@ -12,6 +12,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -37,7 +38,8 @@ public class UserServiceRawClient {
     /**
      * 创建一个服务端的会话
      */
-//    @BeforeMethod
+//    @Test
+    @BeforeClass
     public void createSession() {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
@@ -82,7 +84,7 @@ public class UserServiceRawClient {
         String response = restTemplate.postForObject(
                 SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
+        assertTrue(response.indexOf("<createUserResponse") > -1);
     }
 
     /**
@@ -158,7 +160,7 @@ public class UserServiceRawClient {
         String response = restTemplate.postForObject(
                 SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010102\"") > -1);
+        assertTrue(response.indexOf("<createUserResponse ") > -1);
     }
 
     /**
@@ -276,7 +278,7 @@ public class UserServiceRawClient {
                         " \"codes\":[\"aa\",\"bb\",\"cc\"],\n"+
                         " \"streets\":[{\"no\":\"001\",\"name\":\"street1\"},\n" +
                         "            {\"no\":\"002\",\"name\":\"street2\"}]}");
-        form.add("favorites", "\"aa\",\"bb\",\"cc\"");
+//        form.add("favorites", "\"aa\",\"bb\",\"cc\"");
 
         form.add("addresses",
                 "[{\"zoneCode\":\"0001\",\n" +
@@ -284,7 +286,10 @@ public class UserServiceRawClient {
                         " \"codes\":[\"aa\",\"bb\",\"cc\"],\n"+
                         " \"streets\":[{\"no\":\"001\",\"name\":\"street1\"},\n" +
                         "            {\"no\":\"002\",\"name\":\"street2\"}]}]");
+        form.add("addresses",
+                "[{\"zoneCode\":\"0001\"},{\"zoneCode\":\"0001\"}]");
         form.add("favorites", "\"aa\",\"bb\",\"cc\"");
+        form.add("attachMap", "{\"key1\":\"value1\",\"key2\":\"value2\"}");
 
         //对请求参数列表进行签名
         String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
@@ -318,7 +323,7 @@ public class UserServiceRawClient {
         String response = restTemplate.postForObject(
                 SERVER_URL, form, String.class);
         System.out.println("response:\n" + response);
-        assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
+        assertTrue(response.indexOf("<createUserResponse") > -1);
     }
 
     /**
@@ -763,7 +768,7 @@ public class UserServiceRawClient {
         for (int i = 0; i < 100; i++) {
             String response = restTemplate.postForObject(
                     SERVER_URL, form, String.class);
-            assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
+            assertTrue(response.indexOf("<createUserResponse") > -1);
         }
         System.out.println("time elapsed:" + (System.currentTimeMillis() - begin));
     }
@@ -861,6 +866,8 @@ public class UserServiceRawClient {
         form.put("method", "img.get");//<--指定方法名称
         form.put("appKey", "00001");
         form.put("v", "1.0");
+        form.put("locale", "en");
+        form.put("sessionId", "mockSessionId1");
         form.put("messageFormat", "stream");
 
         //对请求参数列表进行签名
@@ -873,8 +880,8 @@ public class UserServiceRawClient {
                         "?method={method}&appKey={appKey}&v={v}&sessionId={sessionId}&locale={locale}" +
                         "&messageFormat={messageFormat}&sign={sign}",
                 String.class, form);
-        System.out.println("response:" + response);
-        assertTrue(response.indexOf("Is StreamOutput!") > -1);
+//        System.out.println("response:" + response);
+//        assertTrue(response.indexOf("Is StreamOutput!") > -1);
     }
 
 }

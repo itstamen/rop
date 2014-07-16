@@ -47,39 +47,44 @@ public class DefaultRopContext implements RopContext {
         registerFromContext(context);
     }
 
-    @Override
+
     public void addServiceMethod(String methodName, String version, ServiceMethodHandler serviceMethodHandler) {
         serviceMethods.add(methodName);
         serviceHandlerMap.put(ServiceMethodHandler.methodWithVersion(methodName, version), serviceMethodHandler);
     }
 
-    @Override
+
     public ServiceMethodHandler getServiceMethodHandler(String methodName, String version) {
         return serviceHandlerMap.get(ServiceMethodHandler.methodWithVersion(methodName, version));
     }
 
 
-    @Override
+
     public boolean isValidMethod(String methodName) {
         return serviceMethods.contains(methodName);
     }
 
-    @Override
-    public boolean isValidMethodVersion(String methodName, String version) {
+
+    public boolean isValidVersion(String methodName, String version) {
         return serviceHandlerMap.containsKey(ServiceMethodHandler.methodWithVersion(methodName, version));
     }
 
-    @Override
+
+    public boolean isVersionObsoleted(String methodName, String version) {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+
     public Map<String, ServiceMethodHandler> getAllServiceMethodHandlers() {
         return serviceHandlerMap;
     }
 
-    @Override
+
     public boolean isSignEnable() {
         return signEnable;
     }
 
-    @Override
+
     public SessionManager getSessionManager() {
         return this.sessionManager;
     }

@@ -31,7 +31,6 @@ public class RopUtils {
      * 使用<code>secret</code>对paramValues按以下算法进行签名： <br/>
      * uppercase(hex(sha1(secretkey1value1key2value2...secret))
      *
-     * @param paramNames  需要签名的参数名
      * @param paramValues 参数列表
      * @param secret
      * @return
@@ -85,7 +84,7 @@ public class RopUtils {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
             bytes = md.digest(data.getBytes(Constants.UTF8));
         } catch (GeneralSecurityException gse) {
-            throw new IOException(gse);
+            throw new IOException(gse.getMessage());
         }
         return bytes;
     }
@@ -96,7 +95,7 @@ public class RopUtils {
             MessageDigest md = MessageDigest.getInstance("MD5");
             bytes = md.digest(data.getBytes(Constants.UTF8));
         } catch (GeneralSecurityException gse) {
-            throw new IOException(gse);
+            throw new IOException(gse.getMessage());
         }
         return bytes;
     }

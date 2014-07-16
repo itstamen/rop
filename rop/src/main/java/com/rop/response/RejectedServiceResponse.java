@@ -4,6 +4,7 @@
  */
 package com.rop.response;
 
+import com.rop.RopRequestContext;
 import com.rop.security.MainError;
 import com.rop.security.MainErrorType;
 import com.rop.security.MainErrors;
@@ -28,8 +29,9 @@ public class RejectedServiceResponse extends ErrorResponse  {
     public RejectedServiceResponse() {
     }
 
-    public RejectedServiceResponse(Locale locale) {
-        MainError mainError = MainErrors.getError(MainErrorType.FORBIDDEN_REQUEST, locale);
+    public RejectedServiceResponse(RopRequestContext context) {
+        MainError mainError = MainErrors.getError(MainErrorType.FORBIDDEN_REQUEST, context.getLocale(),
+                                                  context.getMethod(),context.getVersion());
         setMainError(mainError);
     }
 }

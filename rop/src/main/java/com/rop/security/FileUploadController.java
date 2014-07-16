@@ -27,5 +27,17 @@ public interface FileUploadController {
      * @return
      */
     boolean isExceedMaxSize(int fileSize);
+
+    /**
+     * 获取支持上传的文件格式
+     * @return
+     */
+    String getAllowFileTypes();
+
+    /**
+     * 获取最大的文件大小，单位为K
+     * @return
+     */
+    int getMaxSize();
 }
 

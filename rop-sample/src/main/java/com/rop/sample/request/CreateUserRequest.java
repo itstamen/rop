@@ -12,8 +12,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * <pre>
@@ -41,8 +40,10 @@ public class CreateUserRequest extends AbstractRopRequest {
     @Valid
     private Address address;
 
-    @Valid
-    private List<Address> addresses;
+//    @Valid
+//    private List<Address> addresses;
+//
+//    private Map<String,String> attachMap;
 
     private String format;
 
@@ -138,12 +139,5 @@ public class CreateUserRequest extends AbstractRopRequest {
         this.favorites = favorites;
     }
 
-    public List<Address> getAddresses() {
-        return addresses;
-    }
-
-    public void setAddresses(List<Address> addresses) {
-        this.addresses = addresses;
-    }
 }
 

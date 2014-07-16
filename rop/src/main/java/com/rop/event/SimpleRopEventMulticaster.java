@@ -23,14 +23,14 @@ public class SimpleRopEventMulticaster extends AbstractRopEventMulticaster {
 
     private Executor executor;
 
-    @Override
+
     public void multicastEvent(final RopEvent event) {
         try {
             for (final RopEventListener listener : getRopEventListeners(event)) {
                 Executor executor = getExecutor();
                 if (executor != null) {
                     executor.execute(new Runnable() {
-                        @Override
+
                         public void run() {
                             listener.onRopEvent(event);
                         }

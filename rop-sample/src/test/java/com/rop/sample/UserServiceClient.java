@@ -18,6 +18,7 @@ import com.rop.sample.response.UploadUserPhotoResponse;
 import com.rop.sample.response.UserListResponse;
 import com.rop.security.MainErrorType;
 import org.springframework.core.io.ClassPathResource;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.*;
@@ -45,8 +46,7 @@ public class UserServiceClient {
     }
 
 
-//    @BeforeMethod
-    @Test
+    @BeforeClass
     public void createSession() {
         LogonRequest ropRequest = new LogonRequest();
         ropRequest.setUserName("tomson");

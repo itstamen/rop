@@ -94,14 +94,6 @@ public class MessageMarshallerUtilsTest {
         assertTrue(message.indexOf("20120101") > -1);
 
         logger.info("json:{}",message);
-//        message = MessageMarshallerUtils.getMessage(response, MessageFormat.xml);
-//        assertTrue(message.indexOf("<?xml") > -1);
-//        assertTrue(message.indexOf(">") > -1);
-//        assertTrue(message.indexOf("tom") > -1);
-//        assertTrue(message.indexOf("20120101") > -1);
-//        logger.info("xml:{}",message);
     }
-
-
 }
 

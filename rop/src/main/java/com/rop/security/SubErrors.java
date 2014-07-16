@@ -29,15 +29,20 @@ public class SubErrors {
             new EnumMap<SubErrorType, MainErrorType>(SubErrorType.class);
 
     static {
-        SUBERROR_MAINERROR_MAPPINGS.put(SubErrorType.ISP_SERVICE_UNAVAILABLE, MainErrorType.SERVICE_CURRENTLY_UNAVAILABLE);
-        SUBERROR_MAINERROR_MAPPINGS.put(SubErrorType.ISP_SERVICE_TIMEOUT, MainErrorType.SERVICE_CURRENTLY_UNAVAILABLE);
-
-        SUBERROR_MAINERROR_MAPPINGS.put(SubErrorType.ISV_MISSING_PARAMETER, MainErrorType.MISSING_REQUIRED_ARGUMENTS);
-        SUBERROR_MAINERROR_MAPPINGS.put(SubErrorType.ISV_PARAMETERS_MISMATCH, MainErrorType.INVALID_ARGUMENTS);
-        SUBERROR_MAINERROR_MAPPINGS.put(SubErrorType.ISV_INVALID_PARAMETE, MainErrorType.INVALID_ARGUMENTS);
-
-        SUBERROR_MAINERROR_MAPPINGS.put(SubErrorType.ISV_NOT_EXIST, MainErrorType.INVALID_ARGUMENTS);
-        SUBERROR_MAINERROR_MAPPINGS.put(SubErrorType.ISV_INVALID_PERMISSION, MainErrorType.INSUFFICIENT_ISV_PERMISSIONS);
+        SUBERROR_MAINERROR_MAPPINGS.put(
+                SubErrorType.ISP_SERVICE_UNAVAILABLE, MainErrorType.SERVICE_CURRENTLY_UNAVAILABLE);
+        SUBERROR_MAINERROR_MAPPINGS.put(
+                SubErrorType.ISP_SERVICE_TIMEOUT, MainErrorType.SERVICE_CURRENTLY_UNAVAILABLE);
+        SUBERROR_MAINERROR_MAPPINGS.put(
+                SubErrorType.ISV_MISSING_PARAMETER, MainErrorType.MISSING_REQUIRED_ARGUMENTS);
+        SUBERROR_MAINERROR_MAPPINGS.put(
+                SubErrorType.ISV_PARAMETERS_MISMATCH, MainErrorType.INVALID_ARGUMENTS);
+        SUBERROR_MAINERROR_MAPPINGS.put(
+                SubErrorType.ISV_INVALID_PARAMETE, MainErrorType.INVALID_ARGUMENTS);
+        SUBERROR_MAINERROR_MAPPINGS.put(
+                SubErrorType.ISV_NOT_EXIST, MainErrorType.INVALID_ARGUMENTS);
+        SUBERROR_MAINERROR_MAPPINGS.put(
+                SubErrorType.ISV_INVALID_PERMISSION, MainErrorType.INSUFFICIENT_ISV_PERMISSIONS);
     }
 
     private static MessageSourceAccessor messageSourceAccessor;
@@ -51,12 +56,12 @@ public class SubErrors {
     /**
      * 获取对应子错误的主错误
      *
-     * @param subErrorCode
+     * @param subErrorType
      * @param locale
      * @return
      */
-    public static MainError getMainError(SubErrorType subErrorType, Locale locale) {
-        return MainErrors.getError(SUBERROR_MAINERROR_MAPPINGS.get(subErrorType), locale);
+    public static MainError getMainError(SubErrorType subErrorType, Locale locale, Object... params) {
+        return MainErrors.getError(SUBERROR_MAINERROR_MAPPINGS.get(subErrorType), locale,params);
     }
 
 

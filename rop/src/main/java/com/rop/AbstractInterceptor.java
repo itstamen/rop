@@ -21,7 +21,7 @@ public abstract class AbstractInterceptor implements Interceptor {
     public void beforeResponse(RopRequestContext ropRequestContext) {
     }
 
-    @Override
+
     public boolean isMatch(RopRequestContext ropRequestContext) {
         return true;
     }

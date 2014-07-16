@@ -17,12 +17,12 @@ import com.rop.event.RopEventListener;
  */
 public class SamplePostInitializeEventListener implements RopEventListener<AfterStartedRopEvent> {
 
-    @Override
+
     public void onRopEvent(AfterStartedRopEvent ropRopEvent) {
         System.out.println("execute SamplePostInitializeEventListener!");
     }
 
-    @Override
+
     public int getOrder() {
         return 0;
     }

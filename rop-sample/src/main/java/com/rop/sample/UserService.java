@@ -39,7 +39,7 @@ public class UserService extends AbstractUserService{
     private static final String USER_NAME_RESERVED = "USER_NAME_RESERVED";
     private List reservesUserNames = Arrays.asList(new String[]{"toms", "jhon"});
 
-    @Override
+
     public Object getSession(LogonRequest request) {
 
         //创建一个会话
@@ -84,8 +84,7 @@ public class UserService extends AbstractUserService{
         request.getRopRequestContext().getLocale();
         if (reservesUserNames.contains(request.getUserName())) {
             return new BusinessServiceErrorResponse(
-                    request.getRopRequestContext().getMethod(), USER_NAME_RESERVED,
-                    request.getRopRequestContext().getLocale(), request.getUserName());
+                    request.getRopRequestContext(),USER_NAME_RESERVED,request.getUserName());
         } else {
             CreateUserResponse response = new CreateUserResponse();
             //add creaet new user here...
@@ -100,8 +99,7 @@ public class UserService extends AbstractUserService{
         if (reservesUserNames.contains(request.getUserName())) { //如果注册的用户是预留的帐号，则返回错误的报文
             //这个业务错误将引用扩展国际化错误资源中的消息（i18n/rop/sampleRopError）
             return new BusinessServiceErrorResponse(
-                    request.getRopRequestContext().getMethod(), USER_NAME_RESERVED,
-                    request.getRopRequestContext().getLocale(), request.getUserName());
+                    request.getRopRequestContext(), USER_NAME_RESERVED,request.getUserName());
         } else {
             CreateUserResponse response = new CreateUserResponse();
             //add creaet new user here...
@@ -123,8 +121,7 @@ public class UserService extends AbstractUserService{
     public Object addUser2(CreateUserRequest request) {
         if (reservesUserNames.contains(request.getUserName())) { //如果注册的用户是预留的帐号，则返回错误的报文
             return new BusinessServiceErrorResponse(
-                    request.getRopRequestContext().getMethod(), USER_NAME_RESERVED,
-                    request.getRopRequestContext().getLocale(), request.getUserName());
+                    request.getRopRequestContext(), USER_NAME_RESERVED, request.getUserName());
         } else {
             CreateUserResponse response = new CreateUserResponse();
             //add creaet new user here...

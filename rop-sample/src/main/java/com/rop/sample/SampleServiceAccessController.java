@@ -32,7 +32,7 @@ public class SampleServiceAccessController implements ServiceAccessController {
         aclMap.put("00003", serviceMethods);
     }
 
-    @Override
+
     public boolean isAppGranted(String appKey, String method, String version) {
         if(aclMap.containsKey(appKey)){
             List<String> serviceMethods = aclMap.get(appKey);
@@ -42,7 +42,7 @@ public class SampleServiceAccessController implements ServiceAccessController {
         }
     }
 
-    @Override
+
     public boolean isUserGranted(Session session, String method, String version) {
         return true;
     }

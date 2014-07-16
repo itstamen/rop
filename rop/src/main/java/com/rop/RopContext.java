@@ -44,13 +44,23 @@ public interface RopContext {
     boolean isValidMethod(String methodName);
 
     /**
-     * 是否是合法服务方法版本号
+     * 是否存在对应的服务方法的版本号
      *
      * @param methodName
      * @param version
      * @return
      */
-    boolean isValidMethodVersion(String methodName, String version);
+    boolean isValidVersion(String methodName, String version);
+
+
+    /**
+     * 服务方法的版本是否已经弃用
+     *
+     * @param methodName
+     * @param version
+     * @return
+     */
+    boolean isVersionObsoleted(String methodName, String version);
 
     /**
      * 获取所有的处理器列表

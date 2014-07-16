@@ -26,12 +26,12 @@ public class DefaultCompositeResponse<T> implements CompositeResponse {
         this.successful = successful;
     }
 
-    @Override
+
     public ErrorResponse getErrorResponse() {
         return this.errorResponse;
     }
 
-    @Override
+
     public T getSuccessResponse() {
         return this.successRopResponse;
     }
@@ -44,7 +44,7 @@ public class DefaultCompositeResponse<T> implements CompositeResponse {
         this.successRopResponse = successRopResponse;
     }
 
-    @Override
+
     public boolean isSuccessful() {
         return successful;
     }

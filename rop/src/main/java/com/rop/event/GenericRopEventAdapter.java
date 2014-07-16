@@ -23,7 +23,7 @@ public class GenericRopEventAdapter implements SmartRopEventListener {
         this.delegate = delegate;
     }
 
-    @Override
+
     public boolean supportsEventType(Class<? extends RopEvent> eventType) {
         Class typeArg = GenericTypeResolver.resolveTypeArgument(this.delegate.getClass(), RopEventListener.class);
         if (typeArg == null || typeArg.equals(RopEvent.class)) {
@@ -35,12 +35,12 @@ public class GenericRopEventAdapter implements SmartRopEventListener {
         return (typeArg == null || typeArg.isAssignableFrom(eventType));
     }
 
-    @Override
+
     public void onRopEvent(RopEvent ropEvent) {
         this.delegate.onRopEvent(ropEvent);
     }
 
-    @Override
+
     public int getOrder() {
         return Integer.MAX_VALUE;
     }

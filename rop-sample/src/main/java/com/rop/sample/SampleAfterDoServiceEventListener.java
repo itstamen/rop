@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class SampleAfterDoServiceEventListener implements RopEventListener<AfterDoServiceEvent> {
 
-    @Override
+
     public void onRopEvent(AfterDoServiceEvent ropEvent) {
         RopRequestContext ropRequestContext = ropEvent.getRopRequestContext();
         if(ropRequestContext != null){
@@ -32,7 +32,7 @@ public class SampleAfterDoServiceEventListener implements RopEventListener<After
         }
     }
 
-    @Override
+
     public int getOrder() {
         return 0;
     }

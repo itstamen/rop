@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rop</groupId>
     <artifactId>rop</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.7-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>rop core</name>
     <description>rest open platform</description>
@@ -123,6 +123,28 @@
             <version>${jackson.xml.version}</version>
         </dependency>
 
+        <!--  JDK1.5依赖包-->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${jaxb-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>${jaxb-impl.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>woodstox-core-asl</artifactId>
+            <version>${woodstox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>${activation.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -165,8 +187,13 @@
             <version>${unitils.version}</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
 
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.2.4</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -184,22 +211,22 @@
                 </executions>
             </plugin>
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                <!--<version>2.7</version>-->
-                <!--<configuration>-->
-                    <!--<charset>${file.encoding}</charset>-->
-                    <!--<encoding>${file.encoding}</encoding>-->
-                    <!--<docencoding>${file.encoding}</docencoding>-->
-                <!--</configuration>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>attach-javadocs</id>-->
-                        <!--<goals>-->
-                            <!--<goal>jar</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+            <!--<version>2.7</version>-->
+            <!--<configuration>-->
+            <!--<charset>${file.encoding}</charset>-->
+            <!--<encoding>${file.encoding}</encoding>-->
+            <!--<docencoding>${file.encoding}</docencoding>-->
+            <!--</configuration>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>attach-javadocs</id>-->
+            <!--<goals>-->
+            <!--<goal>jar</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
             <!--</plugin>-->
 
             <plugin>
@@ -243,6 +270,9 @@
     <profiles>
         <profile>
             <id>localDM</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <distributionManagement>
                 <repository>
                     <id>internal.repo.release</id>
@@ -258,7 +288,7 @@
 
     <properties>
         <file.encoding>UTF-8</file.encoding>
-        <java.version>1.6</java.version>
+        <java.version>1.5</java.version>
         <servlet.version>2.5</servlet.version>
         <spring.version>3.2.3.RELEASE</spring.version>
 
@@ -267,7 +297,11 @@
         <log4j.version>1.2.16</log4j.version>
         <hibernate.version>4.2.0.Final</hibernate.version>
         <codec.version>1.6</codec.version>
-        <jackson.xml.version>2.3.2</jackson.xml.version>
+        <jackson.xml.version>2.3.2-jdk1.5</jackson.xml.version>
+        <jaxb-api.version>2.2.6</jaxb-api.version>
+        <jaxb-impl.version>2.1</jaxb-impl.version>
+        <woodstox.version>4.1.5</woodstox.version>
+        <activation.version>1.1.1</activation.version>
         <commonslang.version>2.4</commonslang.version>
         <testng.version>6.3</testng.version>
         <unitils.version>3.3</unitils.version>

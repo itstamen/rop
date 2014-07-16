@@ -27,7 +27,9 @@ public class Address {
     @XmlAttribute
     private String doorCode;
 
-
+    /**
+     * 在请求属性的属性类中，你可以使用接口的集合
+     */
     @XmlElementWrapper(name = "streets")
     @XmlElement(name = "street")
     private List<Street> streets;

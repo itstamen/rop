@@ -6,6 +6,7 @@ package com.rop.security;
 
 import com.rop.*;
 import com.rop.annotation.HttpAction;
+import com.rop.config.SystemParameterNames;
 import com.rop.impl.DefaultServiceAccessController;
 import com.rop.impl.SimpleRopRequestContext;
 import com.rop.request.UploadFileUtils;
@@ -55,70 +56,82 @@ public class DefaultSecurityManager implements SecurityManager {
         INVALIDE_CONSTRAINT_SUBERROR_MAPPINGS.put("AssertFalse", SubErrorType.ISV_INVALID_PARAMETE);
     }
 
-    @Override
-    public MainError validateSystemParameters(RopRequestContext rrc) {
-        RopContext ropContext = rrc.getRopContext();
+
+    public MainError validateSystemParameters(RopRequestContext context) {
+        RopContext ropContext = context.getRopContext();
         MainError mainError = null;
 
         //1.检查appKey
-        if (rrc.getAppKey() == null) {
-            return MainErrors.getError(MainErrorType.MISSING_APP_KEY, rrc.getLocale());
+        if (context.getAppKey() == null) {
+            return MainErrors.getError(MainErrorType.MISSING_APP_KEY, context.getLocale(),
+                                       context.getMethod(),context.getVersion(),
+                                       SystemParameterNames.getAppKey());
         }
-        if (!appSecretManager.isValidAppKey(rrc.getAppKey())) {
-            return MainErrors.getError(MainErrorType.INVALID_APP_KEY, rrc.getLocale());
+        if (!appSecretManager.isValidAppKey(context.getAppKey())) {
+            return MainErrors.getError(MainErrorType.INVALID_APP_KEY, context.getLocale(),
+                                       context.getMethod(),context.getVersion(),
+                                       context.getAppKey());
         }
 
 
         //2.检查会话
-        mainError = checkSession(rrc);
+        mainError = checkSession(context);
         if (mainError != null) {
             return mainError;
         }
 
         //3.检查method参数
-        if (rrc.getMethod() == null) {
-            return MainErrors.getError(MainErrorType.MISSING_METHOD, rrc.getLocale());
+        if (context.getMethod() == null) {
+            return MainErrors.getError(MainErrorType.MISSING_METHOD, context.getLocale(),
+                                       SystemParameterNames.getMethod());
         } else {
-            if (!ropContext.isValidMethod(rrc.getMethod())) {
-                return MainErrors.getError(MainErrorType.INVALID_METHOD, rrc.getLocale());
+            if (!ropContext.isValidMethod(context.getMethod())) {
+                return MainErrors.getError(MainErrorType.INVALID_METHOD,
+                        context.getLocale(),context.getMethod());
             }
         }
 
         //4.检查v参数
-        if (rrc.getVersion() == null) {
-            return MainErrors.getError(MainErrorType.MISSING_VERSION, rrc.getLocale());
+        if (context.getVersion() == null) {
+            return MainErrors.getError(MainErrorType.MISSING_VERSION, context.getLocale(),
+                                       context.getMethod(),
+                                       SystemParameterNames.getVersion());
         } else {
-            if (!ropContext.isValidMethodVersion(rrc.getMethod(), rrc.getVersion())) {
-                return MainErrors.getError(MainErrorType.UNSUPPORTED_VERSION, rrc.getLocale());
+            if (!ropContext.isValidVersion(context.getMethod(), context.getVersion())) {
+                return MainErrors.getError(
+                        MainErrorType.UNSUPPORTED_VERSION, context.getLocale(),
+                        context.getMethod(), context.getVersion());
             }
         }
 
         //5.检查签名正确性
-        mainError = checkSign(rrc);
+        mainError = checkSign(context);
         if (mainError != null) {
             return mainError;
         }
 
         //6.检查服务方法的版本是否已经过期
-        if (rrc.getServiceMethodDefinition().isObsoleted()) {
-            return MainErrors.getError(MainErrorType.METHOD_OBSOLETED, rrc.getLocale());
+        if (context.getServiceMethodDefinition().isObsoleted()) {
+            return MainErrors.getError(MainErrorType.METHOD_OBSOLETED, context.getLocale(),
+                    context.getMethod(), context.getVersion());
         }
 
         //7.检查请求HTTP方法的匹配性
-        mainError = validateHttpAction(rrc);
+        mainError = validateHttpAction(context);
         if (mainError != null) {
             return mainError;
         }
 
         //8.检查 format
-        if (!MessageFormat.isValidFormat(rrc.getFormat())) {
-            return MainErrors.getError(MainErrorType.INVALID_FORMAT, rrc.getLocale());
+        if (!MessageFormat.isValidFormat(context.getFormat())) {
+            return MainErrors.getError(MainErrorType.INVALID_FORMAT, context.getLocale(),
+                                        context.getMethod(),context.getVersion(),context.getFormat());
         }
 
         return null;
     }
 
-    @Override
+
     public MainError validateOther(RopRequestContext rrctx) {
 
         MainError mainError = null;
@@ -158,15 +171,23 @@ public class DefaultSecurityManager implements SecurityManager {
                 String paramValue = rrctx.getParamValue(fileFieldName);
                 if (paramValue != null) {
                     if (paramValue.indexOf("@") < 0) {
-                        return MainErrors.getError(MainErrorType.UPLOAD_FAIL, rrctx.getLocale());
+                        return MainErrors.getError(
+                                MainErrorType.UPLOAD_FAIL, rrctx.getLocale(),
+                                rrctx.getMethod(), rrctx.getVersion(), "MESSAGE_VALID:not contain '@'.");
                     } else {
                         String fileType = UploadFileUtils.getFileType(paramValue);
                         if (!fileUploadController.isAllowFileType(fileType)) {
-                            return MainErrors.getError(MainErrorType.UPLOAD_FAIL, rrctx.getLocale());
+                            return MainErrors.getError(
+                                    MainErrorType.UPLOAD_FAIL, rrctx.getLocale(),
+                                    rrctx.getMethod(), rrctx.getVersion(),
+                                    "FILE_TYPE_NOT_ALLOW:the valid file types is:" + fileUploadController.getAllowFileTypes());
                         }
                         byte[] fileContent = UploadFileUtils.decode(paramValue);
                         if (fileUploadController.isExceedMaxSize(fileContent.length)) {
-                            return MainErrors.getError(MainErrorType.UPLOAD_FAIL, rrctx.getLocale());
+                            return MainErrors.getError(
+                                    MainErrorType.UPLOAD_FAIL, rrctx.getLocale(),
+                                    rrctx.getMethod(), rrctx.getVersion(),
+                                    "EXCEED_MAX_SIZE:" + fileUploadController.getMaxSize() + "k");
                         }
                     }
                 }
@@ -175,27 +196,27 @@ public class DefaultSecurityManager implements SecurityManager {
         return null;
     }
 
-    @Override
+
     public void setInvokeTimesController(InvokeTimesController invokeTimesController) {
         this.invokeTimesController = invokeTimesController;
     }
 
-    @Override
+
     public void setServiceAccessController(ServiceAccessController serviceAccessController) {
         this.serviceAccessController = serviceAccessController;
     }
 
-    @Override
+
     public void setAppSecretManager(AppSecretManager appSecretManager) {
         this.appSecretManager = appSecretManager;
     }
 
-    @Override
+
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
 
-    @Override
+
     public void setFileUploadController(FileUploadController fileUploadController) {
         this.fileUploadController = fileUploadController;
     }
@@ -231,7 +252,10 @@ public class DefaultSecurityManager implements SecurityManager {
                 }
             }
             if (!isValid) {
-                mainError = MainErrors.getError(MainErrorType.HTTP_ACTION_NOT_ALLOWED, ropRequestContext.getLocale());
+                mainError = MainErrors.getError(
+                        MainErrorType.HTTP_ACTION_NOT_ALLOWED, ropRequestContext.getLocale(),
+                        ropRequestContext.getMethod(), ropRequestContext.getVersion(),
+                        ropRequestContext.getHttpAction());
             }
         }
         return mainError;
@@ -258,7 +282,9 @@ public class DefaultSecurityManager implements SecurityManager {
             return mainError;
         } else {
             if (!getServiceAccessController().isUserGranted(smc.getSession(), smc.getMethod(), smc.getVersion())) {
-                MainError mainError = MainErrors.getError(MainErrorType.INSUFFICIENT_USER_PERMISSIONS, smc.getLocale());
+                MainError mainError = MainErrors.getError(
+                        MainErrorType.INSUFFICIENT_USER_PERMISSIONS, smc.getLocale(),
+                        smc.getMethod(), smc.getVersion());
                 SubError subError = SubErrors.getSubError(SubErrorType.ISV_INVALID_PERMISSION.value(),
                         SubErrorType.ISV_INVALID_PERMISSION.value(),
                         smc.getLocale());
@@ -272,13 +298,13 @@ public class DefaultSecurityManager implements SecurityManager {
         }
     }
 
-    private MainError validateBusinessParams(RopRequestContext ropRequestContext) {
+    private MainError validateBusinessParams(RopRequestContext context) {
         List<ObjectError> errorList =
-                (List<ObjectError>) ropRequestContext.getAttribute(SimpleRopRequestContext.SPRING_VALIDATE_ERROR_ATTRNAME);
+                (List<ObjectError>) context.getAttribute(SimpleRopRequestContext.SPRING_VALIDATE_ERROR_ATTRNAME);
 
         //将Bean数据绑定时产生的错误转换为Rop的错误
         if (errorList != null && errorList.size() > 0) {
-            return toMainErrorOfSpringValidateErrors(errorList, ropRequestContext.getLocale());
+            return toMainErrorOfSpringValidateErrors(errorList, context.getLocale(),context);
         } else {
             return null;
         }
@@ -287,52 +313,56 @@ public class DefaultSecurityManager implements SecurityManager {
     /**
      * 检查签名的有效性
      *
-     * @param ctx
+     * @param context
      * @return
      */
-    private MainError checkSign(RopRequestContext ctx) {
+    private MainError checkSign(RopRequestContext context) {
 
         //系统级签名开启,且服务方法需求签名
-        if (ctx.isSignEnable()) {
-            if (!ctx.getServiceMethodDefinition().isIgnoreSign()) {
-                if (ctx.getSign() == null) {
-                    return MainErrors.getError(MainErrorType.MISSING_SIGNATURE, ctx.getLocale());
+        if (context.isSignEnable()) {
+            if (!context.getServiceMethodDefinition().isIgnoreSign()) {
+                if (context.getSign() == null) {
+                    return MainErrors.getError(MainErrorType.MISSING_SIGNATURE, context.getLocale(),
+                                               context.getMethod(),context.getVersion(),
+                                               SystemParameterNames.getSign());
                 } else {
 
                     //获取需要签名的参数
-                    List<String> ignoreSignFieldNames = ctx.getServiceMethodHandler().getIgnoreSignFieldNames();
+                    List<String> ignoreSignFieldNames = context.getServiceMethodHandler().getIgnoreSignFieldNames();
                     HashMap<String, String> needSignParams = new HashMap<String, String>();
-                    for (Map.Entry<String, String> entry : ctx.getAllParams().entrySet()) {
+                    for (Map.Entry<String, String> entry : context.getAllParams().entrySet()) {
                         if (!ignoreSignFieldNames.contains(entry.getKey())) {
                             needSignParams.put(entry.getKey(), entry.getValue());
                         }
                     }
 
                     //查看密钥是否存在，不存在则说明appKey是非法的
-                    String signSecret = getAppSecretManager().getSecret(ctx.getAppKey());
+                    String signSecret = getAppSecretManager().getSecret(context.getAppKey());
                     if (signSecret == null) {
-                        throw new RopException("无法获取" + ctx.getAppKey() + "对应的密钥");
+                        throw new RopException("无法获取" + context.getAppKey() + "对应的密钥");
                     }
 
                     String signValue = RopUtils.sign(needSignParams, signSecret);
-                    if (!signValue.equals(ctx.getSign())) {
+                    if (!signValue.equals(context.getSign())) {
                         if (logger.isErrorEnabled()) {
-                            logger.error(ctx.getAppKey() + "的签名不合法，请检查");
+                            logger.error(context.getAppKey() + "的签名不合法，请检查");
                         }
-                        return MainErrors.getError(MainErrorType.INVALID_SIGNATURE, ctx.getLocale());
+                        return MainErrors.getError(
+                                MainErrorType.INVALID_SIGNATURE, context.getLocale(),
+                                context.getMethod(),context.getVersion());
                     } else {
                         return null;
                     }
                 }
             } else {
                 if (logger.isWarnEnabled()) {
-                    logger.warn(ctx.getMethod() + "忽略了签名");
+                    logger.warn(context.getMethod() + "忽略了签名");
                 }
                 return null;
             }
         } else {
             if (logger.isDebugEnabled()) {
-                logger.warn("{}{}服务方法未开启签名",ctx.getMethod(),ctx.getVersion());
+                logger.warn("{}{}服务方法未开启签名", context.getMethod(), context.getVersion());
             }
             return null;
         }
@@ -342,18 +372,20 @@ public class DefaultSecurityManager implements SecurityManager {
     /**
      * 是否是合法的会话
      *
-     * @param sessionId
+     * @param context
      * @return
      */
-    private MainError checkSession(RopRequestContext smc) {
+    private MainError checkSession(RopRequestContext context) {
         //需要进行session检查
-        if (smc.getServiceMethodHandler() != null &&
-                smc.getServiceMethodHandler().getServiceMethodDefinition().isNeedInSession()) {
-            if (smc.getSessionId() == null) {
-                return MainErrors.getError(MainErrorType.MISSING_SESSION, null);
+        if (context.getServiceMethodHandler() != null &&
+                context.getServiceMethodHandler().getServiceMethodDefinition().isNeedInSession()) {
+            if (context.getSessionId() == null) {
+                return MainErrors.getError(MainErrorType.MISSING_SESSION, context.getLocale(),
+                        context.getMethod(), context.getVersion(), SystemParameterNames.getSessionId());
             } else {
-                if (!isValidSession(smc)) {
-                    return MainErrors.getError(MainErrorType.INVALID_SESSION, null);
+                if (!isValidSession(context)) {
+                    return MainErrors.getError(MainErrorType.INVALID_SESSION, context.getLocale(),
+                            context.getMethod(), context.getVersion(),context.getSessionId());
                 }
             }
         }
@@ -378,13 +410,14 @@ public class DefaultSecurityManager implements SecurityManager {
      * @param locale
      * @return
      */
-    private MainError toMainErrorOfSpringValidateErrors(List<ObjectError> allErrors, Locale locale) {
+    private MainError toMainErrorOfSpringValidateErrors(
+            List<ObjectError> allErrors, Locale locale,RopRequestContext context) {
         if (hastSubErrorType(allErrors, SubErrorType.ISV_MISSING_PARAMETER)) {
-            return getBusinessParameterMainError(allErrors, locale, SubErrorType.ISV_MISSING_PARAMETER);
+            return getBusinessParameterMainError(allErrors, locale, SubErrorType.ISV_MISSING_PARAMETER,context);
         } else if (hastSubErrorType(allErrors, SubErrorType.ISV_PARAMETERS_MISMATCH)) {
-            return getBusinessParameterMainError(allErrors, locale, SubErrorType.ISV_PARAMETERS_MISMATCH);
+            return getBusinessParameterMainError(allErrors, locale, SubErrorType.ISV_PARAMETERS_MISMATCH,context);
         } else {
-            return getBusinessParameterMainError(allErrors, locale, SubErrorType.ISV_INVALID_PARAMETE);
+            return getBusinessParameterMainError(allErrors, locale, SubErrorType.ISV_INVALID_PARAMETE,context);
         }
     }
 
@@ -418,16 +451,17 @@ public class DefaultSecurityManager implements SecurityManager {
      * @param subErrorType
      * @return
      */
-    private MainError getBusinessParameterMainError(List<ObjectError> allErrors, Locale locale, SubErrorType subErrorType) {
-        MainError mainError = SubErrors.getMainError(subErrorType, locale);
+    private MainError getBusinessParameterMainError(
+            List<ObjectError> allErrors, Locale locale, SubErrorType subErrorType,RopRequestContext context) {
+        MainError mainError = SubErrors.getMainError(subErrorType, locale,context.getMethod(),context.getVersion());
         for (ObjectError objectError : allErrors) {
             if (objectError instanceof FieldError) {
                 FieldError fieldError = (FieldError) objectError;
                 SubErrorType tempSubErrorType = INVALIDE_CONSTRAINT_SUBERROR_MAPPINGS.get(fieldError.getCode());
                 if (tempSubErrorType == subErrorType) {
-
-                    String subErrorCode = SubErrors.getSubErrorCode(tempSubErrorType, fieldError.getField(),fieldError.getRejectedValue());
-
+                    String subErrorCode =
+                            SubErrors.getSubErrorCode(
+                                    tempSubErrorType, fieldError.getField(), fieldError.getRejectedValue());
                     SubError subError = SubErrors.getSubError(subErrorCode, tempSubErrorType.value(), locale,
                             fieldError.getField(), fieldError.getRejectedValue());
                     mainError.addSubError(subError);

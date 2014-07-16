@@ -22,19 +22,19 @@ public  abstract class AbstractSession implements Session {
 
     private Map<String, Object> attributes = new HashMap<String, Object>();
 
-    @Override
+
     public void setAttribute(String name, Object obj) {
         markChanged();
         attributes.put(name, obj);
     }
 
-    @Override
+
     public Object getAttribute(String name) {
         markChanged();
         return attributes.get(name);
     }
 
-    @Override
+
     public Map<String, Object> getAllAttributes() {
         Map<String, Object> tempAttributes = new HashMap<String, Object>(attributes.size());
         for (Map.Entry<String, Object> entry : attributes.entrySet()) {
@@ -45,13 +45,13 @@ public  abstract class AbstractSession implements Session {
         return tempAttributes;
     }
 
-    @Override
+
     public void removeAttribute(String name) {
         markChanged();
         attributes.remove(name);
     }
 
-    @Override
+
     public boolean isChanged() {
         return attributes.containsKey(CommonConstant.SESSION_CHANGED);
     }

@@ -49,12 +49,12 @@ public class RopServlet extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    @Override
+
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         serviceRouter.service(req, resp);
     }
 
-    @Override
+
     public void init(ServletConfig servletConfig) throws ServletException {
         ApplicationContext ctx = getApplicationContext(servletConfig);
         this.serviceRouter = ctx.getBean(ServiceRouter.class);

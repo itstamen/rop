@@ -19,7 +19,7 @@ import org.springframework.util.StringUtils;
  */
 public class TelephoneConverter implements RopConverter<String, Telephone> {
 
-    @Override
+
     public Telephone convert(String source) {
         if (StringUtils.hasText(source)) {
             String zoneCode = source.substring(0, source.indexOf("-"));
@@ -33,7 +33,7 @@ public class TelephoneConverter implements RopConverter<String, Telephone> {
         }
     }
 
-    @Override
+
     public String unconvert(Telephone target) {
         StringBuilder sb = new StringBuilder();
         sb.append(target.getZoneCode());
@@ -42,12 +42,12 @@ public class TelephoneConverter implements RopConverter<String, Telephone> {
         return sb.toString();
     }
 
-    @Override
+
     public Class<String> getSourceClass() {
         return String.class;
     }
 
-    @Override
+
     public Class<Telephone> getTargetClass() {
         return Telephone.class;
     }

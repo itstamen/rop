@@ -117,59 +117,59 @@ public class DefaultRopClient implements RopClient {
         this.locale = locale;
     }
 
-    @Override
+
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 
-    @Override
+
     public RopClient setAppKeyParamName(String paramName) {
         SystemParameterNames.setAppKey(paramName);
         return this;
     }
 
-    @Override
+
     public RopClient setSessionIdParamName(String paramName) {
         SystemParameterNames.setSessionId(paramName);
         return this;
     }
 
-    @Override
+
     public RopClient setMethodParamName(String paramName) {
         SystemParameterNames.setMethod(paramName);
         return this;
     }
 
-    @Override
+
     public RopClient setVersionParamName(String paramName) {
         SystemParameterNames.setVersion(paramName);
         return this;
     }
 
-    @Override
+
     public RopClient setFormatParamName(String paramName) {
         SystemParameterNames.setFormat(paramName);
         return this;
     }
 
-    @Override
+
     public RopClient setLocaleParamName(String paramName) {
         SystemParameterNames.setLocale(paramName);
         return this;
     }
 
-    @Override
+
     public RopClient setSignParamName(String paramName) {
         SystemParameterNames.setSign(paramName);
         return this;
     }
 
-    @Override
+
     public void addRopConvertor(RopConverter ropConverter) {
         this.ropConverterMap.put(ropConverter.getTargetClass(), ropConverter);
     }
 
-    @Override
+
     public ClientRequest buildClientRequest() {
         return new DefaultClientRequest(this);
     }
@@ -192,19 +192,19 @@ public class DefaultRopClient implements RopClient {
             }
         }
 
-        @Override
+
         public ClientRequest addParam(String paramName, Object paramValue) {
             addParam(paramName,paramValue,false);
             return this;
         }
 
-        @Override
+
         public ClientRequest clearParam() {
             paramMap.clear();
             return this;
         }
 
-        @Override
+
         public ClientRequest addParam(String paramName, Object paramValue, boolean ignoreSign) {
             Assert.isTrue(paramName != null && paramName.length() > 0, "参数名不能为空");
             Assert.notNull(paramValue, "参数值不能为null");
@@ -224,13 +224,13 @@ public class DefaultRopClient implements RopClient {
             return this;
         }
 
-        @Override
+
         public <T> CompositeResponse post(Class<T> ropResponseClass, String methodName, String version) {
             Map<String, String> requestParams = addOtherParamMap(methodName, version);
             return post(ropResponseClass, requestParams);
         }
 
-        @Override
+
         public <T> CompositeResponse post(RopRequest ropRequest, Class<T> ropResponseClass, String methodName, String version) {
             Map<String, String> requestParams = getRequestForm(ropRequest, methodName, version);
             return post(ropResponseClass, requestParams);
@@ -244,13 +244,13 @@ public class DefaultRopClient implements RopClient {
             return toCompositeResponse(responseContent, ropResponseClass);
         }
 
-        @Override
+
         public <T> CompositeResponse get(Class<T> ropResponseClass, String methodName, String version) {
             Map<String, String> requestParams = addOtherParamMap(methodName, version);
             return get(ropResponseClass, requestParams);
         }
 
-        @Override
+
         public <T> CompositeResponse get(RopRequest ropRequest, Class<T> ropResponseClass, String methodName, String version) {
             Map<String, String> requestParams = getRequestForm(ropRequest, methodName, version);
             return get(ropResponseClass, requestParams);
@@ -419,7 +419,7 @@ public class DefaultRopClient implements RopClient {
         final ArrayList<Field> allFields = new ArrayList<Field>();
         final List<String> ignoreSignFieldNames = DefaultRopContext.getIgnoreSignFieldNames(ropRequest.getClass());
         ReflectionUtils.doWithFields(ropRequest.getClass(), new ReflectionUtils.FieldCallback() {
-            @Override
+
             public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
                 ReflectionUtils.makeAccessible(field);
                 if (!isTemporaryField(field)) {

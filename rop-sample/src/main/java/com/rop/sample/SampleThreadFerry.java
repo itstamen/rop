@@ -16,12 +16,12 @@ import com.rop.ThreadFerry;
  */
 public class SampleThreadFerry implements ThreadFerry{
 
-    @Override
+
     public void doInSrcThread() {
         System.out.println("doInSrcThread:"+Thread.currentThread().getId());
     }
 
-    @Override
+
     public void doInDestThread() {
         System.out.println("doInSrcThread:"+Thread.currentThread().getId());
     }

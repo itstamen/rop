@@ -68,27 +68,27 @@ public class SimpleRopRequestContext implements RopRequestContext {
 
     private Session session;
 
-    @Override
+
     public long getServiceBeginTime() {
         return this.serviceBeginTime;
     }
 
-    @Override
+
     public long getServiceEndTime() {
         return this.serviceEndTime;
     }
 
-    @Override
+
     public void setServiceBeginTime(long serviceBeginTime) {
         this.serviceBeginTime = serviceBeginTime;
     }
 
-    @Override
+
     public void setServiceEndTime(long serviceEndTime) {
         this.serviceEndTime = serviceEndTime;
     }
 
-    @Override
+
     public String getFormat() {
         return this.format;
     }
@@ -97,12 +97,12 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.format = format;
     }
 
-    @Override
+
     public Object getRawRequestObject() {
         return this.rawRequestObject;
     }
 
-    @Override
+
     public Object getRawResponseObject() {
         return this.rawResponseObject;
     }
@@ -121,7 +121,7 @@ public class SimpleRopRequestContext implements RopRequestContext {
     }
 
 
-    @Override
+
     public String getIp() {
         return this.ip;
     }
@@ -130,12 +130,12 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.ip = ip;
     }
 
-    @Override
+
     public RopContext getRopContext() {
         return ropContext;
     }
 
-    @Override
+
     public String getMethod() {
         return this.method;
     }
@@ -144,12 +144,12 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.method = method;
     }
 
-    @Override
+
     public String getSessionId() {
         return this.sessionId;
     }
 
-    @Override
+
     public Session getSession() {
         if (session == null && ropContext != null &&
                 ropContext.getSessionManager() != null && getSessionId() != null) {
@@ -158,7 +158,7 @@ public class SimpleRopRequestContext implements RopRequestContext {
         return session;
     }
 
-    @Override
+
     public void addSession(String sessionId, Session session) {
         this.sessionId = sessionId;
         this.session = session;
@@ -167,14 +167,14 @@ public class SimpleRopRequestContext implements RopRequestContext {
         }
     }
 
-    @Override
+
     public void removeSession() {
         if (ropContext != null && ropContext.getSessionManager() != null) {
             ropContext.getSessionManager().removeSession(getSessionId());
         }
     }
 
-    @Override
+
     public Locale getLocale() {
         return this.locale;
     }
@@ -183,12 +183,12 @@ public class SimpleRopRequestContext implements RopRequestContext {
         return this.serviceMethodHandler;
     }
 
-    @Override
+
     public MessageFormat getMessageFormat() {
         return messageFormat.get();
     }
 
-    @Override
+
     public Object getRopResponse() {
         return this.ropResponse;
     }
@@ -209,7 +209,7 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.messageFormat.set(messageFormat);
     }
 
-    @Override
+
     public void setRopResponse(Object ropResponse) {
         this.ropResponse = ropResponse;
     }
@@ -222,7 +222,7 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.appKey = appKey;
     }
 
-    @Override
+
     public String getVersion() {
         return version;
     }
@@ -231,7 +231,7 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.version = version;
     }
 
-    @Override
+
     public String getSign() {
         return sign;
     }
@@ -248,12 +248,12 @@ public class SimpleRopRequestContext implements RopRequestContext {
         return this.mainError;
     }
 
-    @Override
+
     public Object getAttribute(String name) {
         return this.attributes.get(name);
     }
 
-    @Override
+
     public void setAttribute(String name, Object value) {
         this.attributes.put(name, value);
     }
@@ -266,17 +266,17 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.attributes = attributes;
     }
 
-    @Override
+
     public boolean isSignEnable() {
         return ropContext.isSignEnable() && !getServiceMethodDefinition().isIgnoreSign();
     }
 
-    @Override
+
     public ServiceMethodDefinition getServiceMethodDefinition() {
         return serviceMethodHandler.getServiceMethodDefinition();
     }
 
-    @Override
+
     public Map<String, String> getAllParams() {
         return this.allParams;
     }
@@ -285,7 +285,7 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.allParams = allParams;
     }
 
-    @Override
+
     public String getParamValue(String paramName) {
         if (allParams != null) {
             return allParams.get(paramName);
@@ -298,12 +298,12 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.httpAction = httpAction;
     }
 
-    @Override
+
     public HttpAction getHttpAction() {
         return this.httpAction;
     }
 
-    @Override
+
     public String getRequestId() {
         return this.requestId;
     }

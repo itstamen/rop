@@ -16,12 +16,12 @@ public class UserNamePasswordAuthRequest extends AbstractAuthRequest {
         this.password = password;
     }
 
-    @Override
+
     public Object getPrincipal() {
         return userName;
     }
 
-    @Override
+
     public Object getCredential() {
         return password;
     }

@@ -19,7 +19,7 @@ public class SessionBindInterceptor extends AbstractInterceptor {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Override
+
     public void beforeService(RopRequestContext ropRequestContext) {
         Session session = ropRequestContext.getSession();
         if (session != null) {
@@ -30,7 +30,7 @@ public class SessionBindInterceptor extends AbstractInterceptor {
         }
     }
 
-    @Override
+
     public void beforeResponse(RopRequestContext ropRequestContext) {
         Session session = ropRequestContext.getSession();
         if (session != null && session.isChanged()) {

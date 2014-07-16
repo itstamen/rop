@@ -54,7 +54,7 @@ public class FileBaseAppSecretManager implements AppSecretManager {
         this.appSecretFile = appSecretFile;
     }
 
-    @Override
+
     public boolean isValidAppKey(String appKey) {
         return getSecret(appKey) != null;
     }

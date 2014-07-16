@@ -10,6 +10,8 @@ import com.rop.sample.sys.DateXmlAdapter;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -47,6 +49,14 @@ public class CreateUserResponse{
 
     @XmlElement
     private List<Foo> fooList;
+
+    @XmlElement
+    private LinkedHashMap<String,String> maps = new LinkedHashMap<String,String>();
+    {
+        maps.put("a","a");
+        maps.put("b","b");
+        maps.put("c","c");
+    }
 
     @XmlElement
     @XmlJavaTypeAdapter(DateXmlAdapter.class)
@@ -104,6 +114,14 @@ public class CreateUserResponse{
 
     public String getFeedback() {
         return feedback;
+    }
+
+    public LinkedHashMap<String, String> getMaps() {
+        return maps;
+    }
+
+    public void setMaps(LinkedHashMap<String, String> maps) {
+        this.maps = maps;
     }
 
     public void setFeedback(String feedback) {

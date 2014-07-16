@@ -19,7 +19,7 @@ public abstract class AbstractRopRequest implements RopRequest {
     @Temporary
     private RopRequestContext ropRequestContext;
 
-    @Override
+
     public RopRequestContext getRopRequestContext() {
         return ropRequestContext;
     }

@@ -14,22 +14,21 @@
 
     <!-- 启动Rop框架 -->
     <rop:annotation-driven
-            id="router"
-            session-manager="sampleSessionManager"
-            app-secret-manager="appSecretManager"
-            service-access-controller="serviceAccessController"
-            formatting-conversion-service="conversionService"
-            ext-error-base-names="i18n/rop/sampleRopError,i18n/rop/sampleRopError1"
-            service-timeout-seconds="10"
-            thread-ferry-class="com.rop.sample.SampleThreadFerry"
-            invoke-times-controller="invokeTimesController"
-            upload-file-max-size="10"
-            upload-file-types="png,gif"
-            core-pool-size="200"
-            max-pool-size="500"
-            queue-capacity="50"
-            keep-alive-seconds="300"
-            sign-enable="true"/>
+        id="router"
+        session-manager="sampleSessionManager"
+        app-secret-manager="appSecretManager"
+        service-access-controller="serviceAccessController"
+        formatting-conversion-service="conversionService"
+        ext-error-base-names="i18n/rop/sampleRopError,i18n/rop/sampleRopError1"
+        service-timeout-seconds="10"
+        invoke-times-controller="invokeTimesController"
+        upload-file-max-size="10"
+        upload-file-types="png,gif"
+        core-pool-size="200"
+        max-pool-size="500"
+        queue-capacity="50"
+        keep-alive-seconds="300"
+        sign-enable="true"/>
 
     <bean id="sampleSessionManager" class="com.rop.sample.SampleSessionManager" />
     <bean id="invokeTimesController" class="com.rop.sample.SampleInvokeTimesController"/>
@@ -40,7 +39,8 @@
     <bean id="serviceAccessController" class="com.rop.sample.SampleServiceAccessController"/>
 
     <!--设置自定义的类型转换服务，注册自定义的类型转换器-->
-    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+    <bean id="conversionService"
+          class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
         <property name="converters">
             <set>
                 <!--将xxxx-yyyyyyy格式的电话转换为内部的Telephone对象-->

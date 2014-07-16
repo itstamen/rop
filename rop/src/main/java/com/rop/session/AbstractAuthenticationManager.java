@@ -11,12 +11,12 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
 
     private boolean _default = false;
 
-    @Override
+
     public String[] appkeys() {
         return appKeys;
     }
 
-    @Override
+
     public boolean isDefault() {
         return _default;
     }

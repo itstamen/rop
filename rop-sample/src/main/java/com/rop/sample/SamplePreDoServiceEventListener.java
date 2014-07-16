@@ -22,17 +22,17 @@ import java.util.Map;
  */
 public class SamplePreDoServiceEventListener implements RopEventListener<PreDoServiceEvent> {
 
-    @Override
+
     public void onRopEvent(PreDoServiceEvent ropEvent) {
         RopRequestContext ropRequestContext = ropEvent.getRopRequestContext();
         if(ropRequestContext != null){
             Map<String,String> allParams = ropRequestContext.getAllParams();
-            String message = MessageMarshallerUtils.getMessage(allParams, ropRequestContext.getMessageFormat());
+            String message = MessageMarshallerUtils.asUrlString(allParams);
             System.out.println("message("+ropEvent.getServiceBeginTime()+")"+message);
         }
     }
 
-    @Override
+
     public int getOrder() {
         return 1;
     }

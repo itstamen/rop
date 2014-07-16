@@ -8,9 +8,9 @@ public abstract class AbstractAuthRequest implements AuthRequest {
 
     private Object detail;
 
-    @Override
+
     public Object getDetail() {
-        return null;
+        return detail;
     }
 
     public void setDetail(Object detail) {

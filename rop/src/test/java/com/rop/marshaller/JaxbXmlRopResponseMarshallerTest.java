@@ -7,6 +7,9 @@ package com.rop.marshaller;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * <pre>
@@ -18,10 +21,31 @@ import java.io.ByteArrayOutputStream;
  */
 public class JaxbXmlRopResponseMarshallerTest {
 
+    private JaxbXmlRopMarshaller marshaller = new JaxbXmlRopMarshaller();
+
     @Test
     public void buildMarshaller() throws Throwable {
-        JaxbXmlRopMarshaller marshaller = new JaxbXmlRopMarshaller();
-        marshaller.marshaller(new SampleResponse(), new ByteArrayOutputStream(1024));
+        //marshaller.marshaller(new SampleResponse(), new ByteArrayOutputStream(1024));
+        SampleResponse sampleResponse = new SampleResponse();
+        List<HashMap<String, Object>> table = new ArrayList<HashMap<String, Object>>();
+        HashMap<String, Object> row = new HashMap<String, Object>();
+        row.put("c1", "c1");
+        row.put("c2", "c2");
+        row.put("c3", "c3");
+        table.add(row);
+        sampleResponse.setUserId("json");
+        sampleResponse.setTable(table);
+        marshaller.marshaller(sampleResponse, System.out);
+    }
+
+    @Test
+    public void test1(){
+        Foo foo = new Foo();
+        foo.setB1(true);
+        foo.setB2(true);
+        foo.setI1(1);
+        foo.setI2(1);
+        marshaller.marshaller(foo,System.out);
     }
 }
 

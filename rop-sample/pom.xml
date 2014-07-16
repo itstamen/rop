@@ -13,7 +13,7 @@
     <groupId>com.rop</groupId>
     <artifactId>rop-sample</artifactId>
     <name>ropSample</name>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.7-SNAPSHOT</version>
     <packaging>war</packaging>
     <description>rest open platform</description>
 
@@ -125,7 +125,7 @@
 
     <properties>
         <file.encoding>UTF-8</file.encoding>
-        <java.version>1.6</java.version>
+        <java.version>1.5</java.version>
         <servlet.version>2.5</servlet.version>
         <spring.version>3.2.3.RELEASE</spring.version>
         <jackson.version>1.9.5</jackson.version>

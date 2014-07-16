@@ -16,17 +16,17 @@ public final class DefaultSessionManager implements SessionManager {
 
     private final Map<String, Session> sessionCache = new ConcurrentHashMap<String, Session>(128, 0.75f, 32);
 
-    @Override
+
     public void addSession(String sessionId, Session session) {
         sessionCache.put(sessionId, session);
     }
 
-    @Override
+
     public Session getSession(String sessionId) {
         return sessionCache.get(sessionId);
     }
 
-    @Override
+
     public void removeSession(String sessionId) {
         sessionCache.remove(sessionId);
     }

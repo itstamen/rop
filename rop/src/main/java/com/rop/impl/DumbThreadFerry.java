@@ -12,11 +12,11 @@ import com.rop.ThreadFerry;
  * @date: 14-2-12
  */
 public class DumbThreadFerry implements ThreadFerry {
-    @Override
+
     public void doInSrcThread() {
     }
 
-    @Override
+
     public void doInDestThread() {
     }
 }

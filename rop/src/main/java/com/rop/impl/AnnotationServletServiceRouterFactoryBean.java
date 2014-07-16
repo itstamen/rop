@@ -64,7 +64,7 @@ public class AnnotationServletServiceRouterFactoryBean
 
     private int serviceTimeoutSeconds = -1;
 
-    private Class<? extends ThreadFerry> threadFerryClass;
+    private Class<? extends ThreadFerry> threadFerryClass = DumbThreadFerry.class;
 
     private FormattingConversionService formattingConversionService;
 
@@ -76,28 +76,28 @@ public class AnnotationServletServiceRouterFactoryBean
     //单位为K，默认为10M
     private int uploadFileMaxSize = 10 * 1024;
 
-    @Override
+
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 
 
-    @Override
+
     public void destroy() throws Exception {
         serviceRouter.shutdown();
     }
 
-    @Override
+
     public Class<?> getObjectType() {
         return AnnotationServletServiceRouter.class;
     }
 
-    @Override
+
     public AnnotationServletServiceRouter getObject() throws Exception {
         return this.serviceRouter;
     }
 
-    @Override
+
     public boolean isSingleton() {
         return true;
     }
@@ -126,7 +126,7 @@ public class AnnotationServletServiceRouterFactoryBean
         }
     }
 
-    @Override
+
     public void afterPropertiesSet() throws Exception {
         //实例化一个AnnotationServletServiceRouter
         serviceRouter = new AnnotationServletServiceRouter();
@@ -164,7 +164,7 @@ public class AnnotationServletServiceRouterFactoryBean
                 serviceRouter.addInterceptor(interceptor);
             }
             if (logger.isInfoEnabled()) {
-                logger.info("共注册了" + interceptors.size() + "拦截器.");
+                logger.info("register total {} interceptors",interceptors.size());
             }
         }
 
@@ -175,7 +175,7 @@ public class AnnotationServletServiceRouterFactoryBean
                 serviceRouter.addListener(listener);
             }
             if (logger.isInfoEnabled()) {
-                logger.info("共注册了" + listeners.size() + "事件监听器.");
+                logger.info("register total {} listeners",listeners.size());
             }
         }
 
@@ -187,7 +187,7 @@ public class AnnotationServletServiceRouterFactoryBean
     }
 
     private DefaultFileUploadController buildFileUploadController() {
-        Assert.notNull(this.uploadFileTypes, "允许上传的文件类型不能为空");
+        Assert.notNull(this.uploadFileTypes, "Please set the updateFileTypes,if all,set *");
         if(ALL_FILE_TYPES.equals(uploadFileTypes.trim())){
             return new DefaultFileUploadController(this.uploadFileMaxSize);
         }else {

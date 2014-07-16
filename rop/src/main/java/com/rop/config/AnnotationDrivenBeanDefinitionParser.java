@@ -4,12 +4,9 @@
  */
 package com.rop.config;
 
-import com.rop.RopException;
-import com.rop.ThreadFerry;
 import com.rop.impl.AnnotationServletServiceRouterFactoryBean;
 import com.rop.impl.DefaultServiceAccessController;
 import com.rop.security.DefaultInvokeTimesController;
-import com.rop.security.DefaultSecurityManager;
 import com.rop.security.FileBaseAppSecretManager;
 import com.rop.session.DefaultSessionManager;
 import org.slf4j.Logger;
@@ -22,7 +19,6 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.format.support.FormattingConversionServiceFactoryBean;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
@@ -36,13 +32,17 @@ import org.w3c.dom.Element;
  */
 public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 
-    public static final int DEFAULT_CORE_POOL_SIZE = 200;
-    public static final int DEFAULT_MAX_POOL_SIZE = 500;
-    public static final int DEFAULT_KEEP_ALIVE_SECONDS = 5 * 60;
-    public static final int DEFAULT_QUENE_CAPACITY = 20;
+    public static final int DEFAULT_CORE_POOL_SIZE = 30;
+
+    public static final int DEFAULT_MAX_POOL_SIZE = 120;
+
+    public static final int DEFAULT_KEEP_ALIVE_SECONDS = 3 * 60;
+
+    public static final int DEFAULT_QUENE_CAPACITY = 10;
+
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Override
+
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         Object source = parserContext.extractSource(element);
         CompositeComponentDefinition compDefinition = new CompositeComponentDefinition(element.getTagName(), source);
@@ -104,25 +104,16 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
     private void setUploadFileSetting(Element element, RootBeanDefinition serviceRouterDef) {
         String uploadFileMaxSize = element.getAttribute("upload-file-max-size");
         if (StringUtils.hasText(uploadFileMaxSize)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Rop配置文件最大上传大小为{}K",uploadFileMaxSize);
-            }
             serviceRouterDef.getPropertyValues().addPropertyValue("uploadFileMaxSize",uploadFileMaxSize);
         }
 
         String uploadFileTypes = element.getAttribute("upload-file-types");
         if (StringUtils.hasText(uploadFileTypes)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Rop配置允许上传的文件类型为",uploadFileTypes);
-            }
             serviceRouterDef.getPropertyValues().addPropertyValue("uploadFileTypes", uploadFileTypes);
         }
     }
 
     private void setTaskExecutor(Element element, ParserContext parserContext, Object source, RootBeanDefinition serviceRouterDef) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Rop开始创建异步调用线程池。");
-        }
         RootBeanDefinition taskExecutorDef =
                 new RootBeanDefinition(org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean.class);
         String taskExecutorName = parserContext.getReaderContext().registerWithGeneratedName(taskExecutorDef);
@@ -158,17 +149,11 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         parserContext.registerComponent(new BeanComponentDefinition(taskExecutorDef, taskExecutorName));
         RuntimeBeanReference taskExecutorBeanReference = new RuntimeBeanReference(taskExecutorName);
         serviceRouterDef.getPropertyValues().add("threadPoolExecutor", taskExecutorBeanReference);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Rop创建异步调用线程池完成。");
-        }
     }
 
     private void setSignEnable(Element element, RootBeanDefinition serviceRouterDef) {
         String signEnable = element.getAttribute("sign-enable");
         if (StringUtils.hasText(signEnable)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Rop配置请求数据签名开关为{}",signEnable);
-            }
             serviceRouterDef.getPropertyValues().addPropertyValue("signEnable", signEnable);
         }
     }
@@ -176,9 +161,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
     private void setServiceTimeout(Element element, RootBeanDefinition serviceRouterDef) {
         String serviceTimeoutSeconds = element.getAttribute("service-timeout-seconds");
         if (StringUtils.hasText(serviceTimeoutSeconds)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Rop配置服务超时时间为{}秒",serviceTimeoutSeconds);
-            }
             serviceRouterDef.getPropertyValues().addPropertyValue("serviceTimeoutSeconds", serviceTimeoutSeconds);
         }
     }
@@ -193,7 +175,8 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             serviceRouterDef.getPropertyValues().addPropertyValue("extErrorBasename", extErrorBasename);
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("Rop配置国际化错误文件的基路径为{} {}",extErrorBasename,extErrorBasenames);
+            logger.debug("Please use {}/{} of schema to set error resources",
+                         extErrorBasename,extErrorBasenames);
         }
 
     }
@@ -201,9 +184,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
     private void setThreadFerry(Element element, RootBeanDefinition serviceRouterDef) {
         String threadFerryClassName = element.getAttribute("thread-ferry-class");
         if (StringUtils.hasText(threadFerryClassName)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Rop配置一个{},实现类为{}",ThreadFerry.class.getCanonicalName(),threadFerryClassName);
-            }
             serviceRouterDef.getPropertyValues().addPropertyValue("threadFerryClassName", threadFerryClassName);
         }
     }
@@ -212,9 +192,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         RuntimeBeanReference invokeTimesControllerRef;
         if (element.hasAttribute("invoke-times-controller")) {
             invokeTimesControllerRef = new RuntimeBeanReference(element.getAttribute("invoke-times-controller"));
-            if (logger.isDebugEnabled()) {
-                logger.debug("Rop装配一个自定义的服务调用次数/频度控制器:" + invokeTimesControllerRef.getBeanName());
-            }
         } else {
             RootBeanDefinition invokeTimesControllerDef = new RootBeanDefinition(DefaultInvokeTimesController.class);
             invokeTimesControllerDef.setSource(source);
@@ -222,9 +199,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             String invokeTimesControllerName = parserContext.getReaderContext().registerWithGeneratedName(invokeTimesControllerDef);
             parserContext.registerComponent(new BeanComponentDefinition(invokeTimesControllerDef, invokeTimesControllerName));
             invokeTimesControllerRef = new RuntimeBeanReference(invokeTimesControllerName);
-            if (logger.isDebugEnabled()) {
-                logger.debug("使用默认的服务调用次数/频度控制器:" + DefaultInvokeTimesController.class.getName());
-            }
         }
         return invokeTimesControllerRef;
     }
@@ -233,9 +207,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         RuntimeBeanReference serviceAccessControllerRef;
         if (element.hasAttribute("service-access-controller")) {
             serviceAccessControllerRef = new RuntimeBeanReference(element.getAttribute("service-access-controller"));
-            if (logger.isDebugEnabled()) {
-                logger.debug("Rop装配一个自定义的服务访问控制器:" + serviceAccessControllerRef.getBeanName());
-            }
         } else {
             RootBeanDefinition serviceAccessControllerDef = new RootBeanDefinition(DefaultServiceAccessController.class);
             serviceAccessControllerDef.setSource(source);
@@ -243,9 +214,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             String serviceAccessControllerName = parserContext.getReaderContext().registerWithGeneratedName(serviceAccessControllerDef);
             parserContext.registerComponent(new BeanComponentDefinition(serviceAccessControllerDef, serviceAccessControllerName));
             serviceAccessControllerRef = new RuntimeBeanReference(serviceAccessControllerName);
-            if (logger.isDebugEnabled()) {
-                logger.debug("使用默认的服务访问控制器:" + DefaultServiceAccessController.class.getName());
-            }
         }
         return serviceAccessControllerRef;
     }
@@ -254,9 +222,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         RuntimeBeanReference appSecretManagerRef;
         if (element.hasAttribute("app-secret-manager")) {
             appSecretManagerRef = new RuntimeBeanReference(element.getAttribute("app-secret-manager"));
-            if (logger.isDebugEnabled()) {
-                logger.debug("Rop装配一个自定义的密钥管理器:" + appSecretManagerRef.getBeanName());
-            }
         } else {
             RootBeanDefinition appSecretManagerDef = new RootBeanDefinition(FileBaseAppSecretManager.class);
             appSecretManagerDef.setSource(source);
@@ -264,9 +229,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             String appSecretManagerName = parserContext.getReaderContext().registerWithGeneratedName(appSecretManagerDef);
             parserContext.registerComponent(new BeanComponentDefinition(appSecretManagerDef, appSecretManagerName));
             appSecretManagerRef = new RuntimeBeanReference(appSecretManagerName);
-            if (logger.isDebugEnabled()) {
-                logger.debug("使用默认的密钥管理器:" + FileBaseAppSecretManager.class.getName());
-            }
         }
         return appSecretManagerRef;
     }
@@ -275,9 +237,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         RuntimeBeanReference sessionManagerRef;
         if (element.hasAttribute("session-manager")) {
             sessionManagerRef = new RuntimeBeanReference(element.getAttribute("session-manager"));
-            if (logger.isDebugEnabled()) {
-                logger.debug("Rop装配一个自定义的SessionManager:" + sessionManagerRef.getBeanName());
-            }
         } else {
             RootBeanDefinition sessionManagerDef = new RootBeanDefinition(DefaultSessionManager.class);
             sessionManagerDef.setSource(source);
@@ -285,9 +244,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             String sessionManagerName = parserContext.getReaderContext().registerWithGeneratedName(sessionManagerDef);
             parserContext.registerComponent(new BeanComponentDefinition(sessionManagerDef, sessionManagerName));
             sessionManagerRef = new RuntimeBeanReference(sessionManagerName);
-            if (logger.isDebugEnabled()) {
-                logger.debug("使用默认的会话管理器:" + DefaultSessionManager.class.getName());
-            }
         }
         return sessionManagerRef;
     }
@@ -296,9 +252,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         RuntimeBeanReference conversionServiceRbf;
         if (element.hasAttribute("formatting-conversion-service")) {
             conversionServiceRbf = new RuntimeBeanReference(element.getAttribute("formatting-conversion-service"));
-            if (logger.isDebugEnabled()) {
-                logger.debug("Rop装配一个自定义的FormattingConversionService:" + conversionServiceRbf.getBeanName());
-            }
         } else {
             RootBeanDefinition conversionDef = new RootBeanDefinition(FormattingConversionServiceFactoryBean.class);
             conversionDef.setSource(source);
@@ -306,34 +259,8 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             String conversionName = parserContext.getReaderContext().registerWithGeneratedName(conversionDef);
             parserContext.registerComponent(new BeanComponentDefinition(conversionDef, conversionName));
             conversionServiceRbf = new RuntimeBeanReference(conversionName);
-            if (logger.isDebugEnabled()) {
-                logger.debug("使用默认的FormattingConversionService:" +
-                        FormattingConversionServiceFactoryBean.class.getName());
-            }
         }
         return conversionServiceRbf;
     }
-
-    private RuntimeBeanReference getRopValidator(Element element, Object source, ParserContext parserContext) {
-        RuntimeBeanReference ropValidatorRbf;
-        if (element.hasAttribute("rop-validator")) {
-            ropValidatorRbf = new RuntimeBeanReference(element.getAttribute("rop-validator"));
-            if (logger.isDebugEnabled()) {
-                logger.debug("Rop装配一个自定义的RopValidator:" + ropValidatorRbf.getBeanName());
-            }
-        } else {
-            RootBeanDefinition conversionDef = new RootBeanDefinition(DefaultSecurityManager.class);
-            conversionDef.setSource(source);
-            conversionDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            String conversionName = parserContext.getReaderContext().registerWithGeneratedName(conversionDef);
-            parserContext.registerComponent(new BeanComponentDefinition(conversionDef, conversionName));
-            ropValidatorRbf = new RuntimeBeanReference(conversionName);
-            if (logger.isDebugEnabled()) {
-                logger.debug("使用默认的RopValidator:" + DefaultSecurityManager.class.getName());
-            }
-        }
-        return ropValidatorRbf;
-    }
-
 }
 

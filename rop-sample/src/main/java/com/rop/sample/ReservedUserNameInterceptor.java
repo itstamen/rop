@@ -28,7 +28,6 @@ public class ReservedUserNameInterceptor extends AbstractInterceptor {
      *
      * @param ropRequestContext
      */
-    @Override
     public void beforeService(RopRequestContext ropRequestContext) {
         System.out.println("beforeService ...");
 
@@ -45,7 +44,7 @@ public class ReservedUserNameInterceptor extends AbstractInterceptor {
      *
      * @param ropRequestContext
      */
-    @Override
+
     public void beforeResponse(RopRequestContext ropRequestContext) {
         System.out.println("beforeResponse ...");
     }
@@ -56,7 +55,7 @@ public class ReservedUserNameInterceptor extends AbstractInterceptor {
      * @param ropRequestContext
      * @return
      */
-    @Override
+
     public boolean isMatch(RopRequestContext ropRequestContext) {
         return "user.add".equals(ropRequestContext.getMethod());
     }

@@ -24,7 +24,7 @@ import java.util.List;
  * @version 1.0
  */
 public class ListenersBeanDefinitionParser implements BeanDefinitionParser {
-    @Override
+
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         CompositeComponentDefinition compDefinition =
                 new CompositeComponentDefinition(element.getTagName(), parserContext.extractSource(element));

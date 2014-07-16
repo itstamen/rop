@@ -12,12 +12,12 @@ import java.util.Date;
  */
 public class DateXmlAdapter extends XmlAdapter<String,Date> {
 
-    @Override
+
     public Date unmarshal(String v) throws Exception {
         return DateUtils.parseDate(v);
     }
 
-    @Override
+
     public String marshal(Date date) throws Exception {
         return DateUtils.format(date,DateUtils.DATETIME_FORMAT);
     }
