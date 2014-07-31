@@ -11,6 +11,7 @@ import com.rop.security.MainErrors;
 import com.rop.security.SubError;
 
 import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -84,6 +85,13 @@ public class ErrorResponse{
 
     public void setSubErrors(List<SubError> subErrors) {
         this.subErrors = subErrors;
+    }
+
+    public void addSubError(SubError subError){
+        if (subErrors == null) {
+            subErrors = new ArrayList<SubError>();
+        }
+        subErrors.add(subError);
     }
 
     protected MainError getInvalidArgumentsError(Locale locale) {

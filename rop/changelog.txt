@@ -1,4 +1,8 @@
-﻿1.0.6 (2014-07-16)
+﻿1.0.7-SNAPSHOT
+1.com.rop.response.ErrorResponse添加addSubError(SubError subError)方法；
+
+addSubError(SubError subError)
+1.0.6 (2014-07-16)
 1.Fix BUG:<rop:annotation-driven/> not support ${xxx};
 2.remove conf debug message of AnnotationDrivenBeanDefinitionParser,move to
   AnnotationServletServiceRouter;
