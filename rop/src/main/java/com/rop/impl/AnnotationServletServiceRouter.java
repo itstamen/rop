@@ -564,9 +564,10 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         try {
             if (interceptors != null && interceptors.size() > 0) {
                 for (Interceptor interceptor : interceptors) {
-
-                    interceptor.beforeService(ropRequestContext);
-
+                	//判断是否进行拦截
+                	if(interceptor.isMatch(ropRequestContext)){
+                		interceptor.beforeService(ropRequestContext);
+                	}
                     //如果有一个产生了响应，则阻止后续的调用
                     if (ropRequestContext.getRopResponse() != null) {
                         if (logger.isDebugEnabled()) {
@@ -594,7 +595,10 @@ public class AnnotationServletServiceRouter implements ServiceRouter {
         try {
             if (interceptors != null && interceptors.size() > 0) {
                 for (Interceptor interceptor : interceptors) {
-                    interceptor.beforeResponse(ropRequestContext);
+                	//判断是否进行拦截
+                	if(interceptor.isMatch(ropRequestContext)){
+                		interceptor.beforeResponse(ropRequestContext);
+                	}
                 }
             }
         } catch (Throwable e) {
