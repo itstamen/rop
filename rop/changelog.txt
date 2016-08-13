@@ -1,4 +1,11 @@
-﻿1.0.7-SNAPSHOT
+﻿2.0-SNAPSHOT
+1.将client代码独立开来，client的代码移除spring依赖，将client和平台服务公共用到的代码独立放到rop-core目录下
+2.将RopConverter移除spring依赖，并移到com.rop.converter包下
+3.将AnnotationServletServiceRouter中的xmlMarshaller对象、serviceMethodAdapter对象、jsonMarshaller对象变为可通过set方法设置
+4.将服务方法的参数类型必需继承AbstractRopRequest类型移除，变成可使用普通的pojo对象，服务方法的参数可接收RopRequestContext、HttpServletRequest、HttpServletResponse、RopContext对象，类似spring的Conttroller类的方法可变参数列表
+5.添加FastjsonRopMarshaller和FastjsonRopUnmarshaller，给使用者更多的选择，当然你也可以自定义数据格式转换器
+
+1.0.7-SNAPSHOT
 1.com.rop.response.ErrorResponse添加addSubError(SubError subError)方法；
 
 addSubError(SubError subError)

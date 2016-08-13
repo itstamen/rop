@@ -1,14 +1,28 @@
-/**
- * 版权声明： 版权所有 违者必究 2012
- * 日    期：12-6-4
+/*
+ * Copyright 2012-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.rop.config;
 
 import com.rop.impl.AnnotationServletServiceRouterFactoryBean;
 import com.rop.impl.DefaultServiceAccessController;
+import com.rop.marshaller.JacksonJsonRopMarshaller;
+import com.rop.marshaller.JaxbXmlRopMarshaller;
 import com.rop.security.DefaultInvokeTimesController;
 import com.rop.security.FileBaseAppSecretManager;
 import com.rop.session.DefaultSessionManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -78,6 +92,14 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
         RuntimeBeanReference invokeTimesController = getInvokeTimesController(element, source, parserContext);
         serviceRouterDef.getPropertyValues().add("invokeTimesController", invokeTimesController);
 
+        //Xml格式转换器
+        RuntimeBeanReference xmlMarshaller = getXmlMarshaller(element, source, parserContext);
+        serviceRouterDef.getPropertyValues().add("xmlMarshaller", xmlMarshaller);
+        
+        //JSON格式转换器
+        RuntimeBeanReference jsonMarshaller = getJsonMarshaller(element, source, parserContext);
+        serviceRouterDef.getPropertyValues().add("jsonMarshaller", jsonMarshaller);
+        
         //设置TaskExecutor
         setTaskExecutor(element, parserContext, source, serviceRouterDef);
 
@@ -261,6 +283,36 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             conversionServiceRbf = new RuntimeBeanReference(conversionName);
         }
         return conversionServiceRbf;
+    }
+    
+    private RuntimeBeanReference getXmlMarshaller(Element element, Object source, ParserContext parserContext){
+    	RuntimeBeanReference xmlMarshallerRef;
+    	if(element.hasAttribute("xml-marshaller")){
+    		xmlMarshallerRef = new RuntimeBeanReference(element.getAttribute("xml-marshaller"));
+    	}else{
+    		 RootBeanDefinition beanDef = new RootBeanDefinition(JaxbXmlRopMarshaller.class);
+    		 beanDef.setSource(source);
+    		 beanDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+             String name = parserContext.getReaderContext().registerWithGeneratedName(beanDef);
+             parserContext.registerComponent(new BeanComponentDefinition(beanDef, name));
+             xmlMarshallerRef = new RuntimeBeanReference(name);
+    	}
+    	return xmlMarshallerRef;
+    }
+    
+    private RuntimeBeanReference getJsonMarshaller(Element element, Object source, ParserContext parserContext){
+    	RuntimeBeanReference jsonMarshallerRef;
+    	if(element.hasAttribute("json-marshaller")){
+    		jsonMarshallerRef = new RuntimeBeanReference(element.getAttribute("json-marshaller"));
+    	}else{
+    		 RootBeanDefinition beanDef = new RootBeanDefinition(JacksonJsonRopMarshaller.class);
+    		 beanDef.setSource(source);
+    		 beanDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+             String name = parserContext.getReaderContext().registerWithGeneratedName(beanDef);
+             parserContext.registerComponent(new BeanComponentDefinition(beanDef, name));
+             jsonMarshallerRef = new RuntimeBeanReference(name);
+    	}
+    	return jsonMarshallerRef;
     }
 }
 

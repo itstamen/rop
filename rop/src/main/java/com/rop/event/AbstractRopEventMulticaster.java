@@ -1,6 +1,17 @@
-/**
- * 版权声明： 版权所有 违者必究 2012
- * 日    期：12-6-2
+/*
+ * Copyright 2012-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.rop.event;
 
@@ -16,7 +27,7 @@ import java.util.*;
  */
 public abstract class AbstractRopEventMulticaster implements RopEventMulticaster {
 
-    private Set<RopEventListener> ropEventListeners = new HashSet<RopEventListener>();
+    private Set<RopEventListener<RopEvent>> ropEventListeners = new HashSet<RopEventListener<RopEvent>>();
 
     private static final Map<Class<? extends RopEvent>, ListenerRegistry> cachedRopEventListeners =
             new HashMap<Class<? extends RopEvent>, ListenerRegistry>();
@@ -27,21 +38,21 @@ public abstract class AbstractRopEventMulticaster implements RopEventMulticaster
     }
 
 
-    public void addRopListener(RopEventListener listener) {
+    public void addRopListener(RopEventListener<RopEvent> listener) {
         ropEventListeners.add(listener);
     }
 
 
-    public void removeRopListener(RopEventListener listener) {
+    public void removeRopListener(RopEventListener<RopEvent> listener) {
         ropEventListeners.remove(listener);
     }
 
-    protected List<RopEventListener> getRopEventListeners(RopEvent event) {
+    protected List<RopEventListener<RopEvent>> getRopEventListeners(RopEvent event) {
         Class<? extends RopEvent> eventType = event.getClass();
         if (!cachedRopEventListeners.containsKey(eventType)) {
-            LinkedList<RopEventListener> allListeners = new LinkedList<RopEventListener>();
+            LinkedList<RopEventListener<RopEvent>> allListeners = new LinkedList<RopEventListener<RopEvent>>();
             if (ropEventListeners != null && ropEventListeners.size() > 0) {
-                for (RopEventListener ropEventListener : ropEventListeners) {
+                for (RopEventListener<RopEvent> ropEventListener : ropEventListeners) {
                     if (supportsEvent(ropEventListener, eventType)) {
                         allListeners.add(ropEventListener);
                     }
@@ -55,16 +66,16 @@ public abstract class AbstractRopEventMulticaster implements RopEventMulticaster
     }
 
     protected boolean supportsEvent(
-            RopEventListener listener, Class<? extends RopEvent> eventType) {
+            RopEventListener<RopEvent> listener, Class<? extends RopEvent> eventType) {
         SmartRopEventListener smartListener = (listener instanceof SmartRopEventListener ?
                 (SmartRopEventListener) listener : new GenericRopEventAdapter(listener));
         return (smartListener.supportsEventType(eventType));
     }
 
 
-    protected void sortRopEventListener(List<RopEventListener> ropEventListeners) {
-        Collections.sort(ropEventListeners, new Comparator<RopEventListener>() {
-            public int compare(RopEventListener o1, RopEventListener o2) {
+    protected void sortRopEventListener(List<RopEventListener<RopEvent>> ropEventListeners) {
+        Collections.sort(ropEventListeners, new Comparator<RopEventListener<RopEvent>>() {
+            public int compare(RopEventListener<RopEvent> o1, RopEventListener<RopEvent> o2) {
                 if (o1.getOrder() > o2.getOrder()) {
                     return 1;
                 } else if (o1.getOrder() < o2.getOrder()) {
@@ -78,13 +89,13 @@ public abstract class AbstractRopEventMulticaster implements RopEventMulticaster
 
     private class ListenerRegistry {
 
-        public List<RopEventListener> ropEventListeners;
+        public List<RopEventListener<RopEvent>> ropEventListeners;
 
-        private ListenerRegistry(List<RopEventListener> ropEventListeners) {
+        private ListenerRegistry(List<RopEventListener<RopEvent>> ropEventListeners) {
             this.ropEventListeners = ropEventListeners;
         }
 
-        public List<RopEventListener> getRopEventListeners() {
+        public List<RopEventListener<RopEvent>> getRopEventListeners() {
             return ropEventListeners;
         }
     }

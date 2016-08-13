@@ -1,18 +1,32 @@
-/**
+/*
+ * Copyright 2012-2016 the original author or authors.
  *
- * 日    期：12-2-27
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.rop.impl;
 
 import com.rop.*;
 import com.rop.annotation.HttpAction;
-import com.rop.security.MainError;
+import com.rop.response.MainError;
 import com.rop.session.Session;
 import com.rop.utils.RopUtils;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author 陈雄华
@@ -48,8 +62,6 @@ public class SimpleRopRequestContext implements RopRequestContext {
 
     private Object ropResponse;
 
-    private RopRequest ropRequest;
-
     private long serviceBeginTime = -1;
 
     private long serviceEndTime = -1;
@@ -58,9 +70,9 @@ public class SimpleRopRequestContext implements RopRequestContext {
 
     private HttpAction httpAction;
 
-    private Object rawRequestObject;
+    private HttpServletRequest rawRequestObject;
 
-    private Object rawResponseObject;
+    private HttpServletResponse rawResponseObject;
 
     private Map<String, String> allParams;
 
@@ -98,20 +110,20 @@ public class SimpleRopRequestContext implements RopRequestContext {
     }
 
 
-    public Object getRawRequestObject() {
+    public HttpServletRequest getRawRequestObject() {
         return this.rawRequestObject;
     }
 
 
-    public Object getRawResponseObject() {
+    public HttpServletResponse getRawResponseObject() {
         return this.rawResponseObject;
     }
 
-    public void setRawRequestObject(Object rawRequestObject) {
+    public void setRawRequestObject(HttpServletRequest rawRequestObject) {
         this.rawRequestObject = rawRequestObject;
     }
 
-    public void setRawResponseObject(Object rawResponseObject) {
+    public void setRawResponseObject(HttpServletResponse rawResponseObject) {
         this.rawResponseObject = rawResponseObject;
     }
 
@@ -119,8 +131,6 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.ropContext = ropContext;
         this.serviceBeginTime = System.currentTimeMillis();
     }
-
-
 
     public String getIp() {
         return this.ip;
@@ -130,11 +140,9 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.ip = ip;
     }
 
-
     public RopContext getRopContext() {
         return ropContext;
     }
-
 
     public String getMethod() {
         return this.method;
@@ -149,7 +157,6 @@ public class SimpleRopRequestContext implements RopRequestContext {
         return this.sessionId;
     }
 
-
     public Session getSession() {
         if (session == null && ropContext != null &&
                 ropContext.getSessionManager() != null && getSessionId() != null) {
@@ -157,7 +164,6 @@ public class SimpleRopRequestContext implements RopRequestContext {
         }
         return session;
     }
-
 
     public void addSession(String sessionId, Session session) {
         this.sessionId = sessionId;
@@ -167,13 +173,11 @@ public class SimpleRopRequestContext implements RopRequestContext {
         }
     }
 
-
     public void removeSession() {
         if (ropContext != null && ropContext.getSessionManager() != null) {
             ropContext.getSessionManager().removeSession(getSessionId());
         }
     }
-
 
     public Locale getLocale() {
         return this.locale;
@@ -205,10 +209,9 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.serviceMethodHandler = serviceMethodHandler;
     }
 
-    public void setMessageFormat(MessageFormat messageFormat) {
-        this.messageFormat.set(messageFormat);
+	public void setMessageFormat(MessageFormat messageFormat) {
+		SimpleRopRequestContext.messageFormat.set(messageFormat);
     }
-
 
     public void setRopResponse(Object ropResponse) {
         this.ropResponse = ropResponse;
@@ -231,7 +234,6 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.version = version;
     }
 
-
     public String getSign() {
         return sign;
     }
@@ -248,11 +250,9 @@ public class SimpleRopRequestContext implements RopRequestContext {
         return this.mainError;
     }
 
-
     public Object getAttribute(String name) {
         return this.attributes.get(name);
     }
-
 
     public void setAttribute(String name, Object value) {
         this.attributes.put(name, value);
@@ -285,7 +285,6 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.allParams = allParams;
     }
 
-
     public String getParamValue(String paramName) {
         if (allParams != null) {
             return allParams.get(paramName);
@@ -298,11 +297,9 @@ public class SimpleRopRequestContext implements RopRequestContext {
         this.httpAction = httpAction;
     }
 
-
     public HttpAction getHttpAction() {
         return this.httpAction;
     }
-
 
     public String getRequestId() {
         return this.requestId;

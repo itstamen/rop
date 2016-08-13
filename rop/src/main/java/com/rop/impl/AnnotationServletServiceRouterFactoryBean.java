@@ -1,17 +1,30 @@
-/**
- * 版权声明： 版权所有 违者必究 2012
- * 日    期：12-6-7
+/*
+ * Copyright 2012-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.rop.impl;
 
 import com.rop.Interceptor;
 import com.rop.RopException;
+import com.rop.RopMarshaller;
 import com.rop.ThreadFerry;
 import com.rop.config.InterceptorHolder;
 import com.rop.config.RopEventListenerHodler;
 import com.rop.event.RopEventListener;
 import com.rop.security.*;
 import com.rop.session.SessionManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -76,6 +89,9 @@ public class AnnotationServletServiceRouterFactoryBean
     //单位为K，默认为10M
     private int uploadFileMaxSize = 10 * 1024;
 
+    private RopMarshaller xmlMarshaller;
+
+    private RopMarshaller jsonMarshaller;
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
@@ -110,7 +126,8 @@ public class AnnotationServletServiceRouterFactoryBean
         this.threadFerryClass = threadFerryClass;
     }
 
-    public void setThreadFerryClassName(String threadFerryClassName) {
+    @SuppressWarnings("unchecked")
+	public void setThreadFerryClassName(String threadFerryClassName) {
         try {
             if (StringUtils.hasText(threadFerryClassName)) {
                 Class<?> threadFerryClass =
@@ -127,7 +144,8 @@ public class AnnotationServletServiceRouterFactoryBean
     }
 
 
-    public void afterPropertiesSet() throws Exception {
+    @SuppressWarnings("rawtypes")
+	public void afterPropertiesSet() throws Exception {
         //实例化一个AnnotationServletServiceRouter
         serviceRouter = new AnnotationServletServiceRouter();
 
@@ -156,7 +174,8 @@ public class AnnotationServletServiceRouterFactoryBean
         serviceRouter.setSessionManager(sessionManager);
         serviceRouter.setThreadFerryClass(threadFerryClass);
         serviceRouter.setInvokeTimesController(invokeTimesController);
-
+        serviceRouter.setJsonMarshaller(jsonMarshaller);
+        serviceRouter.setXmlMarshaller(xmlMarshaller);
         //注册拦截器
         ArrayList<Interceptor> interceptors = getInterceptors();
         if (interceptors != null) {
@@ -225,7 +244,8 @@ public class AnnotationServletServiceRouterFactoryBean
         }
     }
 
-    private ArrayList<RopEventListener> getListeners() {
+    @SuppressWarnings("rawtypes")
+	private ArrayList<RopEventListener> getListeners() {
         Map<String, RopEventListenerHodler> listenerMap = this.applicationContext.getBeansOfType(RopEventListenerHodler.class);
         if (listenerMap != null && listenerMap.size() > 0) {
             ArrayList<RopEventListener> ropEventListeners = new ArrayList<RopEventListener>(listenerMap.size());
@@ -291,5 +311,17 @@ public class AnnotationServletServiceRouterFactoryBean
     public void setUploadFileMaxSize(int uploadFileMaxSize) {
         this.uploadFileMaxSize = uploadFileMaxSize;
     }
+
+
+
+	public void setXmlMarshaller(RopMarshaller xmlMarshaller) {
+		this.xmlMarshaller = xmlMarshaller;
+	}
+
+
+
+	public void setJsonMarshaller(RopMarshaller jsonMarshaller) {
+		this.jsonMarshaller = jsonMarshaller;
+	}
 }
 

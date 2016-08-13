@@ -1,6 +1,17 @@
-/**
+/*
+ * Copyright 2012-2016 the original author or authors.
  *
- * 日    期：12-2-13
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.rop.security;
 
@@ -9,9 +20,14 @@ import com.rop.annotation.HttpAction;
 import com.rop.config.SystemParameterNames;
 import com.rop.impl.DefaultServiceAccessController;
 import com.rop.impl.SimpleRopRequestContext;
-import com.rop.request.UploadFileUtils;
+import com.rop.converter.UploadFileUtils;
+import com.rop.response.MainError;
+import com.rop.response.MainErrorType;
+import com.rop.response.SubError;
+import com.rop.response.SubErrorType;
 import com.rop.session.SessionManager;
 import com.rop.utils.RopUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.FieldError;
@@ -299,7 +315,8 @@ public class DefaultSecurityManager implements SecurityManager {
     }
 
     private MainError validateBusinessParams(RopRequestContext context) {
-        List<ObjectError> errorList =
+        @SuppressWarnings("unchecked")
+		List<ObjectError> errorList =
                 (List<ObjectError>) context.getAttribute(SimpleRopRequestContext.SPRING_VALIDATE_ERROR_ATTRNAME);
 
         //将Bean数据绑定时产生的错误转换为Rop的错误

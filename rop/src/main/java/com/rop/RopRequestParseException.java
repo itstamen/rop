@@ -1,6 +1,17 @@
-/**
- * 版权声明： 版权所有 违者必究 2012
- * 日    期：12-5-29
+/*
+ * Copyright 2012-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.rop;
 
@@ -12,9 +23,8 @@ package com.rop;
  * @author 陈雄华
  * @version 1.0
  */
+@SuppressWarnings("serial")
 public class RopRequestParseException extends RopException {
-    private String requestMessage;
-
     public RopRequestParseException(String requestMessage) {
         this(requestMessage, "");
     }
@@ -25,7 +35,6 @@ public class RopRequestParseException extends RopException {
 
     public RopRequestParseException(String requestMessage, String message, Throwable cause) {
         super(message, cause);
-        this.requestMessage = requestMessage;
     }
 
     public RopRequestParseException(String requestMessage, Throwable cause) {
