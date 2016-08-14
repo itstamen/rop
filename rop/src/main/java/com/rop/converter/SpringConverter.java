@@ -17,24 +17,28 @@ package com.rop.converter;
 
 import org.springframework.core.convert.converter.Converter;
 
-public class SpringConverter<S, T> implements Converter<S, T> {
+/**
+ * Converter<Object, Object>不使用泛型是为了解决spring4.x版本验证Converter实现类没有设置泛型的具体类型的检查不通过的问题
+ */
+@SuppressWarnings("rawtypes")
+public class SpringConverter implements Converter<Object, Object> {
 	
-	@SuppressWarnings("unchecked")
-	public static <S, T> Converter<S, T> toSpringConverter(RopConverter<S, T> ropConverter){
+	public static Converter<?, ?> toSpringConverter(RopConverter<?, ?> ropConverter){
 		if(ropConverter instanceof Converter){
-			return (Converter<S, T>)ropConverter;
+			return (Converter<?, ?>)ropConverter;
 		}
-		return new SpringConverter<S, T>(ropConverter);
+		return new SpringConverter(ropConverter);
 	}
 
-	private final RopConverter<S, T> ropConverter;
+	private final RopConverter ropConverter;
 	
-	public SpringConverter(RopConverter<S, T> ropConverter) {
+	public SpringConverter(RopConverter ropConverter) {
 		super();
 		this.ropConverter = ropConverter;
 	}
 	
-	public T convert(S source) {
+	@SuppressWarnings("unchecked")
+	public Object convert(Object source) {
 		return ropConverter.convert(source);
 	}
 }

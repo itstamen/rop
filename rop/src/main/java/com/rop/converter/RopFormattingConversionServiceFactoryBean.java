@@ -32,6 +32,10 @@ import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.util.StringValueResolver;
 
+/**
+ * 该类解决spring将RopConverter转换成org.springframework.core.convert.converter.Converter
+ * 来解决设置的RopConverter对象没有实现org.springframework.core.convert.converter.Converter接口的问题
+ */
 public class RopFormattingConversionServiceFactoryBean implements FactoryBean<FormattingConversionService>, EmbeddedValueResolverAware, InitializingBean{
 
 	private Set<?> converters;

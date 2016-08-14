@@ -4,3 +4,5 @@
 rop-client-js/**/*
 **/.project
 **/.classpath
+.project
+**/.settings/**/*
