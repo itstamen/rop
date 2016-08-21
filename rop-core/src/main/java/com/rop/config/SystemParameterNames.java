@@ -15,6 +15,8 @@
  */
 package com.rop.config;
 
+import java.util.List;
+
 /**
  * <pre>
  *   系统级参数的名称
@@ -62,6 +64,9 @@ public class SystemParameterNames {
     private static String sign = SIGN;
 
     private static String jsonp = JSONP;
+    
+    //默认忽略签名的参数列表
+    private static List<String> ignoreSignFieldNames;
 
     public static String getMethod() {
         return method;
@@ -126,5 +131,13 @@ public class SystemParameterNames {
     public static void setJsonp(String jsonp) {
         SystemParameterNames.jsonp = jsonp;
     }
+
+	public static List<String> getIgnoreSignFieldNames() {
+		return ignoreSignFieldNames;
+	}
+
+	public static void setIgnoreSignFieldNames(List<String> ignoreSignFieldNames) {
+		SystemParameterNames.ignoreSignFieldNames = ignoreSignFieldNames;
+	}
 }
 

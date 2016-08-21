@@ -346,6 +346,10 @@ public class DefaultSecurityManager implements SecurityManager {
 
                     //获取需要签名的参数
                     List<String> ignoreSignFieldNames = context.getServiceMethodHandler().getIgnoreSignFieldNames();
+                    List<String> ignoreSigns = SystemParameterNames.getIgnoreSignFieldNames();
+                    if(ignoreSigns != null && ignoreSigns.size() > 0){
+                    	ignoreSignFieldNames.addAll(ignoreSigns);
+                    }
                     HashMap<String, String> needSignParams = new HashMap<String, String>();
                     for (Map.Entry<String, String> entry : context.getAllParams().entrySet()) {
                         if (!ignoreSignFieldNames.contains(entry.getKey())) {

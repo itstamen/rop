@@ -54,6 +54,7 @@ public abstract class ReflectionUtils {
     public static List<String> getIgnoreSignFieldNames(Class<? extends Object> type){
     	final List<String> list = new ArrayList<String>();
     	list.add(SystemParameterNames.getSign());
+    	list.add(SystemParameterNames.getJsonp());
     	if(type == null){
     		return list;
     	}

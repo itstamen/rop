@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>rop-jsclient Test</title>
+<script type="text/javascript" src="js/lib/jquery-3.1.0.js"></script>
+<script type="text/javascript" src="js/lib/jquery.encoding.js"></script>
+<script type="text/javascript" src="js/rop-client.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#post").bind("click",function(){
+		rop.post("user.logon",{userName:"tomson",password:"123456",callback:"?"},function(data){
+			rop.config.sessionId = data.sessionId;
+			alert("sessionId=" + data.sessionId);
+		});
+	});
+	$("#get").bind("click",function(){
+		rop.get("user.logon",{userName:"tomson",password:"123456",callback:"?"},function(data){
+			rop.config.sessionId = data.sessionId;
+			alert("sessionId=" + data.sessionId);
+		});
+	});
+	rop.config = {
+		serverUrl: "http://localhost:8080/rop-sample/router",
+		appKey: "00001",
+		appSecret: "abcdeabcdeabcdeabcdeabcde",
+		sessionId: "",
+		locale: "zh_CN",
+		format: "json",
+		version:"1.0",
+		methodName:"method",
+		formatName:"format",
+		versionName:"v",
+		signName:"sign",
+		jsonpName:"callback",
+		appKeyName: "appKey",
+		sessionIdName: "sessionId",
+		localeName:"locale",
+		errorCallback: function(jqXHR, textStatus, errorThrown){
+			alert(textStatus + errorThrown);
+		},
+		serverError:function(data, textStatus, jqXHR){
+			alert(data.message);
+		},
+		hexSha1Str:null
+	};
+});
+</script>
+</head>
+<body>
+<button id="get">get方法测试</button><br/>
+<button id="post">post方法测试</button>
+</body>
+</html>

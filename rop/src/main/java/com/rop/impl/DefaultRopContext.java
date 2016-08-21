@@ -53,7 +53,7 @@ public class DefaultRopContext implements RopContext {
     private boolean signEnable;
 
     private SessionManager sessionManager;
-
+    
     public DefaultRopContext(ApplicationContext context) {
         registerFromContext(context);
     }
@@ -263,9 +263,10 @@ public class DefaultRopContext implements RopContext {
         return definition;
     }
 
-    public static List<String> getIgnoreSignFieldNames(Class<? extends Object> requestType) {
+    public List<String> getIgnoreSignFieldNames(Class<? extends Object> requestType) {
         final ArrayList<String> igoreSignFieldNames = new ArrayList<String>(1);
         igoreSignFieldNames.add(SystemParameterNames.getSign());
+        igoreSignFieldNames.add(SystemParameterNames.getJsonp());
         if (requestType != null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("获取" + requestType.getCanonicalName() + "不需要签名的属性");

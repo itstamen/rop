@@ -27,7 +27,6 @@ import com.rop.RopMarshaller;
 public class FastjsonRopMarshaller implements RopMarshaller {
 
 	public void marshaller(Object object, OutputStream outputStream) throws IOException {
-		String json = JSON.toJSONString(object);
-		outputStream.write(json.getBytes());
+		outputStream.write(JSON.toJSONBytes(object));
 	}
 }

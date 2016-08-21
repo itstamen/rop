@@ -16,7 +16,6 @@
 package com.rop.sample.request;
 
 import com.rop.AbstractRopRequest;
-import com.rop.annotation.IgnoreSign;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -35,7 +34,6 @@ public class LogonRequest extends AbstractRopRequest{
     @Pattern(regexp = "\\w{4,30}")
     private String userName;
 
-    @IgnoreSign
     @Pattern(regexp = "\\w{6,30}")
     private String password;
 
