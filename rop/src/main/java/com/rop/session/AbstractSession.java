@@ -29,22 +29,19 @@ import java.util.Map;
  * @version 1.0
  */
 @SuppressWarnings("serial")
-public  abstract class AbstractSession implements Session {
+public abstract class AbstractSession implements Session {
 
     private Map<String, Object> attributes = new HashMap<String, Object>();
-
 
     public void setAttribute(String name, Object obj) {
         markChanged();
         attributes.put(name, obj);
     }
 
-
     public Object getAttribute(String name) {
         markChanged();
         return attributes.get(name);
     }
-
 
     public Map<String, Object> getAllAttributes() {
         Map<String, Object> tempAttributes = new HashMap<String, Object>(attributes.size());
@@ -56,12 +53,10 @@ public  abstract class AbstractSession implements Session {
         return tempAttributes;
     }
 
-
     public void removeAttribute(String name) {
         markChanged();
         attributes.remove(name);
     }
-
 
     public boolean isChanged() {
         return attributes.containsKey(CommonConstant.SESSION_CHANGED);

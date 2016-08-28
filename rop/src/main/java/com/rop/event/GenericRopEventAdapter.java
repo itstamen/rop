@@ -26,14 +26,13 @@ import org.springframework.core.GenericTypeResolver;
  * @author 陈雄华
  * @version 1.0
  */
-public class GenericRopEventAdapter implements SmartRopEventListener {
+public class GenericRopEventAdapter implements SmartRopEventListener<RopEvent> {
 
     private final RopEventListener<RopEvent> delegate;
 
     public GenericRopEventAdapter(RopEventListener<RopEvent> delegate) {
         this.delegate = delegate;
     }
-
 
     public boolean supportsEventType(Class<? extends RopEvent> eventType) {
         Class<?> typeArg = GenericTypeResolver.resolveTypeArgument(this.delegate.getClass(), RopEventListener.class);

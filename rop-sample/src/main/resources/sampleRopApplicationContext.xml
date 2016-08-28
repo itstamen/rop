@@ -12,8 +12,7 @@
 	<context:component-scan base-package="com.rop.sample" />
 
 	<!-- 启动Rop框架 -->
-	<rop:annotation-driven id="router"
-		session-manager="sampleSessionManager" app-secret-manager="appSecretManager"
+	<rop:annotation-driven id="router" app-secret-manager="appSecretManager"
 		service-access-controller="serviceAccessController"
 		formatting-conversion-service="conversionService"
 		ext-error-base-names="i18n/rop/sampleRopError,i18n/rop/sampleRopError1"
@@ -26,7 +25,6 @@
 
 	<bean id="xmlMarshaller" class="com.rop.marshaller.JaxbXmlRopMarshaller" />
 
-	<bean id="sampleSessionManager" class="com.rop.sample.SampleSessionManager" />
 	<bean id="invokeTimesController" class="com.rop.sample.SampleInvokeTimesController" />
 
 	<bean id="appSecretManager" class="com.rop.sample.SampleAppSecretManager" />

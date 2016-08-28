@@ -97,7 +97,7 @@ public interface ServiceRouter {
      *
      * @param listener
      */
-    void addListener(RopEventListener<? extends RopEvent> listener);
+    void addListener(RopEventListener<RopEvent> listener);
 
     /**
      * 设置{@link com.rop.security.SecurityManager}
@@ -165,5 +165,9 @@ public interface ServiceRouter {
      * @param threadFerryClass
      */
     void setThreadFerryClass(Class<? extends ThreadFerry> threadFerryClass);
+    
+    void setJsonMarshaller(RopMarshaller jsonMarshaller);
+    
+    void setXmlMarshaller(RopMarshaller xmlMarshaller);
 }
 

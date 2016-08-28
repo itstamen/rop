@@ -16,12 +16,6 @@
 package com.rop.config;
 
 import com.rop.impl.AnnotationServletServiceRouterFactoryBean;
-import com.rop.impl.DefaultServiceAccessController;
-import com.rop.marshaller.JacksonJsonRopMarshaller;
-import com.rop.marshaller.JaxbXmlRopMarshaller;
-import com.rop.security.DefaultInvokeTimesController;
-import com.rop.security.FileBaseAppSecretManager;
-import com.rop.session.DefaultSessionManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +26,6 @@ import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.format.support.FormattingConversionServiceFactoryBean;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
@@ -74,32 +67,39 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
 
         //设置formattingConversionService
         RuntimeBeanReference conversionServiceRbf = getConversionService(element, source, parserContext);
-        serviceRouterDef.getPropertyValues().add("formattingConversionService", conversionServiceRbf);
-
+        if(conversionServiceRbf != null){
+        	serviceRouterDef.getPropertyValues().add("formattingConversionService", conversionServiceRbf);
+        }
         //会话管理器
         RuntimeBeanReference sessionManager = getSessionManager(element, source, parserContext);
-        serviceRouterDef.getPropertyValues().add("sessionManager", sessionManager);
-
+        if(sessionManager != null){
+        	serviceRouterDef.getPropertyValues().add("sessionManager", sessionManager);
+        }
         //密钥管理器
         RuntimeBeanReference appSecretManager = getAppSecretManager(element, source, parserContext);
-        serviceRouterDef.getPropertyValues().add("appSecretManager", appSecretManager);
-
+        if(appSecretManager != null){
+        	serviceRouterDef.getPropertyValues().add("appSecretManager", appSecretManager);
+        }
         //服务访问控制器
         RuntimeBeanReference serviceAccessController = getServiceAccessController(element, source, parserContext);
-        serviceRouterDef.getPropertyValues().add("serviceAccessController", serviceAccessController);
-
+        if(serviceAccessController != null){
+        	serviceRouterDef.getPropertyValues().add("serviceAccessController", serviceAccessController);
+        }
         //访问次数/频度控制器
         RuntimeBeanReference invokeTimesController = getInvokeTimesController(element, source, parserContext);
-        serviceRouterDef.getPropertyValues().add("invokeTimesController", invokeTimesController);
-
+        if(invokeTimesController != null){
+        	serviceRouterDef.getPropertyValues().add("invokeTimesController", invokeTimesController);
+        }
         //Xml格式转换器
         RuntimeBeanReference xmlMarshaller = getXmlMarshaller(element, source, parserContext);
-        serviceRouterDef.getPropertyValues().add("xmlMarshaller", xmlMarshaller);
-        
+        if(xmlMarshaller != null){
+        	serviceRouterDef.getPropertyValues().add("xmlMarshaller", xmlMarshaller);
+        }
         //JSON格式转换器
         RuntimeBeanReference jsonMarshaller = getJsonMarshaller(element, source, parserContext);
-        serviceRouterDef.getPropertyValues().add("jsonMarshaller", jsonMarshaller);
-        
+        if(jsonMarshaller != null){
+        	serviceRouterDef.getPropertyValues().add("jsonMarshaller", jsonMarshaller);
+        }
         //设置TaskExecutor
         setTaskExecutor(element, parserContext, source, serviceRouterDef);
 
@@ -108,7 +108,6 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
 
         //设置threadFerryClass
         setThreadFerry(element, serviceRouterDef);
-
 
         //设置国际化错误文件
         setExtErrorBaseNames(element, serviceRouterDef);
@@ -197,10 +196,8 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
             serviceRouterDef.getPropertyValues().addPropertyValue("extErrorBasename", extErrorBasename);
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("Please use {}/{} of schema to set error resources",
-                         extErrorBasename,extErrorBasenames);
+            logger.debug("Please use {}/{} of schema to set error resources", extErrorBasename,extErrorBasenames);
         }
-
     }
 
     private void setThreadFerry(Element element, RootBeanDefinition serviceRouterDef) {
@@ -211,108 +208,52 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
     }
 
     private RuntimeBeanReference getInvokeTimesController(Element element, Object source, ParserContext parserContext) {
-        RuntimeBeanReference invokeTimesControllerRef;
         if (element.hasAttribute("invoke-times-controller")) {
-            invokeTimesControllerRef = new RuntimeBeanReference(element.getAttribute("invoke-times-controller"));
-        } else {
-            RootBeanDefinition invokeTimesControllerDef = new RootBeanDefinition(DefaultInvokeTimesController.class);
-            invokeTimesControllerDef.setSource(source);
-            invokeTimesControllerDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            String invokeTimesControllerName = parserContext.getReaderContext().registerWithGeneratedName(invokeTimesControllerDef);
-            parserContext.registerComponent(new BeanComponentDefinition(invokeTimesControllerDef, invokeTimesControllerName));
-            invokeTimesControllerRef = new RuntimeBeanReference(invokeTimesControllerName);
+            return new RuntimeBeanReference(element.getAttribute("invoke-times-controller"));
         }
-        return invokeTimesControllerRef;
+        return null;
     }
 
     private RuntimeBeanReference getServiceAccessController(Element element, Object source, ParserContext parserContext) {
-        RuntimeBeanReference serviceAccessControllerRef;
         if (element.hasAttribute("service-access-controller")) {
-            serviceAccessControllerRef = new RuntimeBeanReference(element.getAttribute("service-access-controller"));
-        } else {
-            RootBeanDefinition serviceAccessControllerDef = new RootBeanDefinition(DefaultServiceAccessController.class);
-            serviceAccessControllerDef.setSource(source);
-            serviceAccessControllerDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            String serviceAccessControllerName = parserContext.getReaderContext().registerWithGeneratedName(serviceAccessControllerDef);
-            parserContext.registerComponent(new BeanComponentDefinition(serviceAccessControllerDef, serviceAccessControllerName));
-            serviceAccessControllerRef = new RuntimeBeanReference(serviceAccessControllerName);
+            return new RuntimeBeanReference(element.getAttribute("service-access-controller"));
         }
-        return serviceAccessControllerRef;
+        return null;
     }
 
     private RuntimeBeanReference getAppSecretManager(Element element, Object source, ParserContext parserContext) {
-        RuntimeBeanReference appSecretManagerRef;
         if (element.hasAttribute("app-secret-manager")) {
-            appSecretManagerRef = new RuntimeBeanReference(element.getAttribute("app-secret-manager"));
-        } else {
-            RootBeanDefinition appSecretManagerDef = new RootBeanDefinition(FileBaseAppSecretManager.class);
-            appSecretManagerDef.setSource(source);
-            appSecretManagerDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            String appSecretManagerName = parserContext.getReaderContext().registerWithGeneratedName(appSecretManagerDef);
-            parserContext.registerComponent(new BeanComponentDefinition(appSecretManagerDef, appSecretManagerName));
-            appSecretManagerRef = new RuntimeBeanReference(appSecretManagerName);
+            return new RuntimeBeanReference(element.getAttribute("app-secret-manager"));
         }
-        return appSecretManagerRef;
+        return null;
     }
 
     private RuntimeBeanReference getSessionManager(Element element, Object source, ParserContext parserContext) {
-        RuntimeBeanReference sessionManagerRef;
         if (element.hasAttribute("session-manager")) {
-            sessionManagerRef = new RuntimeBeanReference(element.getAttribute("session-manager"));
-        } else {
-            RootBeanDefinition sessionManagerDef = new RootBeanDefinition(DefaultSessionManager.class);
-            sessionManagerDef.setSource(source);
-            sessionManagerDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            String sessionManagerName = parserContext.getReaderContext().registerWithGeneratedName(sessionManagerDef);
-            parserContext.registerComponent(new BeanComponentDefinition(sessionManagerDef, sessionManagerName));
-            sessionManagerRef = new RuntimeBeanReference(sessionManagerName);
+            return new RuntimeBeanReference(element.getAttribute("session-manager"));
         }
-        return sessionManagerRef;
+        return null;
     }
 
     private RuntimeBeanReference getConversionService(Element element, Object source, ParserContext parserContext) {
-        RuntimeBeanReference conversionServiceRbf;
         if (element.hasAttribute("formatting-conversion-service")) {
-            conversionServiceRbf = new RuntimeBeanReference(element.getAttribute("formatting-conversion-service"));
-        } else {
-            RootBeanDefinition conversionDef = new RootBeanDefinition(FormattingConversionServiceFactoryBean.class);
-            conversionDef.setSource(source);
-            conversionDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            String conversionName = parserContext.getReaderContext().registerWithGeneratedName(conversionDef);
-            parserContext.registerComponent(new BeanComponentDefinition(conversionDef, conversionName));
-            conversionServiceRbf = new RuntimeBeanReference(conversionName);
+            return new RuntimeBeanReference(element.getAttribute("formatting-conversion-service"));
         }
-        return conversionServiceRbf;
+        return null;
     }
     
     private RuntimeBeanReference getXmlMarshaller(Element element, Object source, ParserContext parserContext){
-    	RuntimeBeanReference xmlMarshallerRef;
     	if(element.hasAttribute("xml-marshaller")){
-    		xmlMarshallerRef = new RuntimeBeanReference(element.getAttribute("xml-marshaller"));
-    	}else{
-    		 RootBeanDefinition beanDef = new RootBeanDefinition(JaxbXmlRopMarshaller.class);
-    		 beanDef.setSource(source);
-    		 beanDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-             String name = parserContext.getReaderContext().registerWithGeneratedName(beanDef);
-             parserContext.registerComponent(new BeanComponentDefinition(beanDef, name));
-             xmlMarshallerRef = new RuntimeBeanReference(name);
+    		return new RuntimeBeanReference(element.getAttribute("xml-marshaller"));
     	}
-    	return xmlMarshallerRef;
+    	return null;
     }
     
     private RuntimeBeanReference getJsonMarshaller(Element element, Object source, ParserContext parserContext){
-    	RuntimeBeanReference jsonMarshallerRef;
     	if(element.hasAttribute("json-marshaller")){
-    		jsonMarshallerRef = new RuntimeBeanReference(element.getAttribute("json-marshaller"));
-    	}else{
-    		 RootBeanDefinition beanDef = new RootBeanDefinition(JacksonJsonRopMarshaller.class);
-    		 beanDef.setSource(source);
-    		 beanDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-             String name = parserContext.getReaderContext().registerWithGeneratedName(beanDef);
-             parserContext.registerComponent(new BeanComponentDefinition(beanDef, name));
-             jsonMarshallerRef = new RuntimeBeanReference(name);
+    		return new RuntimeBeanReference(element.getAttribute("json-marshaller"));
     	}
-    	return jsonMarshallerRef;
+    	return null;
     }
 }
 

@@ -61,18 +61,20 @@ public class AnnotationServiceMethodAdapter implements ServiceMethodAdapter {
             if(classes == null || classes.length <= 0){
             	return method.invoke(serviceMethodHandler.getHandler());
             }else{
+            	Object[] objs = ropRequest.getClass().isArray() ? (Object[])ropRequest : null;
             	Object[] args = new Object[classes.length];
             	for(int i = 0; i < args.length; i++){
             		Class<?> type = classes[i];
-            		if(ropRequest != null && ropRequest.getClass().isAssignableFrom(type)){
-            			args[i] = ropRequest;
-            		}else if(type.isAssignableFrom(RopRequestContext.class)){
+            		Object obj = objs == null ? ropRequest : objs[i];
+            		if(obj != null && obj.getClass().isAssignableFrom(type)){
+            			args[i] = obj;
+            		}else if(RopRequestContext.class.isAssignableFrom(type)){
             			args[i] = context;
-            		}else if(type.isAssignableFrom(HttpServletRequest.class)){
+            		}else if(HttpServletRequest.class.isAssignableFrom(type)){
             			args[i] = context.getRawRequestObject();
-            		}else if(type.isAssignableFrom(HttpServletResponse.class)){
+            		}else if(HttpServletResponse.class.isAssignableFrom(type)){
             			args[i] = context.getRawResponseObject();
-            		}else if(type.isAssignableFrom(RopContext.class)){
+            		}else if(RopContext.class.isAssignableFrom(type)){
             			args[i] = context.getRopContext();
             		}
             	}

@@ -58,43 +58,34 @@ public class DefaultRopContext implements RopContext {
         registerFromContext(context);
     }
 
-
     public void addServiceMethod(String methodName, String version, ServiceMethodHandler serviceMethodHandler) {
         serviceMethods.add(methodName);
         serviceHandlerMap.put(ServiceMethodHandler.methodWithVersion(methodName, version), serviceMethodHandler);
     }
 
-
     public ServiceMethodHandler getServiceMethodHandler(String methodName, String version) {
         return serviceHandlerMap.get(ServiceMethodHandler.methodWithVersion(methodName, version));
     }
-
-
 
     public boolean isValidMethod(String methodName) {
         return serviceMethods.contains(methodName);
     }
 
-
     public boolean isValidVersion(String methodName, String version) {
         return serviceHandlerMap.containsKey(ServiceMethodHandler.methodWithVersion(methodName, version));
     }
-
 
     public boolean isVersionObsoleted(String methodName, String version) {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-
     public Map<String, ServiceMethodHandler> getAllServiceMethodHandlers() {
         return serviceHandlerMap;
     }
 
-
     public boolean isSignEnable() {
         return signEnable;
     }
-
 
     public SessionManager getSessionManager() {
         return this.sessionManager;
@@ -124,7 +115,6 @@ public class DefaultRopContext implements RopContext {
             //只对标注 ServiceMethodBean的Bean进行扫描
             if(AnnotationUtils.findAnnotation(handlerType,ServiceMethodBean.class) != null){
                 ReflectionUtils.doWithMethods(handlerType, new ReflectionUtils.MethodCallback() {
-                            @SuppressWarnings("unchecked")
 							public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
                                 ReflectionUtils.makeAccessible(method);
 
@@ -143,33 +133,26 @@ public class DefaultRopContext implements RopContext {
                                 //1.set handler
                                 serviceMethodHandler.setHandler(context.getBean(beanName)); //handler
                                 serviceMethodHandler.setHandlerMethod(method); //handler'method
-
-
-                                if (method.getParameterTypes().length > 1) {//handler method's parameter
-                                    throw new RopException(method.getDeclaringClass().getName() + "." + method.getName()
-                                            + "的入参只能是" + RopRequest.class.getName() + "或无入参。");
-                                } else if (method.getParameterTypes().length == 1) {
-                                    Class<?> paramType = method.getParameterTypes()[0];
-                                    if (!ClassUtils.isAssignable(RopRequest.class, paramType)) {
-                                        throw new RopException(method.getDeclaringClass().getName() + "." + method.getName()
-                                                + "的入参必须是" + RopRequest.class.getName());
-                                    }
-                                    boolean ropRequestImplType = !(paramType.isAssignableFrom(RopRequest.class) ||
-                                            paramType.isAssignableFrom(AbstractRopRequest.class));
-                                    serviceMethodHandler.setRopRequestImplType(ropRequestImplType);
-                                    serviceMethodHandler.setRequestType((Class<? extends RopRequest>) paramType);
-                                } else {
-                                    logger.info(method.getDeclaringClass().getName() + "." + method.getName() + "无入参");
+                                Class<?>[] classes = method.getParameterTypes();
+                                List<String> list = new ArrayList<String>();
+                            	List<String> fileFields = new ArrayList<String>();
+                                if(classes.length > 0){
+                                	for(Class<?> clazz : classes){
+                                		List<String> ignores = getIgnoreSignFieldNames(clazz);
+                                		List<String> fileFieldNames = getFileItemFieldNames(clazz);
+                                		if(ignores != null && ignores.size() > 0){
+                                			list.addAll(ignores);
+                                		}
+                                		if(fileFieldNames != null && fileFieldNames.size() > 0){
+                                			fileFields.addAll(fileFieldNames);
+                                		}
+                                	}
                                 }
-
                                 //2.set sign fieldNames
-                                serviceMethodHandler.setIgnoreSignFieldNames(getIgnoreSignFieldNames(serviceMethodHandler.getRequestType()));
-
-                                //3.set fileItemFieldNames
-                                serviceMethodHandler.setUploadFileFieldNames(getFileItemFieldNames(serviceMethodHandler.getRequestType()));
-
+                            	serviceMethodHandler.setIgnoreSignFieldNames(list);
+                            	//3.set fileItemFieldNames
+                                serviceMethodHandler.setUploadFileFieldNames(fileFields);
                                 addServiceMethod(definition.getMethod(), definition.getVersion(), serviceMethodHandler);
-
                                 if (logger.isDebugEnabled()) {
                                     logger.debug("注册服务方法：" + method.getDeclaringClass().getCanonicalName() +
                                             "#" + method.getName() + "(..)");

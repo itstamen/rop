@@ -59,7 +59,7 @@ public class SystemParameterNamesBeanDefinitionParser implements BeanDefinitionP
         if (StringUtils.hasText(locale)) {
             SystemParameterNames.setLocale(locale);
         }
-        if (StringUtils.hasText(sessionId)) {
+        if (StringUtils.hasText(sign)) {
             SystemParameterNames.setSign(sign);
         }
         if (StringUtils.hasText(jsonp)) {

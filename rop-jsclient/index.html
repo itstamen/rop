@@ -9,13 +9,13 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	$("#post").bind("click",function(){
-		rop.post("user.logon",{userName:"tomson",password:"123456",callback:"?"},function(data){
+		rop.post("user.logon",{data:{userName:"tomson",password:"123456",callback:"?"}},function(data){
 			rop.config.sessionId = data.sessionId;
 			alert("sessionId=" + data.sessionId);
 		});
 	});
 	$("#get").bind("click",function(){
-		rop.get("user.logon",{userName:"tomson",password:"123456",callback:"?"},function(data){
+		rop.get("user.logon",{data:{userName:"tomson",password:"123456",callback:"?"}},function(data){
 			rop.config.sessionId = data.sessionId;
 			alert("sessionId=" + data.sessionId);
 		});
@@ -41,8 +41,7 @@ $(document).ready(function(){
 		},
 		serverError:function(data, textStatus, jqXHR){
 			alert(data.message);
-		},
-		hexSha1Str:null
+		}
 	};
 });
 </script>

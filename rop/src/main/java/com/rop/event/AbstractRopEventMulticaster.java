@@ -65,10 +65,10 @@ public abstract class AbstractRopEventMulticaster implements RopEventMulticaster
         return cachedRopEventListeners.get(eventType).getRopEventListeners();
     }
 
-    protected boolean supportsEvent(
+	protected boolean supportsEvent(
             RopEventListener<RopEvent> listener, Class<? extends RopEvent> eventType) {
-        SmartRopEventListener smartListener = (listener instanceof SmartRopEventListener ?
-                (SmartRopEventListener) listener : new GenericRopEventAdapter(listener));
+        SmartRopEventListener<RopEvent> smartListener = (listener instanceof SmartRopEventListener ?
+                (SmartRopEventListener<RopEvent>) listener : new GenericRopEventAdapter(listener));
         return (smartListener.supportsEventType(eventType));
     }
 

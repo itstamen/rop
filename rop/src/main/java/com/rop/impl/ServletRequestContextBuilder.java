@@ -36,6 +36,7 @@ import org.springframework.web.bind.ServletRequestDataBinder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -122,19 +123,36 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
      *
      * @param ropRequestContext
      */
-
     public Object buildRopRequest(RopRequestContext ropRequestContext) {
-    	Object ropRequest = null;
-        if (ropRequestContext.getServiceMethodHandler().isRopRequestImplType()) {
-            HttpServletRequest request = ropRequestContext.getRawRequestObject();
-            BindingResult bindingResult = doBind(request, ropRequestContext.getServiceMethodHandler().getRequestType());
-            ropRequest = buildRopRequestFromBindingResult(ropRequestContext, bindingResult);
-            List<ObjectError> allErrors = bindingResult.getAllErrors();
-            ropRequestContext.setAttribute(SimpleRopRequestContext.SPRING_VALIDATE_ERROR_ATTRNAME, allErrors);
-        } else {
-            ropRequest = new DefaultRopRequest();
-        }
-        return ropRequest;
+    	ServiceMethodHandler methodHandler = ropRequestContext.getServiceMethodHandler();
+    	Class<?>[] classes = methodHandler.getHandlerMethod().getParameterTypes();
+    	Object[] args = new Object[classes.length];
+    	if(classes.length < 1){
+    		return args;
+    	}
+    	HttpServletRequest request = ropRequestContext.getRawRequestObject();
+    	List<ObjectError> errors = new ArrayList<ObjectError>();
+    	for(int i = 0; i < args.length; i++){
+    		Class<?> clazz = classes[i];
+    		if(HttpServletRequest.class.isAssignableFrom(clazz)){
+    			args[i] = request;
+    		}else if(RopRequestContext.class.isAssignableFrom(clazz)){
+    			args[i] = ropRequestContext;
+    		}else if(RopContext.class.isAssignableFrom(clazz)){
+    			args[i] = ropRequestContext.getRopContext();
+    		}else if(HttpServletResponse.class.isAssignableFrom(clazz)){
+    			args[i] = ropRequestContext.getRopResponse();
+    		}else{
+    			BindingResult bindingResult = doBind(request, clazz);
+    			args[i] = buildRopRequestFromBindingResult(ropRequestContext, bindingResult);
+    			List<ObjectError> allErrors = bindingResult.getAllErrors();
+    			if(allErrors != null && allErrors.size() > 0){
+    				errors.addAll(allErrors);
+    			}
+    		}
+    	}
+        ropRequestContext.setAttribute(SimpleRopRequestContext.SPRING_VALIDATE_ERROR_ATTRNAME, errors.isEmpty() ? null : errors);
+        return args;
     }
 
 
@@ -177,7 +195,6 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
         }
     }
 
-
     public static MessageFormat getResponseFormat(HttpServletRequest servletRequest) {
         String messageFormat = servletRequest.getParameter(SystemParameterNames.getFormat());
         if (MessageFormat.isValidFormat(messageFormat)) {
@@ -210,7 +227,6 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
         return destParamMap;
     }
 
-
     private BindingResult doBind(HttpServletRequest webRequest, Class<? extends Object> requestType) {
     	Object bindObject = BeanUtils.instantiateClass(requestType);
         ServletRequestDataBinder dataBinder = new ServletRequestDataBinder(bindObject, "bindObject");
@@ -232,10 +248,6 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
 
     public FormattingConversionService getFormattingConversionService() {
         return conversionService;
-    }
-
-    //默认的{@link RopRequest}实现类
-    private class DefaultRopRequest extends AbstractRopRequest {
     }
 }
 

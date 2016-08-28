@@ -36,17 +36,12 @@ public class ServiceMethodHandler {
 
     private ServiceMethodDefinition serviceMethodDefinition;
 
-    //处理方法的请求对象类
-    private Class<? extends Object> requestType = Object.class;
-
     //无需签名的字段列表
     private List<String> ignoreSignFieldNames;
 
     //属性类型为FileItem的字段列表
     private List<String> uploadFileFieldNames;
 
-    //是否是实现类
-    private boolean ropRequestImplType;
 
     public ServiceMethodHandler() {
     }
@@ -67,19 +62,6 @@ public class ServiceMethodHandler {
         this.handlerMethod = handlerMethod;
     }
 
-    public Class<? extends Object> getRequestType() {
-        return requestType;
-    }
-
-    public void setRequestType(Class<? extends Object> requestType) {
-        this.requestType = requestType;
-    }
-
-
-    public boolean isHandlerMethodWithParameter() {
-        return this.requestType != null;
-    }
-
     public void setIgnoreSignFieldNames(List<String> ignoreSignFieldNames) {
         this.ignoreSignFieldNames = ignoreSignFieldNames;
     }
@@ -98,14 +80,6 @@ public class ServiceMethodHandler {
 
     public static String methodWithVersion(String methodName, String version) {
         return methodName + "#" + version;
-    }
-
-    public boolean isRopRequestImplType() {
-        return ropRequestImplType;
-    }
-
-    public void setRopRequestImplType(boolean ropRequestImplType) {
-        this.ropRequestImplType = ropRequestImplType;
     }
 
     public List<String> getUploadFileFieldNames() {
