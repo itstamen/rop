@@ -5,15 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
+		<groupId>com.rop</groupId>
+		<artifactId>rop-parent</artifactId>
+		<version>2.0-SNAPSHOT</version>
+	</parent>
 
-    <groupId>com.rop</groupId>
     <artifactId>rop-sample</artifactId>
     <name>ropSample</name>
-    <version>1.0.7-SNAPSHOT</version>
     <packaging>war</packaging>
     <description>rest open platform</description>
 
@@ -56,6 +54,11 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+        	<groupId>com.rop</groupId>
+        	<artifactId>rop-client</artifactId>
+        	<version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -97,7 +100,11 @@
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>${fastjson.version}</version>
+		</dependency>
     </dependencies>
 
     <build>
@@ -120,17 +127,70 @@
                     </connectors>
                 </configuration>
             </plugin>
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<charset>${file.encoding}</charset>
+					<encoding>${file.encoding}</encoding>
+					<docencoding>${file.encoding}</docencoding>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>${file.encoding}</encoding>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<encoding>${file.encoding}</encoding>
+				</configuration>
+			</plugin>
         </plugins>
     </build>
 
     <properties>
         <file.encoding>UTF-8</file.encoding>
-        <java.version>1.5</java.version>
+        <java.version>1.6</java.version>
         <servlet.version>2.5</servlet.version>
         <spring.version>3.2.3.RELEASE</spring.version>
         <jackson.version>1.9.5</jackson.version>
         <testng.version>6.3</testng.version>
         <mockito.version>1.8.5</mockito.version>
         <unitils.version>3.3</unitils.version>
+        <fastjson.version>1.2.4</fastjson.version>
     </properties>
 </project>

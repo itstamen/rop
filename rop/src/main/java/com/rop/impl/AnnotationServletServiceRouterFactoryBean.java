@@ -1,17 +1,33 @@
-/**
- * 版权声明： 版权所有 违者必究 2012
- * 日    期：12-6-7
+/*
+ * Copyright 2012-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.rop.impl;
 
 import com.rop.Interceptor;
 import com.rop.RopException;
+import com.rop.RopMarshaller;
+import com.rop.ServiceRouter;
 import com.rop.ThreadFerry;
 import com.rop.config.InterceptorHolder;
 import com.rop.config.RopEventListenerHodler;
+import com.rop.event.RopEvent;
 import com.rop.event.RopEventListener;
 import com.rop.security.*;
+import com.rop.security.SecurityManager;
 import com.rop.session.SessionManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -38,7 +54,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @version 1.0
  */
 public class AnnotationServletServiceRouterFactoryBean
-        implements FactoryBean<AnnotationServletServiceRouter>,ApplicationContextAware, InitializingBean, DisposableBean{
+        implements FactoryBean<ServiceRouter>,ApplicationContextAware, InitializingBean, DisposableBean{
 
     private static final String ALL_FILE_TYPES = "*";
 
@@ -68,7 +84,7 @@ public class AnnotationServletServiceRouterFactoryBean
 
     private FormattingConversionService formattingConversionService;
 
-    private AnnotationServletServiceRouter serviceRouter;
+    private ServiceRouter serviceRouter;
 
     //多值用逗号分隔,默认支持4种格式的文件
     private String uploadFileTypes = ALL_FILE_TYPES;
@@ -76,27 +92,27 @@ public class AnnotationServletServiceRouterFactoryBean
     //单位为K，默认为10M
     private int uploadFileMaxSize = 10 * 1024;
 
+    private RopMarshaller xmlMarshaller;
+
+    private RopMarshaller jsonMarshaller;
+    
+    private SecurityManager securityManager;
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 
-
-
     public void destroy() throws Exception {
         serviceRouter.shutdown();
     }
 
-
     public Class<?> getObjectType() {
-        return AnnotationServletServiceRouter.class;
+        return serviceRouter == null ? ServiceRouter.class : serviceRouter.getClass();
     }
 
-
-    public AnnotationServletServiceRouter getObject() throws Exception {
+    public ServiceRouter getObject() throws Exception {
         return this.serviceRouter;
     }
-
 
     public boolean isSingleton() {
         return true;
@@ -110,7 +126,8 @@ public class AnnotationServletServiceRouterFactoryBean
         this.threadFerryClass = threadFerryClass;
     }
 
-    public void setThreadFerryClassName(String threadFerryClassName) {
+    @SuppressWarnings("unchecked")
+	public void setThreadFerryClassName(String threadFerryClassName) {
         try {
             if (StringUtils.hasText(threadFerryClassName)) {
                 Class<?> threadFerryClass =
@@ -126,37 +143,56 @@ public class AnnotationServletServiceRouterFactoryBean
         }
     }
 
-
-    public void afterPropertiesSet() throws Exception {
-        //实例化一个AnnotationServletServiceRouter
-        serviceRouter = new AnnotationServletServiceRouter();
-
+	public void afterPropertiesSet() throws Exception {
+    	if(serviceRouter == null){
+    		serviceRouter = new AnnotationServletServiceRouter();
+    	}
         //设置国际化错误资源
         if (extErrorBasename != null) {
             serviceRouter.setExtErrorBasename(extErrorBasename);
         }
-
         if (extErrorBasenames != null) {
             serviceRouter.setExtErrorBasenames(extErrorBasenames);
         }
-
-        DefaultSecurityManager securityManager = BeanUtils.instantiate(DefaultSecurityManager.class);
-
-        securityManager.setSessionManager(sessionManager);
+        if(securityManager == null){
+        	securityManager = findOrCreateBean(SecurityManager.class, DefaultSecurityManager.class);
+        }
+        if(sessionManager == null){
+        	sessionManager = findBean(SessionManager.class);
+        }
+        if(sessionManager != null){
+        	securityManager.setSessionManager(sessionManager);
+        	serviceRouter.setSessionManager(sessionManager);
+        }
+        if(appSecretManager == null){
+        	appSecretManager = findOrCreateBean(AppSecretManager.class, FileBaseAppSecretManager.class);
+        }
         securityManager.setAppSecretManager(appSecretManager);
+        if(serviceAccessController == null){
+        	serviceAccessController = findOrCreateBean(ServiceAccessController.class, DefaultServiceAccessController.class);
+        }
         securityManager.setServiceAccessController(serviceAccessController);
+        if(invokeTimesController == null){
+        	invokeTimesController = findOrCreateBean(InvokeTimesController.class, DefaultInvokeTimesController.class);
+        }
+        serviceRouter.setInvokeTimesController(invokeTimesController);
         securityManager.setInvokeTimesController(invokeTimesController);
         securityManager.setFileUploadController(buildFileUploadController());
-
         serviceRouter.setSecurityManager(securityManager);
         serviceRouter.setThreadPoolExecutor(threadPoolExecutor);
         serviceRouter.setSignEnable(signEnable);
         serviceRouter.setServiceTimeoutSeconds(serviceTimeoutSeconds);
-        serviceRouter.setFormattingConversionService(formattingConversionService);
-        serviceRouter.setSessionManager(sessionManager);
+        FormattingConversionService conversionService = getFormattingConversionService();
+        if(conversionService != null){
+        	serviceRouter.setFormattingConversionService(conversionService);
+        }
         serviceRouter.setThreadFerryClass(threadFerryClass);
-        serviceRouter.setInvokeTimesController(invokeTimesController);
-
+        if(jsonMarshaller != null){
+        	serviceRouter.setJsonMarshaller(jsonMarshaller);
+        }
+        if(xmlMarshaller != null){
+        	serviceRouter.setXmlMarshaller(xmlMarshaller);
+        }
         //注册拦截器
         ArrayList<Interceptor> interceptors = getInterceptors();
         if (interceptors != null) {
@@ -167,26 +203,45 @@ public class AnnotationServletServiceRouterFactoryBean
                 logger.info("register total {} interceptors",interceptors.size());
             }
         }
-
         //注册监听器
-        ArrayList<RopEventListener> listeners = getListeners();
+        ArrayList<RopEventListener<RopEvent>> listeners = getListeners();
         if (listeners != null) {
-            for (RopEventListener listener : listeners) {
+            for (RopEventListener<RopEvent> listener : listeners) {
                 serviceRouter.addListener(listener);
             }
             if (logger.isInfoEnabled()) {
                 logger.info("register total {} listeners",listeners.size());
             }
         }
-
         //设置Spring上下文信息
         serviceRouter.setApplicationContext(this.applicationContext);
-
         //启动之
         serviceRouter.startup();
     }
-
-    private DefaultFileUploadController buildFileUploadController() {
+	
+	protected <T> T findOrCreateBean(Class<T> type, Class<? extends T> defaultType){
+		T bean = findBean(type);
+		if(bean != null){
+			return bean;
+		}
+    	return BeanUtils.instantiate(defaultType == null ? type : defaultType);
+	}
+	
+	protected <T> T findBean(Class<T> type){
+		Map<String, T> map = applicationContext.getBeansOfType(type);
+    	if(map != null && map.size() > 0){
+    		for(T obj : map.values()){
+    			return obj;
+    		}
+    	}
+    	return null;
+	}
+    
+    private FileUploadController buildFileUploadController() {
+    	FileUploadController uploadController = findBean(FileUploadController.class);
+    	if(uploadController != null){
+    		return uploadController;
+    	}
         Assert.notNull(this.uploadFileTypes, "Please set the updateFileTypes,if all,set *");
         if(ALL_FILE_TYPES.equals(uploadFileTypes.trim())){
             return new DefaultFileUploadController(this.uploadFileMaxSize);
@@ -195,6 +250,17 @@ public class AnnotationServletServiceRouterFactoryBean
             List<String> fileTypes = Arrays.asList(items);
             return new DefaultFileUploadController(fileTypes, this.uploadFileMaxSize);
         }
+    }
+    
+    protected FormattingConversionService getFormattingConversionService(){
+    	if(formattingConversionService != null){
+    		return formattingConversionService;
+    	}
+    	formattingConversionService = findBean(FormattingConversionService.class);
+    	if(formattingConversionService != null){
+    		return formattingConversionService;
+    	}
+    	return null;
     }
 
     private ArrayList<Interceptor> getInterceptors() {
@@ -225,10 +291,10 @@ public class AnnotationServletServiceRouterFactoryBean
         }
     }
 
-    private ArrayList<RopEventListener> getListeners() {
+	private ArrayList<RopEventListener<RopEvent>> getListeners() {
         Map<String, RopEventListenerHodler> listenerMap = this.applicationContext.getBeansOfType(RopEventListenerHodler.class);
         if (listenerMap != null && listenerMap.size() > 0) {
-            ArrayList<RopEventListener> ropEventListeners = new ArrayList<RopEventListener>(listenerMap.size());
+            ArrayList<RopEventListener<RopEvent>> ropEventListeners = new ArrayList<RopEventListener<RopEvent>>(listenerMap.size());
 
             //从Spring容器中获取Interceptor
             for (RopEventListenerHodler listenerHolder : listenerMap.values()) {
@@ -291,5 +357,21 @@ public class AnnotationServletServiceRouterFactoryBean
     public void setUploadFileMaxSize(int uploadFileMaxSize) {
         this.uploadFileMaxSize = uploadFileMaxSize;
     }
+
+	public void setXmlMarshaller(RopMarshaller xmlMarshaller) {
+		this.xmlMarshaller = xmlMarshaller;
+	}
+
+	public void setJsonMarshaller(RopMarshaller jsonMarshaller) {
+		this.jsonMarshaller = jsonMarshaller;
+	}
+
+	public void setServiceRouter(ServiceRouter serviceRouter) {
+		this.serviceRouter = serviceRouter;
+	}
+
+	public void setSecurityManager(SecurityManager securityManager) {
+		this.securityManager = securityManager;
+	}
 }
 

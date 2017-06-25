@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.rop</groupId>
+	<artifactId>rop-parent</artifactId>
+	<version>2.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>rop parent</name>
+	<description>rest open platform</description>
+	<url>https://github.com/itstamen/rop</url>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:git:git://github.com/itstamen/rop.git</connection>
+		<developerConnection>scm:git:git://github.com/itstamen/rop.git</developerConnection>
+		<url>git://github.com/itstamen/rop.git</url>
+	</scm>
+
+	<developers>
+		<developer>
+			<id>stamen</id>
+			<name>stamen</name>
+			<email>itstamen@qq.com</email>
+		</developer>
+	</developers>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<charset>${file.encoding}</charset>
+					<encoding>${file.encoding}</encoding>
+					<docencoding>${file.encoding}</docencoding>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>${file.encoding}</encoding>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<encoding>${file.encoding}</encoding>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.7.2</version>
+				<configuration>
+					<forkMode>once</forkMode>
+					<argLine>-Dfile.encoding=${file.encoding}</argLine>
+					<systemProperties>
+						<property>
+							<name>net.sourceforge.cobertura.datafile</name>
+							<value>target/cobertura/cobertura.ser</value>
+						</property>
+					</systemProperties>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<properties>
+		<file.encoding>UTF-8</file.encoding>
+		<java.version>1.5</java.version>
+	</properties>
+
+	<modules>
+		<module>rop</module>
+		<module>rop-client</module>
+		<module>rop-core</module>
+		<module>rop-sample</module>
+	</modules>
+</project>

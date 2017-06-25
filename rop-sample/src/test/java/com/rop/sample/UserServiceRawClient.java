@@ -1,19 +1,30 @@
-/**
- * 版权声明：中图一购网络科技有限公司 版权所有 违者必究 2012 
- * 日    期：12-2-29
+/*
+ * Copyright 2012-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.rop.sample;
 
-import com.rop.request.UploadFile;
-import com.rop.security.MainErrorType;
+import com.rop.converter.UploadFile;
+import com.rop.response.MainErrorType;
 import com.rop.utils.RopUtils;
+
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -32,8 +43,6 @@ import static org.testng.Assert.assertTrue;
 public class UserServiceRawClient {
 
     public static final String SERVER_URL = "http://localhost:8088/router";
-
-    private String sessionId;
 
     /**
      * 创建一个服务端的会话
@@ -250,9 +259,8 @@ public class UserServiceRawClient {
         String sign = RopUtils.sign(form.toSingleValueMap(), "abcdeabcdeabcdeabcdeabcde");
         form.add("sign", sign);
 
-        String response = restTemplate.postForObject(
-                SERVER_URL, form, String.class);
-//        System.out.println("response:\n" + response);
+        String response = restTemplate.postForObject(SERVER_URL, form, String.class);
+        System.out.println("response:\n" + response);
 //        assertTrue(response.indexOf("<createUserResponse createTime=\"20120101010101\" userId=\"1\">") > -1);
     }
 
@@ -880,7 +888,7 @@ public class UserServiceRawClient {
                         "?method={method}&appKey={appKey}&v={v}&sessionId={sessionId}&locale={locale}" +
                         "&messageFormat={messageFormat}&sign={sign}",
                 String.class, form);
-//        System.out.println("response:" + response);
+        System.out.println("response:" + response);
 //        assertTrue(response.indexOf("Is StreamOutput!") > -1);
     }
 

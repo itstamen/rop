@@ -2,4 +2,7 @@
 .idea/
 **/target/**/*
 rop-client-js/**/*
-
+**/.project
+**/.classpath
+.project
+**/.settings/**/*

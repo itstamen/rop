@@ -1,8 +1,21 @@
-/**
- * 版权声明：中图一购网络科技有限公司 版权所有 违者必究 2012 
- * 日    期：12-8-4
+/*
+ * Copyright 2012-2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.rop.sample.client;
+
+import java.io.IOException;
 
 import com.rop.client.ClientRequest;
 import com.rop.client.CompositeResponse;
@@ -10,6 +23,7 @@ import com.rop.client.DefaultRopClient;
 import com.rop.sample.request.LogonRequest;
 import com.rop.sample.converter.TelephoneConverter;
 import com.rop.sample.response.LogonResponse;
+import com.rop.client.sign.DigestSignHandler;
 
 /**
  * <pre>
@@ -31,7 +45,8 @@ public class RopSampleClient {
      * @param secret
      */
     public RopSampleClient(String appKey,String secret) {
-        ropClient = new DefaultRopClient(SERVER_URL, appKey, secret);
+        ropClient = new DefaultRopClient(SERVER_URL, appKey);
+        ropClient.setSignHandler(new DigestSignHandler("SHA-1", secret));
         ropClient.setFormatParamName("messageFormat");
         ropClient.addRopConvertor(new TelephoneConverter());
     }
@@ -40,18 +55,19 @@ public class RopSampleClient {
      * 登录系统
      *
      * @return
+     * @throws IOException 
      */
-    public String logon(String userName, String password) {
+    public String logon(String userName, String password) throws IOException {
         LogonRequest ropRequest = new LogonRequest();
         ropRequest.setUserName("tomson");
         ropRequest.setPassword("123456");
-        CompositeResponse response = ropClient.buildClientRequest().get(ropRequest, LogonResponse.class, "user.logon", "1.0");
-        String sessionId = ((LogonResponse) response.getSuccessResponse()).getSessionId();
+        CompositeResponse<LogonResponse> response = ropClient.buildClientRequest().get(ropRequest, LogonResponse.class, "user.logon", "1.0");
+        String sessionId = response.getSuccessResponse().getSessionId();
         ropClient.setSessionId(sessionId);
         return sessionId;
     }
 
-    public void logout() {
+    public void logout() throws IOException {
         ropClient.buildClientRequest().get(LogonResponse.class, "user.logout", "1.0");
     }
 

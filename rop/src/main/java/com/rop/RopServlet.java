@@ -1,5 +1,17 @@
-/**
- * 日    期：12-3-21
+/*
+ * Copyright 2012-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.rop;
 
@@ -35,11 +47,11 @@ import java.io.IOException;
  * @version 1.0
  */
 public class RopServlet extends HttpServlet {
+	private static final long serialVersionUID = 8092313047926951512L;
 
-    protected  Logger logger = LoggerFactory.getLogger(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 
     private ServiceRouter serviceRouter;
-
 
     /**
      * 将请求导向到Rop的框架中。
@@ -68,5 +80,13 @@ public class RopServlet extends HttpServlet {
         return (ApplicationContext) servletConfig.getServletContext().getAttribute(
                 WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     }
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		if(serviceRouter != null){
+			serviceRouter.shutdown();
+		}
+	}
 }
 
