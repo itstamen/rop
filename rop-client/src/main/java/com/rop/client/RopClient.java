@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.rop.client;
 
 import com.rop.converter.RopConverter;
+import com.rop.sign.SignHandler;
 
 /**
  * <pre>
@@ -38,7 +39,7 @@ public interface RopClient {
      * 设置method系统参数的参数名，下同
      *
      * @param paramName
-     * @return
+     * @return RopClient
      */
     RopClient setAppKeyParamName(String paramName);
 
@@ -46,7 +47,7 @@ public interface RopClient {
      * 设置sessionId的参数名
      *
      * @param paramName
-     * @return
+     * @return RopClient
      */
     RopClient setSessionIdParamName(String paramName);
 
@@ -54,7 +55,7 @@ public interface RopClient {
      * 设置method的参数名
      *
      * @param paramName
-     * @return
+     * @return RopClient
      */
     RopClient setMethodParamName(String paramName);
 
@@ -62,7 +63,7 @@ public interface RopClient {
      * 设置version的参数名
      *
      * @param paramName
-     * @return
+     * @return RopClient
      */
     RopClient setVersionParamName(String paramName);
 
@@ -70,7 +71,7 @@ public interface RopClient {
      * 设置format的参数名
      *
      * @param paramName
-     * @return
+     * @return RopClient
      */
     RopClient setFormatParamName(String paramName);
 
@@ -78,7 +79,7 @@ public interface RopClient {
      * 设置locale的参数名
      *
      * @param paramName
-     * @return
+     * @return RopClient
      */
     RopClient setLocaleParamName(String paramName);
 
@@ -86,7 +87,7 @@ public interface RopClient {
      * 设置sign的参数名
      *
      * @param paramName
-     * @return
+     * @return RopClient
      */
     RopClient setSignParamName(String paramName);
 
@@ -96,6 +97,13 @@ public interface RopClient {
      * @param sessionId
      */
     void setSessionId(String sessionId);
+    
+    /**
+     * 设置签名处理接口对象
+     * @param handler
+     * @return RopClient
+     */
+    RopClient setSignHandler(SignHandler handler);
 
     /**
      * 创建一个新的服务请求

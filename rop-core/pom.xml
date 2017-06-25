@@ -77,18 +77,6 @@
 			<version>${fastjson.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>javax.xml</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<version>${jaxb.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml</groupId>
-			<artifactId>jaxb-impl</artifactId>
-			<version>${jaxb.version}</version>
-			<scope>provided</scope>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -144,28 +132,12 @@
 					<encoding>${file.encoding}</encoding>
 				</configuration>
 			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.7.2</version>
-				<configuration>
-					<forkMode>once</forkMode>
-					<argLine>-Dfile.encoding=${file.encoding}</argLine>
-					<systemProperties>
-						<property>
-							<name>net.sourceforge.cobertura.datafile</name>
-							<value>target/cobertura/cobertura.ser</value>
-						</property>
-					</systemProperties>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 
 	<properties>
 		<file.encoding>UTF-8</file.encoding>
-		<java.version>1.5</java.version>
+		<java.version>1.6</java.version>
 		<jackson.version>2.4.4</jackson.version>
 		<slf4j.version>1.6.1</slf4j.version>
 		<commonslang.version>2.4</commonslang.version>
@@ -173,6 +145,5 @@
 		<commonscodec.version>1.9</commonscodec.version>
 		<junit.version>4.12</junit.version>
 		<fastjson.version>1.2.4</fastjson.version>
-		<jaxb.version>2.1</jaxb.version>
 	</properties>
 </project>

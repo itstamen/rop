@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,24 @@
 package com.rop;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  * 支持的响应的格式类型
  */
 public enum MessageFormat {
-
-    xml, json, stream;
+	
+    XML, JSON, STREAM;
 
     public static MessageFormat getFormat(String value) {
         if (StringUtils.isBlank(value)) {
-            return xml;
+            return XML;
         } else {
             try {
-                return MessageFormat.valueOf(value.toLowerCase());
+                return MessageFormat.valueOf(value.toUpperCase());
             } catch (IllegalArgumentException e) {
-                return xml;
+            	LoggerFactory.getLogger(MessageFormat.class).debug(e.getMessage(), e);
+                return XML;
             }
         }
     }
@@ -41,9 +43,10 @@ public enum MessageFormat {
             return true;
         }else{
             try {
-                MessageFormat.valueOf(value.toLowerCase());
+                MessageFormat.valueOf(value.toUpperCase());
                 return true;
             } catch (IllegalArgumentException e) {
+            	LoggerFactory.getLogger(MessageFormat.class).debug(e.getMessage(), e);
                 return false;
             }
         }

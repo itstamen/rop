@@ -219,12 +219,6 @@ public class AnnotationServletServiceRouterFactoryBean
         serviceRouter.startup();
     }
 	
-	/**
-	 * 从spring applicationContext中查找指定类型type的对象，如果找不到则创建一个默认类型defaultType的对象
-	 * @param type
-	 * @param defaultType
-	 * @return T
-	 */
 	protected <T> T findOrCreateBean(Class<T> type, Class<? extends T> defaultType){
 		T bean = findBean(type);
 		if(bean != null){

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.rop.client.DefaultRopClient;
 import com.rop.sample.request.LogonRequest;
 import com.rop.sample.converter.TelephoneConverter;
 import com.rop.sample.response.LogonResponse;
+import com.rop.client.sign.DigestSignHandler;
 
 /**
  * <pre>
@@ -44,7 +45,8 @@ public class RopSampleClient {
      * @param secret
      */
     public RopSampleClient(String appKey,String secret) {
-        ropClient = new DefaultRopClient(SERVER_URL, appKey, secret);
+        ropClient = new DefaultRopClient(SERVER_URL, appKey);
+        ropClient.setSignHandler(new DigestSignHandler("SHA-1", secret));
         ropClient.setFormatParamName("messageFormat");
         ropClient.addRopConvertor(new TelephoneConverter());
     }

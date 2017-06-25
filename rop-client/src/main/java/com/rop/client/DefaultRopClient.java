@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,6 @@
 package com.rop.client;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.EntityBuilder;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,22 +23,22 @@ import com.rop.MessageFormat;
 import com.rop.RopMarshaller;
 import com.rop.RopUnmarshaller;
 import com.rop.annotation.IgnoreSign;
+import com.rop.client.http.HttpClient;
+import com.rop.client.http.HttpResponse;
+import com.rop.client.http.JdkHttpClient;
 import com.rop.config.SystemParameterNames;
 import com.rop.converter.RopConverter;
 import com.rop.converter.UploadFile;
 import com.rop.converter.UploadFileConverter;
-import com.rop.marshaller.JacksonJsonRopMarshaller;
+import com.rop.marshaller.FastjsonRopMarshaller;
 import com.rop.marshaller.JaxbXmlRopMarshaller;
 import com.rop.response.ErrorResponse;
-import com.rop.unmarshaller.JacksonJsonRopUnmarshaller;
+import com.rop.sign.SignHandler;
+import com.rop.unmarshaller.FastjsonRopUnmarshaller;
 import com.rop.unmarshaller.JaxbXmlRopUnmarshaller;
 import com.rop.utils.AnnotationUtils;
 import com.rop.utils.Assert;
 import com.rop.utils.ReflectionUtils;
-import com.rop.utils.RopUtils;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -74,25 +63,38 @@ public class DefaultRopClient implements RopClient {
     //应用键
     private String appKey;
 
-    //应用密钥
-    private String appSecret;
-
     private String sessionId;
+    
+    private String appKeyName = SystemParameterNames.getAppKey();
+    
+    private String sessionIdName = SystemParameterNames.getSessionId();
+    
+    private String methodName = SystemParameterNames.getMethod();
+    
+    private String versionName = SystemParameterNames.getVersion();
+    
+    private String formatName = SystemParameterNames.getFormat();
+    
+    private String localeName = SystemParameterNames.getLocale();
+    
+    private String signName = SystemParameterNames.getSign();
+    
+    private SignHandler signHandler;
 
     //报文格式
-    private MessageFormat messageFormat = MessageFormat.xml;
+    private MessageFormat messageFormat = MessageFormat.JSON;
 
     private Locale locale = Locale.SIMPLIFIED_CHINESE;
 
-    private HttpClient httpClient = HttpClients.createSystem();
+    private HttpClient httpClient = new JdkHttpClient();
 
-    private RopUnmarshaller xmlUnmarshaller = new JaxbXmlRopUnmarshaller();
+    private RopUnmarshaller xmlUnmarshaller;
 
-    private RopUnmarshaller jsonUnmarshaller = new JacksonJsonRopUnmarshaller();
+    private RopUnmarshaller jsonUnmarshaller;
     
-    private RopMarshaller xmlMarshaller = new JaxbXmlRopMarshaller();
+    private RopMarshaller xmlMarshaller;
     
-    private RopMarshaller jsonMarshaller = new JacksonJsonRopMarshaller();
+    private RopMarshaller jsonMarshaller;
 
     //请求类所有请求参数
     private Map<Class<?>, List<Field>> requestAllFields = new HashMap<Class<?>, List<Field>>();
@@ -100,35 +102,30 @@ public class DefaultRopClient implements RopClient {
     //请求类所有不需要进行签名的参数
     private Map<Class<?>, List<String>> requestIgnoreSignFieldNames = new HashMap<Class<?>, List<String>>();
 
-
     //键为转换的目标类型
-    private static Map<Class<?>, RopConverter<String, ?>> ropConverterMap =
-            new HashMap<Class<?>, RopConverter<String, ?>>();
-    {
+    private static Map<Class<?>, RopConverter<String, ?>> ropConverterMap = new HashMap<Class<?>, RopConverter<String, ?>>();
+   
+    static {
         ropConverterMap.put(UploadFile.class, new UploadFileConverter());
     }
 
-    public DefaultRopClient(String serverUrl, String appKey, String appSecret) {
+    public DefaultRopClient(String serverUrl, String appKey) {
         this.serverUrl = serverUrl;
         this.appKey = appKey;
-        this.appSecret = appSecret;
     }
 
-    public DefaultRopClient(String serverUrl, String appKey, String appSecret, MessageFormat messageFormat) {
+    public DefaultRopClient(String serverUrl, String appKey, MessageFormat messageFormat) {
         this.serverUrl = serverUrl;
         this.appKey = appKey;
-        this.appSecret = appSecret;
         this.messageFormat = messageFormat;
     }
 
-    public DefaultRopClient(String serverUrl, String appKey, String appSecret, MessageFormat messageFormat, Locale locale) {
+    public DefaultRopClient(String serverUrl, String appKey, MessageFormat messageFormat, Locale locale) {
         this.serverUrl = serverUrl;
         this.appKey = appKey;
-        this.appSecret = appSecret;
         this.messageFormat = messageFormat;
         this.locale = locale;
     }
-
 
     public MessageFormat getMessageFormat() {
         return messageFormat;
@@ -146,90 +143,139 @@ public class DefaultRopClient implements RopClient {
         this.locale = locale;
     }
 
-
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 
-
     public RopClient setAppKeyParamName(String paramName) {
-        SystemParameterNames.setAppKey(paramName);
+    	this.appKeyName = paramName;
         return this;
     }
-
 
     public RopClient setSessionIdParamName(String paramName) {
-        SystemParameterNames.setSessionId(paramName);
+        this.sessionIdName = paramName;
         return this;
     }
-
 
     public RopClient setMethodParamName(String paramName) {
-        SystemParameterNames.setMethod(paramName);
+    	this.methodName = paramName;
         return this;
     }
-
 
     public RopClient setVersionParamName(String paramName) {
-        SystemParameterNames.setVersion(paramName);
+        this.versionName = paramName;
         return this;
     }
-
 
     public RopClient setFormatParamName(String paramName) {
-        SystemParameterNames.setFormat(paramName);
+        this.formatName = paramName;
         return this;
     }
-
 
     public RopClient setLocaleParamName(String paramName) {
-        SystemParameterNames.setLocale(paramName);
+        this.localeName = paramName;
         return this;
     }
-
 
     public RopClient setSignParamName(String paramName) {
-        SystemParameterNames.setSign(paramName);
+    	this.signName = paramName;
         return this;
     }
-
+    
+    public RopClient setSignHandler(SignHandler handler) {
+    	this.signHandler = handler;
+    	return this;
+    }
 
     public void addRopConvertor(RopConverter<String, ?> ropConverter) {
     	DefaultRopClient.ropConverterMap.put(ropConverter.getTargetClass(), ropConverter);
     }
 
-
     public ClientRequest buildClientRequest() {
-        return new DefaultClientRequest(this);
+        return new DefaultClientRequest();
     }
 
+	public RopUnmarshaller getXmlUnmarshaller() {
+		if(xmlUnmarshaller == null){
+			xmlUnmarshaller = new JaxbXmlRopUnmarshaller();
+		}
+		return xmlUnmarshaller;
+	}
+
+	public void setXmlUnmarshaller(RopUnmarshaller xmlUnmarshaller) {
+		this.xmlUnmarshaller = xmlUnmarshaller;
+	}
+
+	public RopUnmarshaller getJsonUnmarshaller() {
+		if(jsonUnmarshaller == null){
+			jsonUnmarshaller = new FastjsonRopUnmarshaller();
+		}
+		return jsonUnmarshaller;
+	}
+
+	public void setJsonUnmarshaller(RopUnmarshaller jsonUnmarshaller) {
+		this.jsonUnmarshaller = jsonUnmarshaller;
+	}
+
+	public RopMarshaller getXmlMarshaller() {
+		if(xmlMarshaller == null){
+			xmlMarshaller = new JaxbXmlRopMarshaller();
+		}
+		return xmlMarshaller;
+	}
+
+	public void setXmlMarshaller(RopMarshaller xmlMarshaller) {
+		this.xmlMarshaller = xmlMarshaller;
+	}
+
+	public RopMarshaller getJsonMarshaller() {
+		if(jsonMarshaller == null){
+			jsonMarshaller = new FastjsonRopMarshaller();
+		}
+		return jsonMarshaller;
+	}
+
+	public void setJsonMarshaller(RopMarshaller jsonMarshaller) {
+		this.jsonMarshaller = jsonMarshaller;
+	}
+	
     private class DefaultClientRequest implements ClientRequest {
 
         private Map<String, String> paramMap = new HashMap<String, String>(20);
 
         private List<String> ignoreSignParams = new ArrayList<String>();
+        
+        private Map<String, String> headMap = new HashMap<String, String>();
 
-        private DefaultClientRequest(RopClient ropClient) {
-            paramMap.put(SystemParameterNames.getAppKey(), appKey);
-            paramMap.put(SystemParameterNames.getFormat(), messageFormat.name());
-            paramMap.put(SystemParameterNames.getLocale(), locale.toString());
+        private DefaultClientRequest() {
+            paramMap.put(appKeyName, appKey);
+            paramMap.put(formatName, messageFormat.name());
+            paramMap.put(localeName, locale.toString());
             if (sessionId != null) {
-                paramMap.put(SystemParameterNames.getSessionId(), sessionId);
+                paramMap.put(sessionIdName, sessionId);
             }
         }
 
+    	/**
+    	 * 设置http请求头信息
+    	 * @param name
+    	 * @param value
+    	 * @return ClientRequest
+    	 */
+    	public ClientRequest setHeader(String name, String value){
+    		headMap.put(name, value);
+    		return this;
+    	}
 
         public ClientRequest addParam(String paramName, Object paramValue) {
             addParam(paramName,paramValue,false);
             return this;
         }
 
-
         public ClientRequest clearParam() {
             paramMap.clear();
             return this;
         }
-
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
 		public ClientRequest addParam(String paramName, Object paramValue, boolean ignoreSign) {
@@ -250,27 +296,23 @@ public class DefaultRopClient implements RopClient {
             return this;
         }
 
-
         public <T> CompositeResponse<T> post(Class<T> ropResponseClass, String methodName, String version) throws IOException {
             Map<String, String> requestParams = addOtherParamMap(methodName, version);
             return post(ropResponseClass, requestParams);
         }
-
 
         public <T> CompositeResponse<T> post(Object ropRequest, Class<T> ropResponseClass, String methodName, String version) throws IOException {
             Map<String, String> requestParams = getRequestForm(ropRequest, methodName, version);
             return post(ropResponseClass, requestParams);
         }
 
-        private <T> CompositeResponse<T> post(Class<T> ropResponseClass, Map<String, String> requestParams) throws ParseException, IOException {
-        	HttpPost httpPost = new HttpPost(serverUrl);
-        	httpPost.setEntity(toHttpEntity(requestParams));
-        	HttpResponse response = httpClient.execute(httpPost);
-        	if (logger.isDebugEnabled()) {
-                logger.debug("response:\n" + response);
-            }
-            String responseContent = EntityUtils.toString(response.getEntity());
-            return toCompositeResponse(responseContent, ropResponseClass);
+        private <T> CompositeResponse<T> post(Class<T> ropResponseClass, Map<String, String> requestParams) throws IOException {
+        	HttpResponse response = httpClient.post(headMap, serverUrl, requestParams);
+			if(response.isSuccessful()){
+				String responseContent = response.getString();
+				return toCompositeResponse(responseContent, ropResponseClass);
+			}
+			return new DefaultCompositeResponse<T>(false);
         }
 
 
@@ -279,27 +321,25 @@ public class DefaultRopClient implements RopClient {
             return get(ropResponseClass, requestParams);
         }
 
-
         public <T> CompositeResponse<T> get(Object ropRequest, Class<T> ropResponseClass, String methodName, String version) throws IOException {
             Map<String, String> requestParams = getRequestForm(ropRequest, methodName, version);
             return get(ropResponseClass, requestParams);
         }
 
         private <T> CompositeResponse<T> get(Class<T> ropResponseClass, Map<String, String> requestParams) throws IOException {
-        	HttpGet httpGet = new HttpGet(buildGetUrl(requestParams));
-        	HttpResponse response = httpClient.execute(httpGet);
-        	if (logger.isDebugEnabled()) {
-                logger.debug("response:\n" + response);
-            }
-            String responseContent = EntityUtils.toString(response.getEntity());
-            return toCompositeResponse(responseContent, ropResponseClass);
+        	HttpResponse response = httpClient.get(headMap, serverUrl, requestParams);
+			if(response.isSuccessful()){
+				String responseContent = response.getString();
+				return toCompositeResponse(responseContent, ropResponseClass);
+			}
+			return new DefaultCompositeResponse<T>(false);
         }
 
         private Map<String, String> addOtherParamMap(String methodName, String version) {
-            paramMap.put(SystemParameterNames.getMethod(), methodName);
-            paramMap.put(SystemParameterNames.getVersion(), version);
-            String signValue = RopUtils.sign(paramMap, ignoreSignParams, appSecret);
-            paramMap.put(SystemParameterNames.getSign(), signValue);
+            paramMap.put(DefaultRopClient.this.methodName, methodName);
+            paramMap.put(DefaultRopClient.this.versionName, version);
+            String signValue = DefaultRopClient.this.signHandler.sign(paramMap, ignoreSignParams);
+            paramMap.put(DefaultRopClient.this.signName, signValue);
             return paramMap;
         }
 
@@ -309,21 +349,20 @@ public class DefaultRopClient implements RopClient {
             }
             boolean successful = isSuccessful(content);
             DefaultCompositeResponse<T> compositeResponse = new DefaultCompositeResponse<T>(successful);
-
-            if (MessageFormat.json == messageFormat) {
+            if (MessageFormat.JSON == messageFormat) {
                 if (successful) {
-                    T ropResponse = jsonUnmarshaller.unmarshaller(content, ropResponseClass);
+                    T ropResponse = getJsonUnmarshaller().unmarshaller(content, ropResponseClass);
                     compositeResponse.setSuccessRopResponse(ropResponse);
                 } else {
-                    ErrorResponse errorResponse = jsonUnmarshaller.unmarshaller(content, ErrorResponse.class);
+                    ErrorResponse errorResponse = getJsonUnmarshaller().unmarshaller(content, ErrorResponse.class);
                     compositeResponse.setErrorResponse(errorResponse);
                 }
             } else {
                 if (successful) {
-                    T ropResponse = xmlUnmarshaller.unmarshaller(content, ropResponseClass);
+                    T ropResponse = getXmlUnmarshaller().unmarshaller(content, ropResponseClass);
                     compositeResponse.setSuccessRopResponse(ropResponse);
                 } else {
-                    ErrorResponse errorResponse = xmlUnmarshaller.unmarshaller(content, ErrorResponse.class);
+                    ErrorResponse errorResponse = getXmlUnmarshaller().unmarshaller(content, ErrorResponse.class);
                     compositeResponse.setErrorResponse(errorResponse);
                 }
             }
@@ -334,53 +373,27 @@ public class DefaultRopClient implements RopClient {
             return !(content.contains(CommonConstant.ERROR_TOKEN));
         }
 
-        private String buildGetUrl(Map<String, String> form) {
-            StringBuilder requestUrl = new StringBuilder();
-            requestUrl.append(serverUrl);
-            requestUrl.append("?");
-            String joinChar = "";
-            for (Map.Entry<String, String> entry : form.entrySet()) {
-                requestUrl.append(joinChar);
-                requestUrl.append(entry.getKey());
-                requestUrl.append("=");
-                requestUrl.append(entry.getValue());
-                joinChar = "&";
-            }
-            return requestUrl.toString();
-        }
-
         private Map<String, String> getRequestForm(Object ropRequest, String methodName, String version) throws IOException {
-
             Map<String, String> form = new LinkedHashMap<String, String>(16);
-
             //系统级参数
-            form.put(SystemParameterNames.getAppKey(), appKey);
-            form.put(SystemParameterNames.getMethod(), methodName);
-            form.put(SystemParameterNames.getVersion(), version);
-            form.put(SystemParameterNames.getFormat(), messageFormat.name());
-            form.put(SystemParameterNames.getLocale(), locale.toString());
+            form.put(DefaultRopClient.this.appKeyName, appKey);
+            form.put(DefaultRopClient.this.methodName, methodName);
+            form.put(DefaultRopClient.this.versionName, version);
+            form.put(DefaultRopClient.this.formatName, messageFormat.name());
+            form.put(DefaultRopClient.this.localeName, locale.toString());
             if (sessionId != null) {
-                form.put(SystemParameterNames.getSessionId(), sessionId);
+                form.put(DefaultRopClient.this.sessionIdName, sessionId);
             }
 
             //业务级参数
             form.putAll(getParamFields(ropRequest, messageFormat));
 
             //对请求进行签名
-            String signValue = sign(ropRequest.getClass(), appSecret, form);
-            form.put("sign", signValue);
+            String signValue = sign(ropRequest.getClass(), form);
+            form.put(DefaultRopClient.this.signName, signValue);
             return form;
         }
 
-        private HttpEntity toHttpEntity(Map<String, String> form) {
-            List<NameValuePair> list = new ArrayList<NameValuePair>(form.size());
-            for (Map.Entry<String, String> entry : form.entrySet()) {
-                list.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-            }
-            EntityBuilder builder = EntityBuilder.create();
-            builder.setParameters(list);
-            return builder.build();
-        }
 
         /**
          * 对请求参数进行签名
@@ -390,9 +403,9 @@ public class DefaultRopClient implements RopClient {
          * @param form
          * @return
          */
-        private String sign(Class<?> ropRequestClass, String appSecret, Map<String, String> form) {
+        private String sign(Class<?> ropRequestClass, Map<String, String> form) {
             List<String> ignoreFieldNames = requestIgnoreSignFieldNames.get(ropRequestClass);
-            return RopUtils.sign(form, ignoreFieldNames, appSecret);
+            return DefaultRopClient.this.signHandler.sign(form, ignoreFieldNames);
         }
 
         /**
@@ -429,17 +442,8 @@ public class DefaultRopClient implements RopClient {
                     if (convertor != null) {//有对应转换器
                         String strParamValue = (String) convertor.unconvert(fieldValue);
                         params.put(field.getName(), strParamValue);
-                    } else if (field.getType().isAnnotationPresent(XmlRootElement.class) ||
-                            field.getType().isAnnotationPresent(XmlType.class)) {
-                        String message;
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        if(MessageFormat.json == mf){
-                        	jsonMarshaller.marshaller(fieldValue, baos);
-                        	message = baos.toString("UTF-8");
-                        }else{
-                        	xmlMarshaller.marshaller(fieldValue, baos);
-                        	message = baos.toString("UTF-8");
-                        }
+                    } else if (!field.getType().isPrimitive()) {
+                        String message = marshaller(fieldValue, mf);
                         params.put(field.getName(), message);
                     } else {
                         params.put(field.getName(), fieldValue.toString());
@@ -448,24 +452,36 @@ public class DefaultRopClient implements RopClient {
             }
             return params;
         }
-    }
-
-    private RopConverter<String, ?> getConvertor(Class<?> fieldType) {
-        for (Class<?> aClass : ropConverterMap.keySet()) {
-            if (ClassUtils.isAssignable(aClass, fieldType)) {
-                return ropConverterMap.get(aClass);
-            }
-        }
-        return null;
-    }
-
-    private void parseRopRequestClass(Object ropRequest) {
-        List<Field> allFields = ReflectionUtils.getFields(ropRequest.getClass());
-        List<String> ignoreSignFieldNames = ReflectionUtils.getIgnoreSignFieldNames(ropRequest.getClass());
         
-        requestAllFields.put(ropRequest.getClass(), allFields);
-        requestIgnoreSignFieldNames.put(ropRequest.getClass(), ignoreSignFieldNames);
-    }
 
+        private String marshaller(Object value, MessageFormat mf) throws IOException{
+        	 ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        	 String message;
+             if(MessageFormat.JSON == mf){
+             	getJsonMarshaller().marshaller(value, baos);
+             	message = baos.toString("UTF-8");
+             }else{
+             	getXmlMarshaller().marshaller(value, baos);
+             	message = baos.toString("UTF-8");
+             }
+             return message;
+        }
+
+        private RopConverter<String, ?> getConvertor(Class<?> fieldType) {
+            for (Map.Entry<Class<?>,RopConverter<String,?>> entry : ropConverterMap.entrySet()) {
+                if (ClassUtils.isAssignable(entry.getKey(), fieldType)) {
+                    return entry.getValue();
+                }
+            }
+            return null;
+        }
+
+        private void parseRopRequestClass(Object ropRequest) {
+            List<Field> allFields = ReflectionUtils.getFields(ropRequest.getClass());
+            List<String> ignoreSignFieldNames = ReflectionUtils.getIgnoreSignFieldNames(ropRequest.getClass());
+            requestAllFields.put(ropRequest.getClass(), allFields);
+            requestIgnoreSignFieldNames.put(ropRequest.getClass(), ignoreSignFieldNames);
+        }
+    }
 }
 

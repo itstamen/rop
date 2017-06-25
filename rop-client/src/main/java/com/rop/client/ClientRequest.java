@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,20 @@ import java.io.IOException;
  * @version 1.0
  */
 public interface ClientRequest {
+	
+	/**
+	 * 设置http请求头信息
+	 * @param name
+	 * @param value
+	 * @return ClientRequest
+	 */
+	ClientRequest setHeader(String name, String value);
 
     /**
      * 添加请求参数,默认需要签名，如果类已经标注了{@link com.rop.annotation.IgnoreSign}则始终不加入签名
      * @param paramName
      * @param paramValue
-     * @return
+     * @return ClientRequest
      */
     ClientRequest addParam(String paramName,Object paramValue);
 
@@ -40,13 +48,13 @@ public interface ClientRequest {
      * @param paramName
      * @param paramValue
      * @param needSign
-     * @return
+     * @return ClientRequest
      */
     ClientRequest addParam(String paramName,Object paramValue,boolean needSign);
 
     /**
      * 清除参数列表
-     * @return
+     * @return ClientRequest
      */
     ClientRequest clearParam();
 
@@ -56,7 +64,7 @@ public interface ClientRequest {
      * @param methodName
      * @param version
      * @param <T>
-     * @return
+     * @return CompositeResponse
      */
     <T> CompositeResponse<T> post(Class<T> ropResponseClass, String methodName, String version) throws IOException;
 
@@ -67,7 +75,7 @@ public interface ClientRequest {
      * @param methodName
      * @param version
      * @param <T>
-     * @return
+     * @return CompositeResponse
      */
     <T> CompositeResponse<T> post(Object ropRequest, Class<T> ropResponseClass, String methodName, String version) throws IOException;
 
@@ -77,7 +85,7 @@ public interface ClientRequest {
      * @param methodName
      * @param version
      * @param <T>
-     * @return
+     * @return CompositeResponse
      */
     <T> CompositeResponse<T> get(Class<T> ropResponseClass, String methodName, String version) throws IOException;
 
@@ -88,7 +96,7 @@ public interface ClientRequest {
      * @param methodName
      * @param version
      * @param <T>
-     * @return
+     * @return CompositeResponse
      */
     <T> CompositeResponse<T> get(Object ropRequest, Class<T> ropResponseClass, String methodName, String version) throws IOException;
 }

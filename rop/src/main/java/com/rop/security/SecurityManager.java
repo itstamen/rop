@@ -18,6 +18,7 @@ package com.rop.security;
 import com.rop.RopRequestContext;
 import com.rop.response.MainError;
 import com.rop.session.SessionManager;
+import com.rop.sign.SignHandler;
 
 /**
  * <pre>
@@ -58,6 +59,12 @@ public interface SecurityManager {
      * @return
      */
     void setAppSecretManager(AppSecretManager appSecretManager);
+    
+    /**
+     * 设置签名处理接口对象
+     * @param signHandler
+     */
+    void setSignHandler(SignHandler signHandler);
 
     /**
      * 设置会话管理器，以验证会话的合法性

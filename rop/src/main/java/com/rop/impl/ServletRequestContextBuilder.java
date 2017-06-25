@@ -142,6 +142,8 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
     			args[i] = ropRequestContext.getRopContext();
     		}else if(HttpServletResponse.class.isAssignableFrom(clazz)){
     			args[i] = ropRequestContext.getRopResponse();
+    		}else if(RopRequest.class.equals(clazz) || AbstractRopRequest.class.equals(clazz)){
+    			args[i] = new DefaultRopRequest();
     		}else{
     			BindingResult bindingResult = doBind(request, clazz);
     			args[i] = buildRopRequestFromBindingResult(ropRequestContext, bindingResult);
@@ -159,7 +161,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
     private String getFormat(HttpServletRequest servletRequest) {
         String messageFormat = servletRequest.getParameter(SystemParameterNames.getFormat());
         if (messageFormat == null) {
-            return MessageFormat.xml.name();
+            return MessageFormat.XML.name();
         } else {
             return messageFormat;
         }
@@ -200,7 +202,7 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
         if (MessageFormat.isValidFormat(messageFormat)) {
             return MessageFormat.getFormat(messageFormat);
         } else {
-            return MessageFormat.xml;
+            return MessageFormat.XML;
         }
     }
 
@@ -213,15 +215,15 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
     }
 
     private HashMap<String, String> getRequestParams(HttpServletRequest request) {
-        @SuppressWarnings("rawtypes")
-		Map srcParamMap = request.getParameterMap();
+        @SuppressWarnings("unchecked")
+		Map<String, String[]> srcParamMap = request.getParameterMap();
         HashMap<String, String> destParamMap = new HashMap<String, String>(srcParamMap.size());
-        for (Object obj : srcParamMap.keySet()) {
-            String[] values = (String[]) srcParamMap.get(obj);
+        for (Map.Entry<String, String[]> entry : srcParamMap.entrySet()) {
+            String[] values = entry.getValue();
             if (values != null && values.length > 0) {
-                destParamMap.put((String) obj, values[0]);
+                destParamMap.put(entry.getKey(), values[0]);
             } else {
-                destParamMap.put((String) obj, null);
+                destParamMap.put(entry.getKey(), null);
             }
         }
         return destParamMap;
@@ -248,6 +250,10 @@ public class ServletRequestContextBuilder implements RequestContextBuilder {
 
     public FormattingConversionService getFormattingConversionService() {
         return conversionService;
+    }
+    
+    //默认的{@link RopRequest}实现类
+    private class DefaultRopRequest extends AbstractRopRequest {
     }
 }
 

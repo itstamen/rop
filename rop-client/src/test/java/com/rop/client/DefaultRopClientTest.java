@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.rop.client;
 
 import org.junit.Test;
 
+import com.rop.client.sign.DigestSignHandler;
 import com.rop.response.CommonRopResponse;
 
 /**
@@ -29,10 +30,11 @@ import com.rop.response.CommonRopResponse;
  */
 public class DefaultRopClientTest {
 
-    private RopClient ropClient = new DefaultRopClient("http://localhost:8088/router", "00001", "abcdeabcdeabcdeabcdeabcde");
+    private RopClient ropClient = new DefaultRopClient("http://localhost:8088/router", "00001");
 
     @Test
     public void testPostWithSession() throws Exception {
+    	ropClient.setSignHandler(new DigestSignHandler("SHA-1", "abcdeabcdeabcdeabcdeabcde"));
     	ClientRequest request = ropClient.buildClientRequest();
     	CompositeResponse<CommonRopResponse> response = request.get(CommonRopResponse.class, "logout", "1.0");
     	response.isSuccessful();
